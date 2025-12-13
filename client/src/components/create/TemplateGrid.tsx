@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAssets } from '@/lib/AssetContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 // Assets
 import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.png';
@@ -290,6 +292,7 @@ const templates = [
 
 export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: TemplateGridProps) {
   const { assets } = useAssets();
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const uploadedTypes = new Set(assets.map(a => a.type));
 
   // Filter templates based on required assets
@@ -400,6 +403,21 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
                         </span>
                      )}
                    </div>
+
+                   {/* Preview Button */}
+                   <div className="absolute bottom-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="h-8 w-8 p-0 rounded-full shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewTemplateId(template.id);
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                   </div>
                 </div>
                 
                 <div className="p-4 flex flex-col flex-1">
@@ -438,6 +456,69 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
           })}
         </div>
       )}
+
+      {/* Preview Dialog */}
+      <Dialog open={!!previewTemplateId} onOpenChange={(open) => !open && setPreviewTemplateId(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {templates.find(t => t.id === previewTemplateId)?.title}
+              <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground border">
+                {templates.find(t => t.id === previewTemplateId)?.category}
+              </span>
+            </DialogTitle>
+            <DialogDescription>
+              {templates.find(t => t.id === previewTemplateId)?.description}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="relative aspect-video rounded-lg overflow-hidden border bg-black/5 mt-2">
+            {previewTemplateId && (
+              <img 
+                src={templates.find(t => t.id === previewTemplateId)?.image} 
+                className="w-full h-full object-contain"
+                alt="Preview"
+              />
+            )}
+            
+             {/* Overlay Assets on Preview too */}
+             {assets.length > 0 && previewTemplateId && (
+               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  {/* Logo overlay logic similar to card but larger */}
+                  {templates.find(t => t.id === previewTemplateId)?.compatibility.includes('logo') && assets.some(a => a.type === 'logo') && (
+                    <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 transform scale-150">
+                       <img 
+                        src={assets.find(a => a.type === 'logo')?.previewUrl} 
+                        className="h-20 w-auto object-contain drop-shadow-2xl" 
+                      />
+                    </div>
+                  )}
+               </div>
+             )}
+          </div>
+
+          <DialogFooter className="gap-2 sm:justify-between">
+             <div className="flex gap-2">
+                {templates.find(t => t.id === previewTemplateId)?.compatibility.map(type => (
+                  <span key={type} className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground capitalize">
+                    {type} Compatible
+                  </span>
+                ))}
+             </div>
+             <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setPreviewTemplateId(null)}>Close</Button>
+                <Button onClick={() => {
+                  if (previewTemplateId) {
+                    onSelect(previewTemplateId);
+                    setPreviewTemplateId(null);
+                  }
+                }}>
+                  Select This Template
+                </Button>
+             </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
