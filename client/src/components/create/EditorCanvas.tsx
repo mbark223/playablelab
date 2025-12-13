@@ -1,31 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
+import { useAssets } from '@/lib/AssetContext';
 
 // Assets
 import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.png';
 import slotsBg from '@assets/generated_images/slot_machine_mobile_ui_background.png';
 import symbol7 from '@assets/generated_images/slot_machine_symbol_7.png';
-import symbolCherry from '@assets/generated_images/slot_machine_symbol_cherry.png';
-import symbolBell from '@assets/generated_images/slot_machine_symbol_bell.png';
 import symbolDiamond from '@assets/generated_images/slot_machine_symbol_diamond.png';
+import symbolBell from '@assets/generated_images/slot_machine_symbol_bell.png';
+import symbolCherry from '@assets/generated_images/slot_machine_symbol_cherry.png';
 import chipRed from '@assets/generated_images/poker_chip_red.png';
 import chipBlue from '@assets/generated_images/poker_chip_blue.png';
 import casinoLogo from '@assets/generated_images/casino_logo_placeholder.png';
 
 export default function EditorCanvas() {
+  const { assets, getAssetsByType } = useAssets();
   const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [activeTab, setActiveTab] = useState('assets');
   
-  // Customization State
+  // Customization State - Initialized with default assets, but will override with uploaded ones
   const [headline, setHeadline] = useState("MEGA JACKPOT");
   const [ctaText, setCtaText] = useState("SPIN NOW");
   const [logo, setLogo] = useState(casinoLogo);
+  const [customSymbols, setCustomSymbols] = useState<string[]>([]);
+  const [background, setBackground] = useState(slotsBg);
+
+  // Auto-populate from uploaded assets
+  useEffect(() => {
+    const logos = getAssetsByType('logo');
+    if (logos.length > 0) setLogo(logos[0].previewUrl);
+
+    const bgs = getAssetsByType('background');
+    if (bgs.length > 0) setBackground(bgs[0].previewUrl);
+
+    const symbols = getAssetsByType('symbol');
+    if (symbols.length > 0) {
+      setCustomSymbols(symbols.map(s => s.previewUrl));
+    }
+  }, [assets]);
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
@@ -57,20 +75,35 @@ export default function EditorCanvas() {
                     <span className="text-xs text-white font-medium">Click to replace</span>
                   </div>
                 </div>
+                {getAssetsByType('logo').length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {getAssetsByType('logo').map(asset => (
+                      <div key={asset.id} onClick={() => setLogo(asset.previewUrl)} className="h-10 w-10 border rounded bg-white p-1 cursor-pointer hover:border-primary shrink-0">
+                        <img src={asset.previewUrl} className="w-full h-full object-contain" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">
                 <label className="text-sm font-medium">Background Theme</label>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="aspect-[9/16] rounded-md border-2 border-primary overflow-hidden relative cursor-pointer">
+                  <div 
+                    onClick={() => setBackground(slotsBg)}
+                    className={cn("aspect-[9/16] rounded-md border-2 overflow-hidden relative cursor-pointer", background === slotsBg ? "border-primary" : "border-transparent")}
+                  >
                     <img src={slotsBg} className="w-full h-full object-cover" />
-                    <div className="absolute top-2 right-2 bg-primary rounded-full p-1">
-                      <Check className="h-3 w-3 text-primary-foreground" />
+                  </div>
+                  {getAssetsByType('background').map(asset => (
+                    <div 
+                      key={asset.id}
+                      onClick={() => setBackground(asset.previewUrl)}
+                      className={cn("aspect-[9/16] rounded-md border-2 overflow-hidden relative cursor-pointer", background === asset.previewUrl ? "border-primary" : "border-transparent")}
+                    >
+                      <img src={asset.previewUrl} className="w-full h-full object-cover" />
                     </div>
-                  </div>
-                  <div className="aspect-[9/16] rounded-md border border-border bg-muted/50 flex items-center justify-center cursor-pointer hover:border-primary/50">
-                    <span className="text-xs text-muted-foreground">+ Upload</span>
-                  </div>
+                  ))}
                 </div>
               </div>
             </TabsContent>
@@ -82,8 +115,14 @@ export default function EditorCanvas() {
                   High Value Symbols
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {[symbol7, symbolDiamond, symbolBell].map((sym, i) => (
+                  {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
                     <div key={i} className="aspect-square rounded-md border border-border bg-background p-2 flex items-center justify-center cursor-pointer hover:border-primary">
+                      <img src={sym} className="w-full h-full object-contain drop-shadow-lg" />
+                    </div>
+                  ))}
+                  {/* Fill remaining slots if custom symbols exist but are fewer than 3 */}
+                  {customSymbols.length > 0 && customSymbols.length < 3 && [symbol7, symbolDiamond, symbolBell].slice(customSymbols.length, 3).map((sym, i) => (
+                    <div key={`default-${i}`} className="aspect-square rounded-md border border-border bg-background p-2 flex items-center justify-center cursor-pointer hover:border-primary opacity-50">
                       <img src={sym} className="w-full h-full object-contain drop-shadow-lg" />
                     </div>
                   ))}
@@ -193,7 +232,7 @@ export default function EditorCanvas() {
             <div className="absolute inset-0 bg-black">
               {/* Background */}
               <img 
-                src={slotsBg} 
+                src={background} 
                 className="absolute inset-0 w-full h-full object-cover opacity-90" 
                 alt="Casino Background" 
               />
@@ -220,7 +259,7 @@ export default function EditorCanvas() {
                     
                     {/* Reels Container */}
                     <div className="w-full h-full bg-white/5 rounded grid grid-cols-3 gap-1 p-1">
-                      {[symbol7, symbolDiamond, symbolBell].map((sym, i) => (
+                      {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
                         <div key={i} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
                           <div className={cn("absolute inset-0 flex flex-col items-center justify-center", isPlaying ? "animate-pulse blur-sm" : "")}>
                              <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
