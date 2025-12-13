@@ -49,6 +49,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
   
+  // Advanced Settings
+  const [slotRows, setSlotRows] = useState(1); // 1 = 3x1 (classic), 3 = 3x3 (video slot)
+  const [textColor, setTextColor] = useState('#ffffff');
+  const [subheadline, setSubheadline] = useState('');
+
   // End Card Settings
   const [endCardHeadline, setEndCardHeadline] = useState("YOU WON!");
   const [endCardSubtext, setEndCardSubtext] = useState("$500 BONUS + 50 SPINS");
@@ -225,6 +230,31 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                 {editorMode === 'slots' && (
                   <>
+                    <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border mt-4">
+                       <div className="flex justify-between items-center">
+                         <label className="text-xs font-medium text-muted-foreground">Grid Layout</label>
+                         <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">3 x {slotRows}</span>
+                       </div>
+                       <div className="flex gap-2">
+                         <Button 
+                           variant={slotRows === 1 ? "default" : "outline"} 
+                           size="sm" 
+                           className="flex-1 text-xs"
+                           onClick={() => setSlotRows(1)}
+                         >
+                           3x1 Classic
+                         </Button>
+                         <Button 
+                           variant={slotRows === 3 ? "default" : "outline"} 
+                           size="sm" 
+                           className="flex-1 text-xs"
+                           onClick={() => setSlotRows(3)}
+                         >
+                           3x3 Video
+                         </Button>
+                       </div>
+                    </div>
+
                     <label className="text-sm font-medium flex items-center gap-2 mt-6">
                       <Crown className="h-4 w-4 text-yellow-500" />
                       High Value Symbols
@@ -257,6 +287,18 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-display font-bold tracking-wide"
                 />
               </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Subheadline (Optional)</label>
+                <input 
+                  type="text" 
+                  value={subheadline}
+                  onChange={(e) => setSubheadline(e.target.value)}
+                  placeholder="e.g. JOIN THE FUN"
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-medium"
+                />
+              </div>
+
               <div className="space-y-3">
                 <label className="text-sm font-medium">CTA Button Text</label>
                 <input 
@@ -265,6 +307,25 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   onChange={(e) => setCtaText(e.target.value)}
                   className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-bold uppercase"
                 />
+              </div>
+
+              <div className="space-y-3">
+                 <label className="text-sm font-medium flex items-center gap-2">
+                   <Palette className="h-4 w-4" /> Text Color
+                 </label>
+                 <div className="flex gap-2">
+                   {['#ffffff', '#fbbf24', '#ef4444', '#3b82f6', '#10b981', '#000000'].map(color => (
+                     <div 
+                       key={color}
+                       onClick={() => setTextColor(color)}
+                       className={cn(
+                         "h-8 w-8 rounded-full cursor-pointer border-2 transition-transform hover:scale-110",
+                         textColor === color ? "border-primary ring-2 ring-primary/30" : "border-transparent"
+                       )}
+                       style={{ backgroundColor: color }}
+                     />
+                   ))}
+                 </div>
               </div>
             </TabsContent>
 
@@ -468,12 +529,23 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                   {/* === MODE: SLOTS === */}
                   {editorMode === 'slots' && (
-                    <div className="w-[90%] aspect-[4/3] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1">
+                    <div className={cn(
+                      "w-[90%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
+                      slotRows === 3 ? "aspect-[3/4]" : "aspect-[4/3]"
+                    )}>
                       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
                       
                       {/* Reels Container */}
-                      <div className="w-full h-full bg-white/5 rounded grid grid-cols-3 gap-1 p-1">
-                        {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
+                      <div className={cn(
+                        "w-full h-full bg-white/5 rounded grid gap-1 p-1",
+                        "grid-cols-3" // Always 3 columns
+                      )}>
+                        {Array.from({ length: 3 * slotRows }).map((_, i) => {
+                          const colIndex = i % 3;
+                          const symbols = (customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]);
+                          const sym = symbols[colIndex % symbols.length];
+                          
+                          return (
                           <div key={i} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
                             <div 
                               className={cn(
@@ -494,7 +566,8 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                             )}
                             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50" />
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                       
                       {/* Payline */}
@@ -547,9 +620,19 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   
                   {/* Headline */}
                   {visibleElements.headline && (
-                    <h2 className="text-3xl font-display font-black text-white text-center uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4">
-                      {headline}
-                    </h2>
+                    <div className="text-center space-y-2 z-20">
+                      <h2 
+                        className="text-3xl font-display font-black text-white text-center uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4"
+                        style={{ color: textColor }}
+                      >
+                        {headline}
+                      </h2>
+                      {subheadline && (
+                        <p className="text-sm font-bold text-white/90 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm inline-block tracking-wider animate-pulse border border-white/10">
+                          {subheadline}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
 
