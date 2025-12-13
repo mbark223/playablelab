@@ -31,6 +31,8 @@ export default function EditorCanvas() {
   const [customSymbols, setCustomSymbols] = useState<string[]>([]);
   const [background, setBackground] = useState(slotsBg);
   const [spins, setSpins] = useState(5);
+  const [currentSpins, setCurrentSpins] = useState(5);
+  const [isReelSpinning, setIsReelSpinning] = useState(false);
 
   // Auto-populate from uploaded assets
   useEffect(() => {
@@ -45,6 +47,27 @@ export default function EditorCanvas() {
       setCustomSymbols(symbols.map(s => s.previewUrl));
     }
   }, [assets]);
+
+  // Reset current spins when entering preview mode
+  useEffect(() => {
+    if (isPlaying) {
+      setCurrentSpins(spins);
+    } else {
+      setIsReelSpinning(false);
+    }
+  }, [isPlaying, spins]);
+
+  const handleSpin = () => {
+    if (!isPlaying || currentSpins <= 0 || isReelSpinning) return;
+
+    setIsReelSpinning(true);
+    setCurrentSpins(prev => prev - 1);
+
+    // Simulate spin duration
+    setTimeout(() => {
+      setIsReelSpinning(false);
+    }, 2000);
+  };
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
@@ -296,9 +319,26 @@ export default function EditorCanvas() {
                     <div className="w-full h-full bg-white/5 rounded grid grid-cols-3 gap-1 p-1">
                       {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
                         <div key={i} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
-                          <div className={cn("absolute inset-0 flex flex-col items-center justify-center", isPlaying ? "animate-pulse blur-sm" : "")}>
+                          <div 
+                            className={cn(
+                              "absolute inset-0 flex flex-col items-center justify-center transition-all duration-100", 
+                              isReelSpinning ? "blur-md translate-y-[100%] animate-spin-blur" : "translate-y-0"
+                            )}
+                            style={{ 
+                              animation: isReelSpinning ? `spin 0.2s linear infinite` : 'none',
+                              animationDelay: `${i * 0.1}s` 
+                            }}
+                          >
                              <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
+                             {/* Duplicate for seamless loop illusion if we were doing complex CSS, but fast blur is enough for mockup */}
                           </div>
+                          {/* Static version visible when not spinning to prevent empty flash */}
+                          {!isReelSpinning && (
+                             <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
+                             </div>
+                          )}
+                          
                           {/* Shine effect */}
                           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50" />
                         </div>
@@ -318,17 +358,29 @@ export default function EditorCanvas() {
                 {/* Footer Controls */}
                 <div className="pb-12 pt-4 px-6 flex flex-col items-center gap-4 bg-gradient-to-t from-black/90 to-transparent">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="bg-black/80 backdrop-blur border border-white/20 px-3 py-1 rounded text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 shadow-lg">
-                      <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                      {spins} Free Spins
+                    <div className={cn(
+                      "backdrop-blur border px-3 py-1 rounded text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg transition-colors",
+                      currentSpins > 0 ? "bg-black/80 border-white/20 text-white" : "bg-red-500/90 border-red-400 text-white"
+                    )}>
+                      {currentSpins > 0 && <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />}
+                      {currentSpins} Free Spins {currentSpins === 0 && "Left"}
                     </div>
                   </div>
 
                   <Button 
                     size="lg" 
-                    className="w-full max-w-[280px] h-14 text-xl font-black rounded-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 border-b-4 border-yellow-700 shadow-[0_0_25px_rgba(255,215,0,0.4)] hover:scale-105 transition-transform active:scale-95 active:border-b-0 translate-y-0 text-yellow-950 animate-pulse"
+                    onClick={handleSpin}
+                    disabled={!isPlaying || currentSpins <= 0 || isReelSpinning}
+                    className={cn(
+                      "w-full max-w-[280px] h-14 text-xl font-black rounded-full border-b-4 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all",
+                      !isPlaying 
+                        ? "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50"
+                        : currentSpins > 0
+                          ? "bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 border-yellow-700 hover:scale-105 active:scale-95 active:border-b-0 translate-y-0 text-yellow-950 animate-pulse"
+                          : "bg-gray-700 border-gray-800 text-gray-400 cursor-not-allowed"
+                    )}
                   >
-                    {ctaText}
+                    {currentSpins > 0 ? ctaText : "No Spins Left"}
                   </Button>
                   <p className="text-[10px] text-white/40 font-medium text-center max-w-[200px] leading-tight">
                     No Purchase Necessary. 18+. T&Cs Apply.
