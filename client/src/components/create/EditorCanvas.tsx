@@ -44,8 +44,13 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [logo, setLogo] = useState(casinoLogo);
   // Initialize with defaults so we can always edit indices 0, 1, 2
   const [customSymbols, setCustomSymbols] = useState<string[]>([symbol7, symbolDiamond, symbolBell]);
+  
+  // Grid State - stores the symbol URL for each cell in the grid
+  const [gridSymbols, setGridSymbols] = useState<Record<string, string>>({});
+  const [activeCell, setActiveCell] = useState<{row: number, col: number} | null>(null);
+
   const [activeSymbolIndex, setActiveSymbolIndex] = useState<number | null>(null);
-  const [uploadTarget, setUploadTarget] = useState<'symbol' | 'endCardBg' | 'endCardImage' | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [background, setBackground] = useState(slotsBg);
@@ -94,6 +99,16 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   }, [assets]);
 
   const handleSymbolUpdate = (newUrl: string) => {
+    // Handle grid cell update
+    if (activeCell) {
+      setGridSymbols(prev => ({
+        ...prev,
+        [`${activeCell.row}-${activeCell.col}`]: newUrl
+      }));
+      // Don't close immediately to allow rapid testing
+      return;
+    }
+
     if (activeSymbolIndex === null) return;
     
     const newSymbols = [...customSymbols];
@@ -115,7 +130,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
       const file = e.target.files[0];
       const previewUrl = URL.createObjectURL(file);
       
-      if (uploadTarget === 'symbol') {
+      if (uploadTarget === 'symbol' || uploadTarget === 'gridCell') {
         handleSymbolUpdate(previewUrl);
       } else if (uploadTarget === 'endCardBg') {
         setEndCardBackground(previewUrl);
@@ -128,7 +143,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     }
   };
 
-  const triggerUpload = (target: 'symbol' | 'endCardBg' | 'endCardImage') => {
+  const triggerUpload = (target: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell') => {
     setUploadTarget(target);
     fileInputRef.current?.click();
   };
@@ -360,9 +375,73 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        )}
                     </div>
 
+                    <div className="mt-6 border-t border-border pt-4">
+                      <label className="text-sm font-medium flex items-center gap-2 mb-2">
+                        <LayoutTemplate className="h-4 w-4 text-primary" />
+                        Cell Customization
+                      </label>
+                      <p className="text-xs text-muted-foreground mb-3">Click on any cell in the preview grid to change its specific symbol.</p>
+                      
+                      {activeCell ? (
+                        <div className="p-3 bg-primary/5 rounded-lg border border-primary/20 animate-in fade-in">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs font-bold text-primary">Editing Cell {activeCell.row + 1}x{activeCell.col + 1}</span>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setActiveCell(null)}>
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-5 gap-2 max-h-[150px] overflow-y-auto p-1 custom-scrollbar">
+                            {/* Defaults + Current Grid Symbol */}
+                            {[
+                               gridSymbols[`${activeCell.row}-${activeCell.col}`] || symbol7,
+                               symbol7, symbolDiamond, symbolBell, symbolCherry, chipRed, chipBlue
+                             ].filter((v, i, a) => a.indexOf(v) === i).map((s, i) => (
+                              <div 
+                                key={`cell-opt-${i}`}
+                                onClick={() => handleSymbolUpdate(s)}
+                                className={cn(
+                                  "aspect-square rounded border bg-white p-1 cursor-pointer hover:scale-110 transition-transform",
+                                  gridSymbols[`${activeCell.row}-${activeCell.col}`] === s ? "border-primary ring-1 ring-primary" : "border-transparent"
+                                )}
+                              >
+                                <img src={s} className="w-full h-full object-contain" />
+                              </div>
+                            ))}
+                            
+                            {/* User Uploads */}
+                            {getAssetsByType('symbol').map((asset) => (
+                               <div 
+                                 key={asset.id}
+                                 onClick={() => handleSymbolUpdate(asset.previewUrl)}
+                                 className={cn(
+                                   "aspect-square rounded border bg-white p-1 cursor-pointer hover:scale-110 transition-transform",
+                                   gridSymbols[`${activeCell.row}-${activeCell.col}`] === asset.previewUrl ? "border-primary ring-1 ring-primary" : "border-transparent"
+                                 )}
+                               >
+                                 <img src={asset.previewUrl} className="w-full h-full object-contain" />
+                               </div>
+                            ))}
+
+                            {/* Upload Button */}
+                            <div 
+                              onClick={() => triggerUpload('gridCell')}
+                              className="aspect-square rounded border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-muted/30 rounded-lg border border-border border-dashed text-center">
+                          <span className="text-xs text-muted-foreground">No cell selected</span>
+                        </div>
+                      )}
+                    </div>
+
                     <label className="text-sm font-medium flex items-center gap-2 mt-6">
                       <Crown className="h-4 w-4 text-yellow-500" />
-                      High Value Symbols
+                      Global High Value Symbols
                     </label>
                     <p className="text-xs text-muted-foreground mb-2">Click a symbol to replace it.</p>
                     
@@ -846,35 +925,52 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                         )}
                         style={{ gridTemplateColumns: `repeat(${slotCols}, minmax(0, 1fr))` }}
                       >
-                        {/* Generate items based on rows x cols */}
-                        {Array.from({ length: slotCols * slotRows }).map((_, index) => {
-                          const colIndex = index % slotCols; 
-                          const symbols = (customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]);
-                          const sym = symbols[colIndex % symbols.length]; // cycle through symbols per column
-                          
-                          return (
-                          <div key={index} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
-                            <div 
-                              className={cn(
-                                "absolute inset-0 flex flex-col items-center justify-center transition-all duration-100", 
-                                isReelSpinning ? "blur-md translate-y-[100%] animate-spin-blur" : "translate-y-0"
-                              )}
-                              style={{ 
-                                animation: isReelSpinning ? `spin 0.2s linear infinite` : 'none',
-                                animationDelay: `${colIndex * 0.1}s` 
-                              }}
-                            >
-                               <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
-                            </div>
-                            {!isReelSpinning && (
-                               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                  <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
-                               </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50" />
+                        {Array.from({ length: slotCols }).map((_, colIndex) => (
+                          <div key={`col-${colIndex}`} className="flex flex-col gap-1 h-full overflow-hidden relative">
+                             {/* Reel Strip Animation */}
+                             <div className={cn(
+                               "flex flex-col gap-1 w-full h-full",
+                               isReelSpinning && "animate-spin-reel"
+                             )}
+                             style={{ animationDelay: `${colIndex * 100}ms` }}
+                             >
+                               {Array.from({ length: slotRows }).map((_, rowIndex) => {
+                                 // Determine symbol source: Specific cell override OR random default
+                                 const cellKey = `${rowIndex}-${colIndex}`;
+                                 const hasOverride = gridSymbols[cellKey];
+                                 const defaultSymbol = customSymbols[(colIndex + rowIndex) % customSymbols.length]; // Fallback pattern
+                                 
+                                 return (
+                                   <div 
+                                     key={`cell-${rowIndex}-${colIndex}`} 
+                                     className={cn(
+                                       "bg-white rounded border-2 border-slate-200 flex items-center justify-center p-2 shadow-inner relative group cursor-pointer hover:border-primary transition-colors flex-1 min-h-0",
+                                       activeCell?.row === rowIndex && activeCell?.col === colIndex ? "border-primary ring-2 ring-primary z-10" : ""
+                                     )}
+                                     onClick={() => {
+                                       setActiveCell({ row: rowIndex, col: colIndex });
+                                       setActiveTab('game'); // Ensure game tab is open
+                                     }}
+                                   >
+                                     <img 
+                                       src={hasOverride || defaultSymbol} 
+                                       className={cn(
+                                         "w-full h-full object-contain drop-shadow-md transition-all duration-300",
+                                         isReelSpinning && "blur-[2px]"
+                                       )}
+                                     />
+                                     {/* Hover indicator */}
+                                     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded">
+                                        <div className="bg-primary text-primary-foreground p-1 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform">
+                                          <Palette className="h-3 w-3" />
+                                        </div>
+                                     </div>
+                                   </div>
+                                 );
+                               })}
+                             </div>
                           </div>
-                          );
-                        })}
+                        ))}
                       </div>
                       
                       {/* Payline */}
