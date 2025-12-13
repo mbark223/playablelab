@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
@@ -18,8 +18,14 @@ import symbolCherry from '@assets/generated_images/slot_machine_symbol_cherry.pn
 import chipRed from '@assets/generated_images/poker_chip_red.png';
 import chipBlue from '@assets/generated_images/poker_chip_blue.png';
 import casinoLogo from '@assets/generated_images/casino_logo_placeholder.png';
+import wheelImg from '@assets/generated_images/wheel_of_fortune.png';
+import scratchImg from '@assets/generated_images/scratch_card_game.png';
 
-export default function EditorCanvas() {
+interface EditorCanvasProps {
+  templateId?: string | null;
+}
+
+export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const { assets, getAssetsByType } = useAssets();
   const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -27,9 +33,13 @@ export default function EditorCanvas() {
   const [activeTab, setActiveTab] = useState('assets');
   const [viewMode, setViewMode] = useState<'game' | 'endcard'>('game');
   
+  // Determine Editor Mode based on templateId
+  const editorMode = templateId?.includes('wheel') ? 'wheel' : 
+                     templateId?.includes('scratch') ? 'scratch' : 'slots';
+
   // Customization State
   const [headline, setHeadline] = useState("MEGA JACKPOT");
-  const [ctaText, setCtaText] = useState("SPIN NOW");
+  const [ctaText, setCtaText] = useState(editorMode === 'wheel' ? "SPIN WHEEL" : editorMode === 'scratch' ? "SCRATCH NOW" : "SPIN NOW");
   const [logo, setLogo] = useState(casinoLogo);
   const [customSymbols, setCustomSymbols] = useState<string[]>([]);
   const [background, setBackground] = useState(slotsBg);
@@ -79,17 +89,18 @@ export default function EditorCanvas() {
     }
   }, [isPlaying, spins]);
 
-  const handleSpin = () => {
+  // Handle Game Interaction
+  const handleInteraction = () => {
     if (!isPlaying || currentSpins <= 0 || isReelSpinning) return;
 
     setIsReelSpinning(true);
     setCurrentSpins(prev => prev - 1);
 
-    // Simulate spin duration
+    // Simulate duration
     setTimeout(() => {
       setIsReelSpinning(false);
       
-      // Check if that was the last spin
+      // Check if that was the last play
       if (currentSpins - 1 === 0) {
         setTimeout(() => {
           setShowEndCard(true);
@@ -113,13 +124,18 @@ export default function EditorCanvas() {
       <div className="w-80 border-r border-border bg-card flex flex-col">
         <div className="p-4 border-b border-border">
           <h3 className="font-display font-bold text-lg">Configuration</h3>
+          <p className="text-xs text-muted-foreground capitalize">Mode: {editorMode}</p>
         </div>
         
         <Tabs defaultValue="assets" value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <div className="px-4 pt-4">
             <TabsList className="w-full grid grid-cols-5 h-auto py-1">
               <TabsTrigger value="assets" className="px-1"><Layers className="h-4 w-4" /></TabsTrigger>
-              <TabsTrigger value="casino" className="px-1"><Dices className="h-4 w-4" /></TabsTrigger>
+              <TabsTrigger value="game" className="px-1">
+                {editorMode === 'wheel' ? <Disc className="h-4 w-4" /> : 
+                 editorMode === 'scratch' ? <Sparkles className="h-4 w-4" /> : 
+                 <Dices className="h-4 w-4" />}
+              </TabsTrigger>
               <TabsTrigger value="text" className="px-1"><Type className="h-4 w-4" /></TabsTrigger>
               <TabsTrigger value="elements" className="px-1"><LayoutTemplate className="h-4 w-4" /></TabsTrigger>
               <TabsTrigger value="endcard" className="px-1"><Trophy className="h-4 w-4" /></TabsTrigger>
@@ -169,7 +185,7 @@ export default function EditorCanvas() {
               </div>
             </TabsContent>
             
-            <TabsContent value="casino" className="mt-0 space-y-6">
+            <TabsContent value="game" className="mt-0 space-y-6">
               <div className="space-y-4">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Dices className="h-4 w-4 text-primary" />
@@ -177,7 +193,9 @@ export default function EditorCanvas() {
                 </label>
                 <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
                    <div className="flex justify-between items-center">
-                     <label className="text-xs font-medium text-muted-foreground">Free Spins Count</label>
+                     <label className="text-xs font-medium text-muted-foreground">
+                       {editorMode === 'wheel' ? 'Spins Allowed' : editorMode === 'scratch' ? 'Cards per User' : 'Free Spins Count'}
+                     </label>
                      <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">{spins}</span>
                    </div>
                    <div className="flex items-center gap-3">
@@ -205,35 +223,27 @@ export default function EditorCanvas() {
                    </div>
                 </div>
 
-                <label className="text-sm font-medium flex items-center gap-2 mt-6">
-                  <Crown className="h-4 w-4 text-yellow-500" />
-                  High Value Symbols
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
-                    <div key={i} className="aspect-square rounded-md border border-border bg-background p-2 flex items-center justify-center cursor-pointer hover:border-primary">
-                      <img src={sym} className="w-full h-full object-contain drop-shadow-lg" />
+                {editorMode === 'slots' && (
+                  <>
+                    <label className="text-sm font-medium flex items-center gap-2 mt-6">
+                      <Crown className="h-4 w-4 text-yellow-500" />
+                      High Value Symbols
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
+                        <div key={i} className="aspect-square rounded-md border border-border bg-background p-2 flex items-center justify-center cursor-pointer hover:border-primary">
+                          <img src={sym} className="w-full h-full object-contain drop-shadow-lg" />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                  {/* Fill remaining slots if custom symbols exist but are fewer than 3 */}
-                  {customSymbols.length > 0 && customSymbols.length < 3 && [symbol7, symbolDiamond, symbolBell].slice(customSymbols.length, 3).map((sym, i) => (
-                    <div key={`default-${i}`} className="aspect-square rounded-md border border-border bg-background p-2 flex items-center justify-center cursor-pointer hover:border-primary opacity-50">
-                      <img src={sym} className="w-full h-full object-contain drop-shadow-lg" />
-                    </div>
-                  ))}
-                </div>
+                  </>
+                )}
 
-                <label className="text-sm font-medium flex items-center gap-2 mt-4">
-                  <Coins className="h-4 w-4 text-blue-500" />
-                  Low Value Symbols
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[symbolCherry, chipRed, chipBlue].map((sym, i) => (
-                    <div key={i} className="aspect-square rounded-md border border-border bg-background p-2 flex items-center justify-center cursor-pointer hover:border-primary">
-                      <img src={sym} className="w-full h-full object-contain" />
-                    </div>
-                  ))}
-                </div>
+                {editorMode === 'wheel' && (
+                  <div className="mt-4 p-4 border border-dashed rounded-lg text-center">
+                    <p className="text-sm text-muted-foreground">Wheel segments are automatically generated from your Prize List.</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
@@ -382,7 +392,7 @@ export default function EditorCanvas() {
             
             <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border">
               <button 
-                onClick={() => { setViewMode('game'); setActiveTab('casino'); }}
+                onClick={() => { setViewMode('game'); setActiveTab('game'); }}
                 className={cn(
                   "px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-2",
                   viewMode === 'game' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -427,13 +437,13 @@ export default function EditorCanvas() {
               device === 'desktop' && "w-full h-full rounded-none border-0"
             )}
           >
-            {/* Mockup Content - SLOT MACHINE */}
+            {/* Mockup Content */}
             <div className="absolute inset-0 bg-black">
               {/* Background */}
               <img 
                 src={background} 
                 className="absolute inset-0 w-full h-full object-cover opacity-90" 
-                alt="Casino Background" 
+                alt="Game Background" 
               />
               
               {/* UI Layer */}
@@ -445,8 +455,8 @@ export default function EditorCanvas() {
                   </div>
                 )}
 
-                {/* Slot Reels Area */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-6">
+                {/* GAME CONTENT AREA */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4">
                   {/* Jackpot Counter */}
                   {visibleElements.jackpot && (
                     <div className="bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-6 py-2 rounded-full shadow-[0_0_20px_rgba(255,165,0,0.3)]">
@@ -456,44 +466,84 @@ export default function EditorCanvas() {
                     </div>
                   )}
 
-                  {/* The Machine */}
-                  <div className="w-[90%] aspect-[4/3] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
-                    
-                    {/* Reels Container */}
-                    <div className="w-full h-full bg-white/5 rounded grid grid-cols-3 gap-1 p-1">
-                      {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
-                        <div key={i} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
-                          <div 
-                            className={cn(
-                              "absolute inset-0 flex flex-col items-center justify-center transition-all duration-100", 
-                              isReelSpinning ? "blur-md translate-y-[100%] animate-spin-blur" : "translate-y-0"
+                  {/* === MODE: SLOTS === */}
+                  {editorMode === 'slots' && (
+                    <div className="w-[90%] aspect-[4/3] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1">
+                      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
+                      
+                      {/* Reels Container */}
+                      <div className="w-full h-full bg-white/5 rounded grid grid-cols-3 gap-1 p-1">
+                        {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
+                          <div key={i} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
+                            <div 
+                              className={cn(
+                                "absolute inset-0 flex flex-col items-center justify-center transition-all duration-100", 
+                                isReelSpinning ? "blur-md translate-y-[100%] animate-spin-blur" : "translate-y-0"
+                              )}
+                              style={{ 
+                                animation: isReelSpinning ? `spin 0.2s linear infinite` : 'none',
+                                animationDelay: `${i * 0.1}s` 
+                              }}
+                            >
+                               <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
+                            </div>
+                            {!isReelSpinning && (
+                               <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                  <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
+                               </div>
                             )}
-                            style={{ 
-                              animation: isReelSpinning ? `spin 0.2s linear infinite` : 'none',
-                              animationDelay: `${i * 0.1}s` 
-                            }}
-                          >
-                             <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
+                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50" />
                           </div>
-                          {/* Static version visible when not spinning */}
-                          {!isReelSpinning && (
-                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
-                             </div>
-                          )}
-                          
-                          {/* Shine effect */}
-                          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50" />
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                      
+                      {/* Payline */}
+                      {visibleElements.paylines && (
+                        <div className="absolute top-1/2 left-0 right-0 h-1 bg-red-500/50 shadow-[0_0_10px_red]" />
+                      )}
                     </div>
-                    
-                    {/* Payline */}
-                    {visibleElements.paylines && (
-                      <div className="absolute top-1/2 left-0 right-0 h-1 bg-red-500/50 shadow-[0_0_10px_red]" />
-                    )}
-                  </div>
+                  )}
+
+                  {/* === MODE: WHEEL === */}
+                  {editorMode === 'wheel' && (
+                    <div className="w-[90%] aspect-square relative flex items-center justify-center">
+                      <div className={cn(
+                        "w-full h-full rounded-full border-8 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.5)] overflow-hidden bg-black/50 relative transition-transform duration-[3000ms] cubic-bezier(0.2, 0.8, 0.2, 1)",
+                        isReelSpinning ? "rotate-[1080deg]" : "rotate-0"
+                      )}>
+                         <img src={wheelImg} className="w-full h-full object-cover opacity-80" />
+                         <div className="absolute inset-0 flex items-center justify-center">
+                           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 shadow-xl z-20 flex items-center justify-center border-4 border-white">
+                             <div className="w-2 h-2 rounded-full bg-black/20" />
+                           </div>
+                         </div>
+                      </div>
+                      {/* Pointer */}
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-red-600 z-30 shadow-lg" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+                    </div>
+                  )}
+
+                  {/* === MODE: SCRATCH === */}
+                  {editorMode === 'scratch' && (
+                    <div className="w-[90%] aspect-[3/4] bg-white rounded-xl shadow-2xl p-1 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-10" />
+                      <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg p-4 grid grid-cols-2 gap-4">
+                        {[1, 2, 3, 4].map((i) => (
+                           <div key={i} className="relative rounded-lg overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
+                             <span className="font-bold text-gray-400">PRIZE</span>
+                             
+                             {/* Scratch Layer */}
+                             <div className={cn(
+                               "absolute inset-0 bg-gray-300 flex items-center justify-center cursor-crosshair transition-opacity duration-700",
+                               isReelSpinning ? "opacity-0" : "opacity-100 bg-[url('https://www.transparenttextures.com/patterns/foil.png')]"
+                             )}>
+                               <Hexagon className="text-gray-400 opacity-20 w-8 h-8" />
+                             </div>
+                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Headline */}
                   {visibleElements.headline && (
@@ -511,13 +561,13 @@ export default function EditorCanvas() {
                       currentSpins > 0 ? "bg-black/80 border-white/20 text-white" : "bg-red-500/90 border-red-400 text-white"
                     )}>
                       {currentSpins > 0 && <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />}
-                      {currentSpins} Free Spins {currentSpins === 0 && "Left"}
+                      {currentSpins} {editorMode === 'scratch' ? 'Cards' : 'Spins'} Left
                     </div>
                   </div>
 
                   <Button 
                     size="lg" 
-                    onClick={handleSpin}
+                    onClick={handleInteraction}
                     disabled={!isPlaying || currentSpins <= 0 || isReelSpinning}
                     className={cn(
                       "w-full max-w-[280px] h-14 text-xl font-black rounded-full border-b-4 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all",
@@ -528,7 +578,7 @@ export default function EditorCanvas() {
                           : "bg-gray-700 border-gray-800 text-gray-400 cursor-not-allowed"
                     )}
                   >
-                    {currentSpins > 0 ? ctaText : "No Spins Left"}
+                    {currentSpins > 0 ? ctaText : "No Plays Left"}
                   </Button>
                   <p className="text-[10px] text-white/40 font-medium text-center max-w-[200px] leading-tight">
                     No Purchase Necessary. 18+. T&Cs Apply.

@@ -82,7 +82,7 @@ export default function Create() {
               animate={{ opacity: 1, scale: 1 }}
               className="h-full"
             >
-              <EditorCanvas />
+              <EditorCanvas templateId={selectedTemplate} />
             </motion.div>
           )}
         </AnimatePresence>
