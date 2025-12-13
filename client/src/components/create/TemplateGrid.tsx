@@ -8,6 +8,7 @@ import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.pn
 import puzzleImg from '@assets/generated_images/match-3_puzzle_game_screenshot.png';
 import quizImg from '@assets/generated_images/interactive_quiz_interface.png';
 import racingImg from '@assets/generated_images/car_racing_game_screenshot.png';
+import slotsBg from '@assets/generated_images/casino_slot_machine_background.png';
 
 interface TemplateGridProps {
   onSelect: (id: string) => void;
@@ -17,6 +18,13 @@ interface TemplateGridProps {
 }
 
 const templates = [
+  {
+    id: 'slots',
+    title: 'Jackpot Slots',
+    description: 'High-retention slot machine mechanic with custom symbols.',
+    image: slotsBg,
+    category: 'Casino'
+  },
   {
     id: 'runner',
     title: 'Endless Runner',
