@@ -51,6 +51,8 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   
   // Advanced Settings
   const [slotRows, setSlotRows] = useState(1); // 1 = 3x1 (classic), 3 = 3x3 (video slot)
+  const [slotCols, setSlotCols] = useState(3); // Default 3 columns
+  const [isCustomGrid, setIsCustomGrid] = useState(false);
   const [textColor, setTextColor] = useState('#ffffff');
   const [subheadline, setSubheadline] = useState('');
 
@@ -233,26 +235,71 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border mt-4">
                        <div className="flex justify-between items-center">
                          <label className="text-xs font-medium text-muted-foreground">Grid Layout</label>
-                         <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">3 x {slotRows}</span>
+                         <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">{slotCols} x {slotRows}</span>
                        </div>
-                       <div className="flex gap-2">
-                         <Button 
-                           variant={slotRows === 1 ? "default" : "outline"} 
-                           size="sm" 
-                           className="flex-1 text-xs"
-                           onClick={() => setSlotRows(1)}
-                         >
-                           3x1 Classic
-                         </Button>
-                         <Button 
-                           variant={slotRows === 3 ? "default" : "outline"} 
-                           size="sm" 
-                           className="flex-1 text-xs"
-                           onClick={() => setSlotRows(3)}
-                         >
-                           3x3 Video
-                         </Button>
-                       </div>
+                       
+                       {/* Grid Presets */}
+                       {!isCustomGrid ? (
+                         <div className="flex gap-2">
+                           <Button 
+                             variant={slotRows === 1 && slotCols === 3 ? "default" : "outline"} 
+                             size="sm" 
+                             className="flex-1 text-xs"
+                             onClick={() => { setSlotRows(1); setSlotCols(3); }}
+                           >
+                             3x1 Classic
+                           </Button>
+                           <Button 
+                             variant={slotRows === 3 && slotCols === 3 ? "default" : "outline"} 
+                             size="sm" 
+                             className="flex-1 text-xs"
+                             onClick={() => { setSlotRows(3); setSlotCols(3); }}
+                           >
+                             3x3 Video
+                           </Button>
+                           <Button 
+                             variant="outline" 
+                             size="sm" 
+                             className="flex-1 text-xs"
+                             onClick={() => setIsCustomGrid(true)}
+                           >
+                             Custom
+                           </Button>
+                         </div>
+                       ) : (
+                         <div className="space-y-3 pt-2">
+                           <div className="grid grid-cols-2 gap-2">
+                             <div className="space-y-1">
+                               <label className="text-[10px] text-muted-foreground uppercase font-bold">Rows</label>
+                               <input 
+                                 type="number" 
+                                 min="1" max="6" 
+                                 value={slotRows}
+                                 onChange={(e) => setSlotRows(Math.max(1, Math.min(6, parseInt(e.target.value) || 1)))}
+                                 className="w-full h-8 px-2 text-sm rounded-md border border-input bg-background"
+                               />
+                             </div>
+                             <div className="space-y-1">
+                               <label className="text-[10px] text-muted-foreground uppercase font-bold">Columns</label>
+                               <input 
+                                 type="number" 
+                                 min="1" max="5" 
+                                 value={slotCols}
+                                 onChange={(e) => setSlotCols(Math.max(1, Math.min(5, parseInt(e.target.value) || 1)))}
+                                 className="w-full h-8 px-2 text-sm rounded-md border border-input bg-background"
+                               />
+                             </div>
+                           </div>
+                           <Button 
+                             variant="secondary" 
+                             size="sm" 
+                             className="w-full text-xs"
+                             onClick={() => setIsCustomGrid(false)}
+                           >
+                             Back to Presets
+                           </Button>
+                         </div>
+                       )}
                     </div>
 
                     <label className="text-sm font-medium flex items-center gap-2 mt-6">
@@ -531,22 +578,25 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   {editorMode === 'slots' && (
                     <div className={cn(
                       "w-[90%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
-                      slotRows === 3 ? "aspect-[3/4]" : "aspect-[4/3]"
+                      slotRows >= 3 ? "aspect-[3/4]" : "aspect-[4/3]"
                     )}>
                       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
                       
                       {/* Reels Container */}
-                      <div className={cn(
-                        "w-full h-full bg-white/5 rounded grid gap-1 p-1",
-                        "grid-cols-3" // Always 3 columns
-                      )}>
-                        {Array.from({ length: 3 * slotRows }).map((_, i) => {
-                          const colIndex = i % 3;
+                      <div 
+                        className={cn(
+                          "w-full h-full bg-white/5 rounded grid gap-1 p-1"
+                        )}
+                        style={{ gridTemplateColumns: `repeat(${slotCols}, minmax(0, 1fr))` }}
+                      >
+                        {/* Generate items based on rows x cols */}
+                        {Array.from({ length: slotCols * slotRows }).map((_, index) => {
+                          const colIndex = index % slotCols; 
                           const symbols = (customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]);
-                          const sym = symbols[colIndex % symbols.length];
+                          const sym = symbols[colIndex % symbols.length]; // cycle through symbols per column
                           
                           return (
-                          <div key={i} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
+                          <div key={index} className="bg-gradient-to-b from-white to-gray-200 rounded overflow-hidden relative shadow-inner">
                             <div 
                               className={cn(
                                 "absolute inset-0 flex flex-col items-center justify-center transition-all duration-100", 
@@ -554,7 +604,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                               )}
                               style={{ 
                                 animation: isReelSpinning ? `spin 0.2s linear infinite` : 'none',
-                                animationDelay: `${i * 0.1}s` 
+                                animationDelay: `${colIndex * 0.1}s` 
                               }}
                             >
                                <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
