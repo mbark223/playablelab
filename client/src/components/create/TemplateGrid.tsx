@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Check, Sparkles, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Sparkles, Eye, Coins, PartyPopper, Zap, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAssets } from '@/lib/AssetContext';
@@ -140,6 +140,13 @@ const templates = [
 export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: TemplateGridProps) {
   const { assets } = useAssets();
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  const [activeWinEffect, setActiveWinEffect] = useState<'coins' | 'confetti' | 'pulse' | 'flash' | null>(null);
+  
+  // Reset effect when dialog closes
+  useEffect(() => {
+    if (!previewTemplateId) setActiveWinEffect(null);
+  }, [previewTemplateId]);
+
   const uploadedTypes = new Set(assets.map(a => a.type));
 
   // Filter templates based on required assets
@@ -319,15 +326,85 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
             </DialogDescription>
           </DialogHeader>
           
-          <div className="relative aspect-video rounded-lg overflow-hidden border bg-black/5 mt-2">
+          <div className="relative aspect-video rounded-lg overflow-hidden border bg-black/5 mt-2 group/preview">
             {previewTemplateId && (
-              <img 
+              <motion.img 
                 src={templates.find(t => t.id === previewTemplateId)?.image} 
                 className="w-full h-full object-contain"
                 alt="Preview"
+                animate={activeWinEffect === 'pulse' ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ duration: 0.5, repeat: activeWinEffect === 'pulse' ? Infinity : 0 }}
               />
             )}
             
+            {/* Win Effects Overlay */}
+            <AnimatePresence>
+                {activeWinEffect === 'flash' && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0, 1, 0, 1, 0] }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 bg-white z-50 pointer-events-none mix-blend-overlay"
+                    />
+                )}
+                
+                {activeWinEffect === 'coins' && (
+                    <div className="absolute inset-0 z-40 overflow-hidden pointer-events-none">
+                        {[...Array(20)].map((_, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ y: -50, x: Math.random() * 100 + "%", rotate: 0 }}
+                                animate={{ y: 500, rotate: 360 }}
+                                transition={{ duration: 1.5, delay: i * 0.1, ease: "linear", repeat: Infinity }}
+                                className="absolute text-yellow-400"
+                            >
+                                <Coins size={24} fill="currentColor" />
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
+
+                {activeWinEffect === 'confetti' && (
+                    <div className="absolute inset-0 z-40 overflow-hidden pointer-events-none">
+                        {[...Array(30)].map((_, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ y: "50%", x: "50%", scale: 0 }}
+                                animate={{ 
+                                    y: Math.random() * 100 + "%", 
+                                    x: Math.random() * 100 + "%", 
+                                    scale: [0, 1, 0],
+                                    rotate: Math.random() * 360
+                                }}
+                                transition={{ duration: 2, ease: "easeOut", repeat: Infinity }}
+                                className={cn(
+                                    "absolute w-3 h-3 rounded-full",
+                                    ["bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-purple-500"][i % 5]
+                                )}
+                            />
+                        ))}
+                    </div>
+                )}
+            </AnimatePresence>
+            
+            {/* Win Text Overlay */}
+            <AnimatePresence>
+                {activeWinEffect && (
+                    <motion.div 
+                        initial={{ scale: 0, rotate: -10 }}
+                        animate={{ scale: 1.5, rotate: 0 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
+                    >
+                        <div className="bg-black/80 text-white font-black text-4xl px-8 py-4 rounded-xl border-4 border-yellow-400 shadow-[0_0_50px_rgba(255,215,0,0.5)] backdrop-blur-sm text-center">
+                            <span className="block text-yellow-400 text-6xl mb-2 filter drop-shadow-lg">BIG WIN!</span>
+                            <span className="text-lg font-bold tracking-widest uppercase text-white/90">5000 Coins</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
              {/* Overlay Assets on Preview too */}
              {assets.length > 0 && previewTemplateId && (
                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -342,6 +419,44 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
                   )}
                </div>
              )}
+          </div>
+
+          <div className="flex items-center gap-2 py-2 overflow-x-auto">
+            <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">Preview Win Effect:</span>
+            <div className="flex gap-2">
+                <Button 
+                    variant={activeWinEffect === 'coins' ? "default" : "outline"} 
+                    size="sm" 
+                    className="h-7 text-xs gap-1.5"
+                    onClick={() => setActiveWinEffect(activeWinEffect === 'coins' ? null : 'coins')}
+                >
+                    <Coins className="h-3.5 w-3.5" /> Coin Shower
+                </Button>
+                <Button 
+                    variant={activeWinEffect === 'confetti' ? "default" : "outline"} 
+                    size="sm" 
+                    className="h-7 text-xs gap-1.5"
+                    onClick={() => setActiveWinEffect(activeWinEffect === 'confetti' ? null : 'confetti')}
+                >
+                    <PartyPopper className="h-3.5 w-3.5" /> Fireworks
+                </Button>
+                <Button 
+                    variant={activeWinEffect === 'pulse' ? "default" : "outline"} 
+                    size="sm" 
+                    className="h-7 text-xs gap-1.5"
+                    onClick={() => setActiveWinEffect(activeWinEffect === 'pulse' ? null : 'pulse')}
+                >
+                    <Zap className="h-3.5 w-3.5" /> Pulse
+                </Button>
+                <Button 
+                    variant={activeWinEffect === 'flash' ? "default" : "outline"} 
+                    size="sm" 
+                    className="h-7 text-xs gap-1.5"
+                    onClick={() => setActiveWinEffect(activeWinEffect === 'flash' ? null : 'flash')}
+                >
+                    <Crown className="h-3.5 w-3.5" /> Flash
+                </Button>
+            </div>
           </div>
 
           <DialogFooter className="gap-2 sm:justify-between">
