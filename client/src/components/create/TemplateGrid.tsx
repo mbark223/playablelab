@@ -10,6 +10,21 @@ import puzzleImg from '@assets/generated_images/match-3_puzzle_game_screenshot.p
 import quizImg from '@assets/generated_images/interactive_quiz_interface.png';
 import racingImg from '@assets/generated_images/car_racing_game_screenshot.png';
 import slotsBg from '@assets/generated_images/casino_slot_machine_background.png';
+import egyptianImg from '@assets/generated_images/egyptian_slots_game.png';
+import greekImg from '@assets/generated_images/greek_mythology_slots.png';
+import wildWestImg from '@assets/generated_images/wild_west_slots.png';
+import oceanImg from '@assets/generated_images/ocean_slots.png';
+import spaceImg from '@assets/generated_images/space_sci-fi_slots.png';
+import fruitImg from '@assets/generated_images/fruit_party_slots.png';
+import rouletteImg from '@assets/generated_images/luxury_roulette.png';
+import blackjackImg from '@assets/generated_images/blackjack_table.png';
+import pokerImg from '@assets/generated_images/poker_tournament.png';
+import wheelImg from '@assets/generated_images/wheel_of_fortune.png';
+import scratchImg from '@assets/generated_images/scratch_card_game.png';
+import plinkoImg from '@assets/generated_images/plinko_game.png';
+import baccaratImg from '@assets/generated_images/baccarat_table.png';
+import crapsImg from '@assets/generated_images/craps_dice_game.png';
+import kenoImg from '@assets/generated_images/keno_lottery.png';
 
 interface TemplateGridProps {
   onSelect: (id: string) => void;
@@ -26,6 +41,126 @@ const templates = [
     image: slotsBg,
     category: 'Casino',
     compatibility: ['logo', 'symbol', 'background']
+  },
+  {
+    id: 'egyptian-slots',
+    title: 'Pharaoh\'s Riches',
+    description: 'Mysterious Egyptian theme with expanding wilds.',
+    image: egyptianImg,
+    category: 'Casino',
+    compatibility: ['logo', 'symbol']
+  },
+  {
+    id: 'greek-slots',
+    title: 'Zeus Thunder',
+    description: 'Epic mythology theme with lightning bonuses.',
+    image: greekImg,
+    category: 'Casino',
+    compatibility: ['logo', 'symbol']
+  },
+  {
+    id: 'wild-west-slots',
+    title: 'Sheriff\'s Gold',
+    description: 'High volatility western theme with sticky wilds.',
+    image: wildWestImg,
+    category: 'Casino',
+    compatibility: ['logo', 'symbol', 'background']
+  },
+  {
+    id: 'ocean-slots',
+    title: 'Deep Blue Treasure',
+    description: 'Relaxing underwater theme with bubble pop bonus.',
+    image: oceanImg,
+    category: 'Casino',
+    compatibility: ['logo', 'symbol']
+  },
+  {
+    id: 'space-slots',
+    title: 'Galactic Spins',
+    description: 'Futuristic sci-fi theme with cascading reels.',
+    image: spaceImg,
+    category: 'Casino',
+    compatibility: ['logo', 'symbol', 'background']
+  },
+  {
+    id: 'fruit-slots',
+    title: 'Fruit Party',
+    description: 'Classic fruit machine with a modern twist.',
+    image: fruitImg,
+    category: 'Casino',
+    compatibility: ['logo', 'symbol']
+  },
+  {
+    id: 'roulette',
+    title: 'Royal Roulette',
+    description: 'Premium European roulette experience.',
+    image: rouletteImg,
+    category: 'Table Game',
+    compatibility: ['logo', 'background']
+  },
+  {
+    id: 'blackjack',
+    title: 'Pro Blackjack',
+    description: 'First-person blackjack with side bets.',
+    image: blackjackImg,
+    category: 'Table Game',
+    compatibility: ['logo', 'background']
+  },
+  {
+    id: 'poker',
+    title: 'Texas Hold\'em',
+    description: 'Tournament style poker showdown.',
+    image: pokerImg,
+    category: 'Card Game',
+    compatibility: ['logo', 'background']
+  },
+  {
+    id: 'wheel',
+    title: 'Spin & Win',
+    description: 'Colorful fortune wheel with custom prizes.',
+    image: wheelImg,
+    category: 'Instant Win',
+    compatibility: ['logo', 'product', 'background']
+  },
+  {
+    id: 'scratch',
+    title: 'Gold Rush Scratch',
+    description: 'Satisfying scratch card reveal mechanic.',
+    image: scratchImg,
+    category: 'Instant Win',
+    compatibility: ['logo', 'symbol']
+  },
+  {
+    id: 'plinko',
+    title: 'Plinko Drop',
+    description: 'Addictive ball drop game with multipliers.',
+    image: plinkoImg,
+    category: 'Arcade',
+    compatibility: ['logo', 'background']
+  },
+  {
+    id: 'baccarat',
+    title: 'VIP Baccarat',
+    description: 'High-stakes baccarat for VIP players.',
+    image: baccaratImg,
+    category: 'Table Game',
+    compatibility: ['logo', 'background']
+  },
+  {
+    id: 'craps',
+    title: 'Dice Master',
+    description: 'Exciting craps table with realistic physics.',
+    image: crapsImg,
+    category: 'Table Game',
+    compatibility: ['logo', 'background']
+  },
+  {
+    id: 'keno',
+    title: 'Lucky Keno',
+    description: 'Fast-paced lottery style number game.',
+    image: kenoImg,
+    category: 'Instant Win',
+    compatibility: ['logo', 'background']
   },
   {
     id: 'runner',
