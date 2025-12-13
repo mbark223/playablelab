@@ -274,23 +274,40 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                    />
                    
-                   {/* Asset Preview Overlay - Simulating "Your assets inside" */}
-                   {assets.length > 0 && (
-                     <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                       <div className="flex -space-x-2">
-                         {assets.filter(a => template.compatibility.includes(a.type)).slice(0, 3).map((asset, i) => (
-                           <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-background overflow-hidden">
-                             <img src={asset.previewUrl} className="w-full h-full object-cover" />
-                           </div>
-                         ))}
-                         {assets.filter(a => template.compatibility.includes(a.type)).length > 3 && (
-                           <div className="h-8 w-8 rounded-full border-2 border-white bg-background flex items-center justify-center text-[10px] font-bold">
-                             +{assets.filter(a => template.compatibility.includes(a.type)).length - 3}
-                           </div>
-                         )}
-                       </div>
+                 {/* Asset Preview Overlay - ALWAYS VISIBLE now */}
+                 {assets.length > 0 && (
+                   <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300">
+                     
+                     {/* If it's a Logo-compatible template and we have a logo, show it prominently */}
+                     {template.compatibility.includes('logo') && assets.some(a => a.type === 'logo') && (
+                        <div className="mb-4 relative">
+                          <img 
+                            src={assets.find(a => a.type === 'logo')?.previewUrl} 
+                            className="h-16 w-auto object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] animate-in zoom-in duration-500" 
+                          />
+                          <div className="absolute -right-2 -top-2 bg-primary text-[10px] px-1.5 py-0.5 rounded text-white font-bold shadow-sm animate-in fade-in delay-300">
+                            YOUR LOGO
+                          </div>
+                        </div>
+                     )}
+
+                     <div className="flex -space-x-2 bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 shadow-xl">
+                       {assets.filter(a => template.compatibility.includes(a.type)).slice(0, 3).map((asset, i) => (
+                         <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-background overflow-hidden relative group/asset">
+                           <img src={asset.previewUrl} className="w-full h-full object-cover" />
+                         </div>
+                       ))}
+                       {assets.filter(a => template.compatibility.includes(a.type)).length > 3 && (
+                         <div className="h-8 w-8 rounded-full border-2 border-white bg-background flex items-center justify-center text-[10px] font-bold">
+                           +{assets.filter(a => template.compatibility.includes(a.type)).length - 3}
+                         </div>
+                       )}
                      </div>
-                   )}
+                     <div className="mt-2 bg-primary/90 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">
+                       GENERATED FOR YOU
+                     </div>
+                   </div>
+                 )}
 
                    <div className="absolute top-3 left-3 z-20 flex gap-2">
                      <span className="px-2 py-1 rounded-full bg-black/50 backdrop-blur-md text-xs font-medium text-white border border-white/10">

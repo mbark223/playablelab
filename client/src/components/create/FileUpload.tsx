@@ -138,7 +138,7 @@ export default function FileUpload({ onNext }: FileUploadProps) {
           disabled={assets.length === 0}
           className="w-full md:w-auto min-w-[200px] shadow-lg shadow-primary/20"
         >
-          Generate Templates
+          Generate Playables
           <Sparkles className="ml-2 h-4 w-4" />
         </Button>
       </div>
