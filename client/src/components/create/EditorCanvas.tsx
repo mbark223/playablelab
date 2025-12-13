@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
 import { useAssets } from '@/lib/AssetContext';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 // Assets
 import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.png';
@@ -23,16 +25,33 @@ export default function EditorCanvas() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [activeTab, setActiveTab] = useState('assets');
+  const [viewMode, setViewMode] = useState<'game' | 'endcard'>('game');
   
-  // Customization State - Initialized with default assets, but will override with uploaded ones
+  // Customization State
   const [headline, setHeadline] = useState("MEGA JACKPOT");
   const [ctaText, setCtaText] = useState("SPIN NOW");
   const [logo, setLogo] = useState(casinoLogo);
   const [customSymbols, setCustomSymbols] = useState<string[]>([]);
   const [background, setBackground] = useState(slotsBg);
+  
+  // Game Settings
   const [spins, setSpins] = useState(5);
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
+  
+  // End Card Settings
+  const [endCardHeadline, setEndCardHeadline] = useState("YOU WON!");
+  const [endCardSubtext, setEndCardSubtext] = useState("$500 BONUS + 50 SPINS");
+  const [endCardCta, setEndCardCta] = useState("CLAIM PRIZE");
+  const [showEndCard, setShowEndCard] = useState(false);
+
+  // Element Visibility (Switch Elements)
+  const [visibleElements, setVisibleElements] = useState({
+    logo: true,
+    jackpot: true,
+    paylines: true,
+    headline: true
+  });
 
   // Auto-populate from uploaded assets
   useEffect(() => {
@@ -52,8 +71,11 @@ export default function EditorCanvas() {
   useEffect(() => {
     if (isPlaying) {
       setCurrentSpins(spins);
+      setShowEndCard(false);
+      setViewMode('game');
     } else {
       setIsReelSpinning(false);
+      setShowEndCard(false);
     }
   }, [isPlaying, spins]);
 
@@ -66,7 +88,21 @@ export default function EditorCanvas() {
     // Simulate spin duration
     setTimeout(() => {
       setIsReelSpinning(false);
+      
+      // Check if that was the last spin
+      if (currentSpins - 1 === 0) {
+        setTimeout(() => {
+          setShowEndCard(true);
+        }, 500);
+      }
     }, 2000);
+  };
+
+  const toggleElement = (key: keyof typeof visibleElements) => {
+    setVisibleElements(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
   };
 
   return (
@@ -81,11 +117,12 @@ export default function EditorCanvas() {
         
         <Tabs defaultValue="assets" value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <div className="px-4 pt-4">
-            <TabsList className="w-full grid grid-cols-4">
-              <TabsTrigger value="assets"><Layers className="h-4 w-4" /></TabsTrigger>
-              <TabsTrigger value="casino"><Dices className="h-4 w-4" /></TabsTrigger>
-              <TabsTrigger value="text"><Type className="h-4 w-4" /></TabsTrigger>
-              <TabsTrigger value="style"><Palette className="h-4 w-4" /></TabsTrigger>
+            <TabsList className="w-full grid grid-cols-5 h-auto py-1">
+              <TabsTrigger value="assets" className="px-1"><Layers className="h-4 w-4" /></TabsTrigger>
+              <TabsTrigger value="casino" className="px-1"><Dices className="h-4 w-4" /></TabsTrigger>
+              <TabsTrigger value="text" className="px-1"><Type className="h-4 w-4" /></TabsTrigger>
+              <TabsTrigger value="elements" className="px-1"><LayoutTemplate className="h-4 w-4" /></TabsTrigger>
+              <TabsTrigger value="endcard" className="px-1"><Trophy className="h-4 w-4" /></TabsTrigger>
             </TabsList>
           </div>
 
@@ -220,6 +257,87 @@ export default function EditorCanvas() {
                 />
               </div>
             </TabsContent>
+
+            <TabsContent value="elements" className="mt-0 space-y-6">
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium mb-4">Element Visibility</h4>
+                
+                <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
+                  <div className="flex items-center gap-3">
+                     <LayoutTemplate className="h-4 w-4 text-muted-foreground" />
+                     <Label htmlFor="show-logo" className="text-sm font-medium">Game Logo</Label>
+                  </div>
+                  <Switch 
+                    id="show-logo" 
+                    checked={visibleElements.logo} 
+                    onCheckedChange={() => toggleElement('logo')} 
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
+                  <div className="flex items-center gap-3">
+                     <Coins className="h-4 w-4 text-muted-foreground" />
+                     <Label htmlFor="show-jackpot" className="text-sm font-medium">Jackpot Counter</Label>
+                  </div>
+                  <Switch 
+                    id="show-jackpot" 
+                    checked={visibleElements.jackpot} 
+                    onCheckedChange={() => toggleElement('jackpot')} 
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
+                  <div className="flex items-center gap-3">
+                     <Type className="h-4 w-4 text-muted-foreground" />
+                     <Label htmlFor="show-headline" className="text-sm font-medium">Main Headline</Label>
+                  </div>
+                  <Switch 
+                    id="show-headline" 
+                    checked={visibleElements.headline} 
+                    onCheckedChange={() => toggleElement('headline')} 
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="endcard" className="mt-0 space-y-6">
+              <div className="space-y-4">
+                <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 mb-4">
+                  <p className="text-xs text-primary font-medium flex items-center gap-2">
+                    <Trophy className="h-3 w-3" />
+                    This card appears after the game ends.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">End Headline</label>
+                  <input 
+                    type="text" 
+                    value={endCardHeadline}
+                    onChange={(e) => setEndCardHeadline(e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-display font-bold tracking-wide"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Subtext / Reward</label>
+                  <input 
+                    type="text" 
+                    value={endCardSubtext}
+                    onChange={(e) => setEndCardSubtext(e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Final CTA</label>
+                  <input 
+                    type="text" 
+                    value={endCardCta}
+                    onChange={(e) => setEndCardCta(e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-bold uppercase"
+                  />
+                </div>
+              </div>
+            </TabsContent>
           </div>
         </Tabs>
 
@@ -259,6 +377,29 @@ export default function EditorCanvas() {
             >
               <Monitor className="h-4 w-4" />
             </Button>
+            
+            <div className="h-6 w-px bg-border mx-2" />
+            
+            <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border">
+              <button 
+                onClick={() => { setViewMode('game'); setActiveTab('casino'); }}
+                className={cn(
+                  "px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-2",
+                  viewMode === 'game' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Dices className="h-3 w-3" /> Game
+              </button>
+              <button 
+                onClick={() => { setViewMode('endcard'); setActiveTab('endcard'); }}
+                className={cn(
+                  "px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-2",
+                  viewMode === 'endcard' ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Trophy className="h-3 w-3" /> End Card
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -298,18 +439,22 @@ export default function EditorCanvas() {
               {/* UI Layer */}
               <div className="absolute inset-0 flex flex-col z-10">
                 {/* Header / Logo */}
-                <div className="h-24 flex items-center justify-center pt-8 animate-in slide-in-from-top duration-700">
-                  <img src={logo} className="h-16 w-auto drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
-                </div>
+                {visibleElements.logo && (
+                  <div className="h-24 flex items-center justify-center pt-8 animate-in slide-in-from-top duration-700">
+                    <img src={logo} className="h-16 w-auto drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
+                  </div>
+                )}
 
                 {/* Slot Reels Area */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-6">
                   {/* Jackpot Counter */}
-                  <div className="bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-6 py-2 rounded-full shadow-[0_0_20px_rgba(255,165,0,0.3)]">
-                    <span className="text-yellow-400 font-display font-black text-2xl tracking-widest drop-shadow-md">
-                      $1,240,500
-                    </span>
-                  </div>
+                  {visibleElements.jackpot && (
+                    <div className="bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-6 py-2 rounded-full shadow-[0_0_20px_rgba(255,165,0,0.3)]">
+                      <span className="text-yellow-400 font-display font-black text-2xl tracking-widest drop-shadow-md">
+                        $1,240,500
+                      </span>
+                    </div>
+                  )}
 
                   {/* The Machine */}
                   <div className="w-[90%] aspect-[4/3] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1">
@@ -330,9 +475,8 @@ export default function EditorCanvas() {
                             }}
                           >
                              <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
-                             {/* Duplicate for seamless loop illusion if we were doing complex CSS, but fast blur is enough for mockup */}
                           </div>
-                          {/* Static version visible when not spinning to prevent empty flash */}
+                          {/* Static version visible when not spinning */}
                           {!isReelSpinning && (
                              <div className="absolute inset-0 flex flex-col items-center justify-center">
                                 <img src={sym} className="w-[80%] h-auto drop-shadow-md" />
@@ -346,13 +490,17 @@ export default function EditorCanvas() {
                     </div>
                     
                     {/* Payline */}
-                    <div className="absolute top-1/2 left-0 right-0 h-1 bg-red-500/50 shadow-[0_0_10px_red]" />
+                    {visibleElements.paylines && (
+                      <div className="absolute top-1/2 left-0 right-0 h-1 bg-red-500/50 shadow-[0_0_10px_red]" />
+                    )}
                   </div>
                   
                   {/* Headline */}
-                  <h2 className="text-3xl font-display font-black text-white text-center uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4">
-                    {headline}
-                  </h2>
+                  {visibleElements.headline && (
+                    <h2 className="text-3xl font-display font-black text-white text-center uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4">
+                      {headline}
+                    </h2>
+                  )}
                 </div>
 
                 {/* Footer Controls */}
@@ -387,6 +535,55 @@ export default function EditorCanvas() {
                   </p>
                 </div>
               </div>
+
+              {/* End Card Overlay */}
+              {(viewMode === 'endcard' || showEndCard) && (
+                <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+                  <div className="w-full max-w-sm text-center space-y-6">
+                    {/* Winner Icon */}
+                    <div className="mx-auto h-24 w-24 rounded-full bg-yellow-500/20 flex items-center justify-center border-4 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.4)] animate-bounce">
+                      <Trophy className="h-12 w-12 text-yellow-400 fill-yellow-400" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <h2 className="text-4xl font-black text-white uppercase drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]">
+                        {endCardHeadline}
+                      </h2>
+                      <p className="text-xl text-yellow-300 font-bold tracking-wide">
+                        {endCardSubtext}
+                      </p>
+                    </div>
+
+                    <div className="pt-4">
+                      <Button 
+                        size="lg" 
+                        className="w-full h-16 text-2xl font-black rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 border-b-4 border-emerald-800 shadow-[0_0_25px_rgba(16,185,129,0.4)] hover:scale-105 transition-transform animate-pulse"
+                      >
+                        {endCardCta}
+                      </Button>
+                      <p className="text-xs text-white/50 mt-4">
+                        Offer expires in 10:00 minutes
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Confetti (Simulated with simple particles for mockup) */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    {[...Array(20)].map((_, i) => (
+                      <div 
+                        key={i}
+                        className="absolute h-2 w-2 bg-yellow-500 rounded-full animate-pulse"
+                        style={{
+                          top: `${Math.random() * 100}%`,
+                          left: `${Math.random() * 100}%`,
+                          animationDelay: `${Math.random() * 2}s`,
+                          opacity: Math.random()
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
