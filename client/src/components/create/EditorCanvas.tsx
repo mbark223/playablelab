@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ExportModal from './ExportModal';
 
 // Assets
 import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.png';
@@ -10,9 +11,11 @@ import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.pn
 export default function EditorCanvas() {
   const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showExport, setShowExport] = useState(false);
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
+      <ExportModal open={showExport} onOpenChange={setShowExport} />
       {/* Left Sidebar - Controls */}
       <div className="w-80 border-r border-border bg-card flex flex-col">
         <div className="p-4 border-b border-border">
@@ -69,7 +72,7 @@ export default function EditorCanvas() {
         </Tabs>
 
         <div className="p-4 border-t border-border bg-card">
-          <Button className="w-full" size="lg">
+          <Button className="w-full" size="lg" onClick={() => setShowExport(true)}>
             <Download className="mr-2 h-4 w-4" /> Export Project
           </Button>
         </div>
