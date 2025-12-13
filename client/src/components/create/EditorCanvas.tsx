@@ -60,6 +60,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [isCustomGrid, setIsCustomGrid] = useState(false);
   const [textColor, setTextColor] = useState('#ffffff');
   const [subheadline, setSubheadline] = useState('');
+  const [disclaimerText, setDisclaimerText] = useState('No purchase necessary. 18+ only. T&Cs apply.');
+  const [winText, setWinText] = useState('BIG WIN!');
+  const [showWinMessage, setShowWinMessage] = useState(false);
 
   // End Card Settings
   const [endCardHeadline, setEndCardHeadline] = useState("YOU WON!");
@@ -458,6 +461,25 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
               </div>
 
               <div className="space-y-3">
+                <label className="text-sm font-medium">Win Message</label>
+                <input 
+                  type="text" 
+                  value={winText}
+                  onChange={(e) => setWinText(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-bold uppercase"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Disclaimer Text</label>
+                <textarea 
+                  value={disclaimerText}
+                  onChange={(e) => setDisclaimerText(e.target.value)}
+                  className="w-full h-20 px-3 py-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary text-xs resize-none"
+                />
+              </div>
+
+              <div className="space-y-3">
                  <label className="text-sm font-medium flex items-center gap-2">
                    <Palette className="h-4 w-4" /> Text Color
                  </label>
@@ -630,6 +652,25 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
               {isPlaying ? <RotateCcw className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               {isPlaying ? 'Reset' : 'Preview'}
             </Button>
+            
+            {isPlaying && (
+              <Button 
+                variant="default" 
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white gap-2 animate-in fade-in"
+                onClick={() => {
+                  setIsReelSpinning(true);
+                  setTimeout(() => {
+                    setIsReelSpinning(false);
+                    setShowWinMessage(true);
+                    setTimeout(() => setShowWinMessage(false), 2000);
+                  }, 1000);
+                }}
+              >
+                <Trophy className="h-4 w-4" /> Test Win
+              </Button>
+            )}
+
             <Button variant="outline" size="icon">
               <Share2 className="h-4 w-4" />
             </Button>
@@ -665,7 +706,18 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                 )}
 
                 {/* GAME CONTENT AREA */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4">
+                <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4 relative">
+                  {/* Win Message Overlay */}
+                  {showWinMessage && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+                       <div className="bg-black/80 backdrop-blur-md px-8 py-4 rounded-xl border-2 border-yellow-400 shadow-[0_0_50px_rgba(255,215,0,0.5)] animate-in zoom-in-50 duration-300">
+                          <h2 className="text-4xl font-display font-black text-yellow-400 tracking-wider drop-shadow-[0_4px_0_rgba(0,0,0,0.5)] animate-bounce">
+                            {winText}
+                          </h2>
+                       </div>
+                    </div>
+                  )}
+
                   {/* Jackpot Counter */}
                   {visibleElements.jackpot && (
                     <div className="bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-6 py-2 rounded-full shadow-[0_0_20px_rgba(255,165,0,0.3)]">
@@ -766,6 +818,15 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                            </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Disclaimer */}
+                  {disclaimerText && (
+                    <div className="mt-2 text-center px-4 w-full z-10">
+                      <p className="text-[10px] text-white/50 font-medium leading-tight whitespace-pre-wrap">
+                        {disclaimerText}
+                      </p>
                     </div>
                   )}
                   
