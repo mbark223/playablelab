@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
@@ -8,6 +8,7 @@ import { useAssets } from '@/lib/AssetContext';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Assets
 import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.png';
@@ -84,6 +85,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [disclaimerText, setDisclaimerText] = useState('No purchase necessary. 18+ only. T&Cs apply.');
   const [winText, setWinText] = useState('BIG WIN!');
   const [showWinMessage, setShowWinMessage] = useState(false);
+  const [winAnimationType, setWinAnimationType] = useState<'coins' | 'confetti' | 'pulse' | 'flash'>('coins');
 
   // End Card Settings
   const [endCardHeadline, setEndCardHeadline] = useState("YOU WON!");
@@ -186,11 +188,17 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     setTimeout(() => {
       setIsReelSpinning(false);
       
+      // Trigger win animation occasionally or on last spin
+      if (currentSpins - 1 === 0 || Math.random() > 0.5) {
+         setShowWinMessage(true);
+         setTimeout(() => setShowWinMessage(false), 2000);
+      }
+
       // Check if that was the last play
       if (currentSpins - 1 === 0) {
         setTimeout(() => {
           setShowEndCard(true);
-        }, 500);
+        }, 2500); // Wait for win animation
       }
     }, 2000);
   };
@@ -316,6 +324,44 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        +
                      </Button>
                    </div>
+                </div>
+
+                <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
+                    <label className="text-xs font-medium text-muted-foreground">Win Celebration Style</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                            variant={winAnimationType === 'coins' ? 'default' : 'outline'}
+                            size="sm"
+                            className="text-xs justify-start h-8"
+                            onClick={() => setWinAnimationType('coins')}
+                        >
+                            <Coins className="h-3 w-3 mr-2" /> Coin Shower
+                        </Button>
+                        <Button 
+                            variant={winAnimationType === 'confetti' ? 'default' : 'outline'}
+                            size="sm"
+                            className="text-xs justify-start h-8"
+                            onClick={() => setWinAnimationType('confetti')}
+                        >
+                            <PartyPopper className="h-3 w-3 mr-2" /> Fireworks
+                        </Button>
+                        <Button 
+                            variant={winAnimationType === 'pulse' ? 'default' : 'outline'}
+                            size="sm"
+                            className="text-xs justify-start h-8"
+                            onClick={() => setWinAnimationType('pulse')}
+                        >
+                            <Zap className="h-3 w-3 mr-2" /> Pulse
+                        </Button>
+                        <Button 
+                            variant={winAnimationType === 'flash' ? 'default' : 'outline'}
+                            size="sm"
+                            className="text-xs justify-start h-8"
+                            onClick={() => setWinAnimationType('flash')}
+                        >
+                            <Crown className="h-3 w-3 mr-2" /> Flash
+                        </Button>
+                    </div>
                 </div>
 
                 {editorMode === 'slots' && (
@@ -874,6 +920,90 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             </Button>
           </div>
         </div>
+        
+        {/* Win Animation Overlay */}
+        <AnimatePresence>
+            {showWinMessage && (
+                <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
+                    {/* Background Dim - Optional */}
+                    {/* <div className="absolute inset-0 bg-black/20" /> */}
+
+                    {/* Flash Effect */}
+                    {winAnimationType === 'flash' && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 0, 1, 0] }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="absolute inset-0 bg-white mix-blend-overlay"
+                        />
+                    )}
+
+                    {/* Coin Shower */}
+                    {winAnimationType === 'coins' && (
+                        <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(30)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: -100, x: Math.random() * 100 + "%", rotate: 0 }}
+                                    animate={{ y: 800, rotate: 360 }}
+                                    transition={{ duration: 1.5, delay: i * 0.05, ease: "linear" }}
+                                    className="absolute text-yellow-400 drop-shadow-md"
+                                >
+                                    <Coins size={32} fill="currentColor" />
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Confetti / Fireworks */}
+                    {winAnimationType === 'confetti' && (
+                        <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(50)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: "50%", x: "50%", scale: 0 }}
+                                    animate={{ 
+                                        y: Math.random() * 100 + "%", 
+                                        x: Math.random() * 100 + "%", 
+                                        scale: [0, 1.5, 0],
+                                        rotate: Math.random() * 360
+                                    }}
+                                    transition={{ duration: 1.5, ease: "easeOut" }}
+                                    className={cn(
+                                        "absolute w-4 h-4 rounded-sm",
+                                        ["bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-purple-500"][i % 5]
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Pulse Effect (on the game container) */}
+                    {/* Note: This logic is slightly abstracted here, but we can animate the container itself if we passed a ref, 
+                        or just overlay a pulsing ring */}
+                    {winAnimationType === 'pulse' && (
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: [1, 1.2, 1], opacity: [0, 1, 0] }}
+                            transition={{ duration: 0.8, repeat: 2 }}
+                            className="absolute inset-0 border-8 border-yellow-400 rounded-xl"
+                        />
+                    )}
+
+                    {/* The Win Text Itself */}
+                    <motion.div 
+                        initial={{ scale: 0, rotate: -10 }}
+                        animate={{ scale: 1.2, rotate: 0 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="bg-black/80 text-white font-black text-5xl px-10 py-6 rounded-2xl border-4 border-yellow-400 shadow-[0_0_60px_rgba(255,215,0,0.6)] backdrop-blur-md text-center z-50"
+                    >
+                        <span className="block text-yellow-400 text-7xl mb-2 filter drop-shadow-lg">{winText}</span>
+                        <span className="text-xl font-bold tracking-widest uppercase text-white/90">You Won!</span>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
 
         {/* Viewport */}
         <div className="flex-1 flex items-center justify-center p-8 overflow-hidden">
@@ -905,16 +1035,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                 {/* GAME CONTENT AREA */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4 relative">
-                  {/* Win Message Overlay */}
-                  {showWinMessage && (
-                    <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-                       <div className="bg-black/80 backdrop-blur-md px-8 py-4 rounded-xl border-2 border-yellow-400 shadow-[0_0_50px_rgba(255,215,0,0.5)] animate-in zoom-in-50 duration-300">
-                          <h2 className="text-4xl font-display font-black text-yellow-400 tracking-wider drop-shadow-[0_4px_0_rgba(0,0,0,0.5)] animate-bounce">
-                            {winText}
-                          </h2>
-                       </div>
-                    </div>
-                  )}
+                  {/* (Old Win Message Overlay removed - now handled by global AnimatePresence above) */}
 
                   {/* Jackpot Counter */}
                   {visibleElements.jackpot && (
