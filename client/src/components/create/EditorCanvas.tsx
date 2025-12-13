@@ -45,6 +45,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   // Initialize with defaults so we can always edit indices 0, 1, 2
   const [customSymbols, setCustomSymbols] = useState<string[]>([symbol7, symbolDiamond, symbolBell]);
   const [activeSymbolIndex, setActiveSymbolIndex] = useState<number | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<'symbol' | 'endCardBg' | 'endCardImage' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [background, setBackground] = useState(slotsBg);
@@ -113,8 +114,23 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
       // We can optimistically use the object URL for immediate feedback
       const file = e.target.files[0];
       const previewUrl = URL.createObjectURL(file);
-      handleSymbolUpdate(previewUrl);
+      
+      if (uploadTarget === 'symbol') {
+        handleSymbolUpdate(previewUrl);
+      } else if (uploadTarget === 'endCardBg') {
+        setEndCardBackground(previewUrl);
+      } else if (uploadTarget === 'endCardImage') {
+        setEndCardImage(previewUrl);
+      }
+      
+      // Reset target
+      setUploadTarget(null);
     }
+  };
+
+  const triggerUpload = (target: 'symbol' | 'endCardBg' | 'endCardImage') => {
+    setUploadTarget(target);
+    fileInputRef.current?.click();
   };
 
   // Reset current spins when entering preview mode
@@ -159,6 +175,15 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
       <ExportModal open={showExport} onOpenChange={setShowExport} />
+      
+      {/* Hidden File Input (Shared) */}
+      <input 
+        type="file" 
+        ref={fileInputRef}
+        className="hidden" 
+        accept="image/*"
+        onChange={handleFileUpload}
+      />
       
       {/* Left Sidebar - Controls */}
       <div className="w-80 border-r border-border bg-card flex flex-col">
@@ -405,17 +430,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                           {/* Upload Button */}
                           <div 
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={() => triggerUpload('symbol')}
                             className="aspect-square rounded border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
                           >
                             <Plus className="h-4 w-4" />
-                            <input 
-                              type="file" 
-                              ref={fileInputRef}
-                              className="hidden" 
-                              accept="image/*"
-                              onChange={handleFileUpload}
-                            />
                           </div>
                         </div>
                       </div>
@@ -589,6 +607,14 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                           <img src={asset.previewUrl} className="w-full h-full object-cover" />
                         </div>
                       ))}
+                      
+                      {/* Upload for End Card Bg */}
+                      <div 
+                        onClick={() => triggerUpload('endCardBg')}
+                        className="aspect-video rounded border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </div>
                     </div>
                   </div>
 
@@ -616,6 +642,14 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                            <img src={asset.previewUrl} className="w-full h-full object-contain" />
                          </div>
                        ))}
+                       
+                       {/* Upload for End Card Image */}
+                       <div 
+                         onClick={() => triggerUpload('endCardImage')}
+                         className="h-12 w-12 rounded border border-dashed border-border flex items-center justify-center cursor-pointer shrink-0 hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
+                       >
+                         <Plus className="h-4 w-4" />
+                       </div>
                     </div>
                   </div>
                 </div>
