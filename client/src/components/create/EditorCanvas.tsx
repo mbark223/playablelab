@@ -41,14 +41,14 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   // Helper for template configuration
   const getTemplateConfig = (id: string | null) => {
     if (!id) return {};
-    if (id.includes('egyptian')) return { rows: 3, cols: 5, color: '#fbbf24', headline: 'PHARAOH\'S GOLD' }; // Gold
-    if (id.includes('greek')) return { rows: 4, cols: 5, color: '#3b82f6', headline: 'ZEUS THUNDER' }; // Blue
-    if (id.includes('fruit')) return { rows: 3, cols: 3, color: '#ef4444', headline: 'FRUIT PARTY' }; // Red
-    if (id.includes('neon')) return { rows: 4, cols: 4, color: '#10b981', headline: 'NEON NIGHTS' }; // Green/Neon
-    if (id.includes('ocean')) return { rows: 3, cols: 5, color: '#3b82f6', headline: 'DEEP BLUE' }; // Blue
-    if (id.includes('wild-west')) return { rows: 3, cols: 5, color: '#fbbf24', headline: 'WESTERN WINS' }; // Orange/Gold
-    if (id.includes('space')) return { rows: 4, cols: 4, color: '#8b5cf6', headline: 'GALACTIC SPINS' }; // Purple
-    return { rows: 1, cols: 3, color: '#ffffff', headline: 'MEGA JACKPOT' };
+    if (id.includes('egyptian')) return { rows: 3, cols: 5, color: '#fbbf24', headline: 'PHARAOH\'S GOLD', animation: 'expanding' }; // Gold
+    if (id.includes('greek')) return { rows: 4, cols: 5, color: '#3b82f6', headline: 'ZEUS THUNDER', animation: 'shake' }; // Blue
+    if (id.includes('fruit')) return { rows: 3, cols: 3, color: '#ef4444', headline: 'FRUIT PARTY', animation: 'bounce' }; // Red
+    if (id.includes('neon')) return { rows: 4, cols: 4, color: '#10b981', headline: 'NEON NIGHTS', animation: 'spin' }; // Green/Neon
+    if (id.includes('ocean')) return { rows: 3, cols: 5, color: '#3b82f6', headline: 'DEEP BLUE', animation: 'fade' }; // Blue
+    if (id.includes('wild-west')) return { rows: 3, cols: 5, color: '#fbbf24', headline: 'WESTERN WINS', animation: 'sticky' }; // Orange/Gold
+    if (id.includes('space')) return { rows: 4, cols: 4, color: '#8b5cf6', headline: 'GALACTIC SPINS', animation: 'cascade' }; // Purple
+    return { rows: 1, cols: 3, color: '#ffffff', headline: 'MEGA JACKPOT', animation: 'spin' };
   };
 
   const templateConfig = getTemplateConfig(templateId || null);
@@ -945,7 +945,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                              {/* Reel Strip Animation */}
                              <div className={cn(
                                "flex flex-col gap-1 w-full h-full",
-                               isReelSpinning && "animate-spin-reel"
+                               isReelSpinning && (templateConfig.animation === 'spin' || !templateConfig.animation) && "animate-spin-reel",
+                               isReelSpinning && templateConfig.animation === 'bounce' && "animate-bounce-spin",
+                               isReelSpinning && templateConfig.animation === 'cascade' && "animate-cascade",
+                               isReelSpinning && templateConfig.animation === 'fade' && "animate-fade-reveal",
+                               isReelSpinning && templateConfig.animation === 'shake' && "animate-shake"
                              )}
                              style={{ animationDelay: `${colIndex * 100}ms` }}
                              >
@@ -971,7 +975,8 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                                        src={hasOverride || defaultSymbol} 
                                        className={cn(
                                          "w-full h-full object-contain drop-shadow-md transition-all duration-300",
-                                         isReelSpinning && "blur-[2px]"
+                                         isReelSpinning && (templateConfig.animation === 'spin' || !templateConfig.animation) && "blur-[2px]",
+                                         isReelSpinning && templateConfig.animation === 'fade' && "opacity-50 scale-90"
                                        )}
                                      />
                                      {/* Hover indicator */}

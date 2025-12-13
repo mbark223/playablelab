@@ -38,65 +38,65 @@ interface TemplateGridProps {
 const templates = [
   {
     id: 'slots',
-    title: 'Jackpot Slots',
-    description: 'Auto-populated with your high-value symbols. (3x1 Classic)',
+    title: 'Classic Spin',
+    description: 'Traditional reel spinning animation. Best for classic slot experiences. (3x1 Grid)',
     image: slotsBg,
-    category: 'Casino',
+    category: 'Mechanic',
     compatibility: ['logo', 'symbol', 'background'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'egyptian-slots',
-    title: 'Pharaoh\'s Riches',
-    description: 'Mysterious Egyptian theme with expanding wilds. (5x3 Grid)',
-    image: egyptianImg,
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'greek-slots',
-    title: 'Zeus Thunder',
-    description: 'Epic mythology theme with lightning bonuses. (5x4 Grid)',
-    image: greekImg,
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'wild-west-slots',
-    title: 'Sheriff\'s Gold',
-    description: 'High volatility western theme with sticky wilds. (3x5 Grid)',
-    image: wildWestImg,
-    category: 'Casino',
-    compatibility: ['logo', 'symbol', 'background'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'ocean-slots',
-    title: 'Deep Blue Treasure',
-    description: 'Relaxing underwater theme with bubble pop bonus. (5x3 Grid)',
-    image: oceanImg,
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
     requiredAssets: ['symbol']
   },
   {
     id: 'space-slots',
-    title: 'Galactic Spins',
-    description: 'Futuristic sci-fi theme with cascading reels. (4x4 Grid)',
+    title: 'Cascading Drops',
+    description: 'Symbols fall from above like a waterfall. Great for modern video slots. (4x4 Grid)',
     image: spaceImg,
-    category: 'Casino',
+    category: 'Mechanic',
     compatibility: ['logo', 'symbol', 'background'],
     requiredAssets: ['symbol']
   },
   {
     id: 'fruit-slots',
-    title: 'Fruit Party',
-    description: 'Classic fruit machine with a modern twist. (3x3 Grid)',
+    title: 'Bouncing Reels',
+    description: 'Playful bounce effect when reels stop. energetic and fun. (3x3 Grid)',
     image: fruitImg,
-    category: 'Casino',
+    category: 'Mechanic',
     compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'ocean-slots',
+    title: 'Bubble Reveal',
+    description: 'Symbols float up and fade in. Perfect for underwater or ethereal themes. (5x3 Grid)',
+    image: oceanImg,
+    category: 'Mechanic',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'egyptian-slots',
+    title: 'Expanding Wilds',
+    description: 'Focus on central expanding symbols animation. High volatility feel. (5x3 Grid)',
+    image: egyptianImg,
+    category: 'Mechanic',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'greek-slots',
+    title: 'Thunder Strike',
+    description: 'Intense flash and shake animation on win. (5x4 Grid)',
+    image: greekImg,
+    category: 'Mechanic',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'wild-west-slots',
+    title: 'Sticky Wins',
+    description: 'Winning symbols stay in place while others respin. (3x5 Grid)',
+    image: wildWestImg,
+    category: 'Mechanic',
+    compatibility: ['logo', 'symbol', 'background'],
     requiredAssets: ['symbol']
   },
   {
@@ -105,24 +105,6 @@ const templates = [
     description: 'Premium European roulette experience.',
     image: rouletteImg,
     category: 'Table Game',
-    compatibility: ['logo', 'background'],
-    requiredAssets: ['logo']
-  },
-  {
-    id: 'blackjack',
-    title: 'Pro Blackjack',
-    description: 'First-person blackjack with side bets.',
-    image: blackjackImg,
-    category: 'Table Game',
-    compatibility: ['logo', 'background'],
-    requiredAssets: ['logo']
-  },
-  {
-    id: 'poker',
-    title: 'Texas Hold\'em',
-    description: 'Tournament style poker showdown.',
-    image: pokerImg,
-    category: 'Card Game',
     compatibility: ['logo', 'background'],
     requiredAssets: ['logo']
   },
@@ -145,148 +127,13 @@ const templates = [
     requiredAssets: ['symbol']
   },
   {
-    id: 'plinko',
-    title: 'Plinko Drop',
-    description: 'Addictive ball drop game with multipliers.',
-    image: plinkoImg,
-    category: 'Arcade',
-    compatibility: ['logo', 'background'],
-    requiredAssets: ['logo']
-  },
-  {
-    id: 'baccarat',
-    title: 'VIP Baccarat',
-    description: 'High-stakes baccarat for VIP players.',
-    image: baccaratImg,
+    id: 'blackjack',
+    title: 'Pro Blackjack',
+    description: 'First-person blackjack with side bets.',
+    image: blackjackImg,
     category: 'Table Game',
     compatibility: ['logo', 'background'],
     requiredAssets: ['logo']
-  },
-  {
-    id: 'craps',
-    title: 'Dice Master',
-    description: 'Exciting craps table with realistic physics.',
-    image: crapsImg,
-    category: 'Table Game',
-    compatibility: ['logo', 'background'],
-    requiredAssets: ['logo']
-  },
-  {
-    id: 'keno',
-    title: 'Lucky Keno',
-    description: 'Fast-paced lottery style number game.',
-    image: kenoImg,
-    category: 'Instant Win',
-    compatibility: ['logo', 'background'],
-    requiredAssets: ['logo']
-  },
-  {
-    id: 'runner',
-    title: 'Endless Runner',
-    description: 'Your character running in your branded environment.',
-    image: runnerImg,
-    category: 'Action',
-    compatibility: ['character', 'background', 'logo'],
-    requiredAssets: ['character']
-  },
-  {
-    id: 'puzzle',
-    title: 'Match-3 Puzzle',
-    description: 'Match your product icons to win points.',
-    image: puzzleImg,
-    category: 'Puzzle',
-    compatibility: ['product', 'logo', 'background'],
-    requiredAssets: ['product']
-  },
-  {
-    id: 'quiz',
-    title: 'Interactive Quiz',
-    description: 'Trivia about your brand features.',
-    image: quizImg,
-    category: 'Trivia',
-    compatibility: ['logo', 'background'],
-    requiredAssets: ['logo']
-  },
-  {
-    id: 'dragon-slots',
-    title: 'Dragon Empire',
-    description: 'Fortune awaits in this golden Asian-themed slot.',
-    image: egyptianImg, // Reusing distinct style
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'irish-slots',
-    title: 'Leprechaun\'s Luck',
-    description: 'Chase the rainbow for the pot of gold.',
-    image: fruitImg, // Bright/Colorful
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'neon-slots',
-    title: 'Neon Nights',
-    description: 'Retro 80s synthwave style with glowing reels. (4x4 Grid)',
-    image: spaceImg, // Dark/Glowing
-    category: 'Casino',
-    compatibility: ['logo', 'symbol', 'background'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'safari-slots',
-    title: 'Safari King',
-    description: 'Wild animals and savannah sunsets.',
-    image: wildWestImg, // Earthy tones
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'viking-slots',
-    title: 'Viking Voyage',
-    description: 'Raid the reels for massive plunder.',
-    image: greekImg, // Epic/Mythology
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'maya-slots',
-    title: 'Mayan Mystery',
-    description: 'Uncover ancient treasures in the jungle.',
-    image: egyptianImg, // Ancient/Stone
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'pirate-slots',
-    title: 'Pirate\'s Gold',
-    description: 'High seas adventure with stacking wilds.',
-    image: oceanImg, // Water/Blue
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'luxury-slots',
-    title: 'Diamond Deluxe',
-    description: 'High roller experience with diamond symbols.',
-    image: rouletteImg, // Luxury/Green/Gold
-    category: 'Casino',
-    compatibility: ['logo', 'symbol', 'background'],
-    requiredAssets: ['symbol']
-  },
-  {
-    id: 'candy-slots',
-    title: 'Candy Kingdom',
-    description: 'Sweet wins with tumbling sugar blocks.',
-    image: fruitImg, // Colorful
-    category: 'Casino',
-    compatibility: ['logo', 'symbol'],
-    requiredAssets: ['symbol']
   }
 ];
 
