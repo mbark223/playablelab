@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
 import { useAssets } from '@/lib/AssetContext';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useRef } from 'react';
 
 // Assets
 import runnerImg from '@assets/generated_images/mobile_runner_game_screenshot.png';
@@ -26,7 +27,7 @@ interface EditorCanvasProps {
 }
 
 export default function EditorCanvas({ templateId }: EditorCanvasProps) {
-  const { assets, getAssetsByType } = useAssets();
+  const { assets, getAssetsByType, addAsset } = useAssets();
   const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showExport, setShowExport] = useState(false);
@@ -41,7 +42,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [headline, setHeadline] = useState("MEGA JACKPOT");
   const [ctaText, setCtaText] = useState(editorMode === 'wheel' ? "SPIN WHEEL" : editorMode === 'scratch' ? "SCRATCH NOW" : "SPIN NOW");
   const [logo, setLogo] = useState(casinoLogo);
-  const [customSymbols, setCustomSymbols] = useState<string[]>([]);
+  // Initialize with defaults so we can always edit indices 0, 1, 2
+  const [customSymbols, setCustomSymbols] = useState<string[]>([symbol7, symbolDiamond, symbolBell]);
+  const [activeSymbolIndex, setActiveSymbolIndex] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [background, setBackground] = useState(slotsBg);
   
   // Game Settings
@@ -70,19 +75,41 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     headline: true
   });
 
-  // Auto-populate from uploaded assets
+  // Auto-populate from uploaded assets but preserve order if possible
   useEffect(() => {
     const logos = getAssetsByType('logo');
-    if (logos.length > 0) setLogo(logos[0].previewUrl);
+    if (logos.length > 0 && logo === casinoLogo) setLogo(logos[0].previewUrl);
 
     const bgs = getAssetsByType('background');
-    if (bgs.length > 0) setBackground(bgs[0].previewUrl);
+    if (bgs.length > 0 && background === slotsBg) setBackground(bgs[0].previewUrl);
 
-    const symbols = getAssetsByType('symbol');
-    if (symbols.length > 0) {
-      setCustomSymbols(symbols.map(s => s.previewUrl));
-    }
+    // Don't auto-overwrite symbols anymore, let user choose
   }, [assets]);
+
+  const handleSymbolUpdate = (newUrl: string) => {
+    if (activeSymbolIndex === null) return;
+    
+    const newSymbols = [...customSymbols];
+    // Ensure array is long enough
+    while (newSymbols.length <= activeSymbolIndex) {
+      newSymbols.push(symbol7); // Fill with default
+    }
+    
+    newSymbols[activeSymbolIndex] = newUrl;
+    setCustomSymbols(newSymbols);
+    // Don't close immediately so they can try others
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      addAsset(Array.from(e.target.files));
+      // The asset will be added to context. 
+      // We can optimistically use the object URL for immediate feedback
+      const file = e.target.files[0];
+      const previewUrl = URL.createObjectURL(file);
+      handleSymbolUpdate(previewUrl);
+    }
+  };
 
   // Reset current spins when entering preview mode
   useEffect(() => {
@@ -306,13 +333,87 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                       <Crown className="h-4 w-4 text-yellow-500" />
                       High Value Symbols
                     </label>
+                    <p className="text-xs text-muted-foreground mb-2">Click a symbol to replace it.</p>
+                    
                     <div className="grid grid-cols-3 gap-2">
-                      {(customSymbols.length > 0 ? customSymbols : [symbol7, symbolDiamond, symbolBell]).slice(0, 3).map((sym, i) => (
-                        <div key={i} className="aspect-square rounded-md border border-border bg-background p-2 flex items-center justify-center cursor-pointer hover:border-primary">
-                          <img src={sym} className="w-full h-full object-contain drop-shadow-lg" />
+                      {[0, 1, 2].map((i) => (
+                        <div 
+                          key={i} 
+                          onClick={() => setActiveSymbolIndex(i === activeSymbolIndex ? null : i)}
+                          className={cn(
+                            "aspect-square rounded-md border-2 bg-background p-2 flex items-center justify-center cursor-pointer transition-all relative",
+                            activeSymbolIndex === i ? "border-primary ring-2 ring-primary/30 scale-105 z-10" : "border-border hover:border-primary/50"
+                          )}
+                        >
+                          <img 
+                            src={customSymbols[i] || [symbol7, symbolDiamond, symbolBell][i]} 
+                            className="w-full h-full object-contain drop-shadow-lg" 
+                          />
+                          {activeSymbolIndex === i && (
+                            <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full p-1 shadow-lg">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
+
+                    {/* Symbol Selector Panel */}
+                    {activeSymbolIndex !== null && (
+                      <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-border animate-in slide-in-from-top-2">
+                        <div className="flex justify-between items-center mb-2">
+                           <span className="text-xs font-bold uppercase text-muted-foreground">Select Replacement</span>
+                           <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setActiveSymbolIndex(null)}>
+                             <X className="h-3 w-3" />
+                           </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-5 gap-2 mb-3">
+                          {/* Defaults */}
+                          {[symbol7, symbolDiamond, symbolBell, symbolCherry, chipRed, chipBlue].map((s, i) => (
+                            <div 
+                              key={`def-${i}`}
+                              onClick={() => handleSymbolUpdate(s)}
+                              className={cn(
+                                "aspect-square rounded border bg-white p-1 cursor-pointer hover:scale-110 transition-transform",
+                                customSymbols[activeSymbolIndex] === s ? "border-primary ring-1 ring-primary" : "border-transparent"
+                              )}
+                            >
+                              <img src={s} className="w-full h-full object-contain" />
+                            </div>
+                          ))}
+                          
+                          {/* User Uploads */}
+                          {getAssetsByType('symbol').map((asset) => (
+                             <div 
+                               key={asset.id}
+                               onClick={() => handleSymbolUpdate(asset.previewUrl)}
+                               className={cn(
+                                 "aspect-square rounded border bg-white p-1 cursor-pointer hover:scale-110 transition-transform",
+                                 customSymbols[activeSymbolIndex] === asset.previewUrl ? "border-primary ring-1 ring-primary" : "border-transparent"
+                               )}
+                             >
+                               <img src={asset.previewUrl} className="w-full h-full object-contain" />
+                             </div>
+                          ))}
+
+                          {/* Upload Button */}
+                          <div 
+                            onClick={() => fileInputRef.current?.click()}
+                            className="aspect-square rounded border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            <Plus className="h-4 w-4" />
+                            <input 
+                              type="file" 
+                              ref={fileInputRef}
+                              className="hidden" 
+                              accept="image/*"
+                              onChange={handleFileUpload}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
