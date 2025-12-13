@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'wouter';
 import { ChevronRight, Home } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 import Layout from '@/components/layout/Layout';
 import FileUpload from '@/components/create/FileUpload';
@@ -28,9 +29,26 @@ export default function Create() {
           </Link>
           <div className="h-6 w-px bg-border" />
           <nav className="flex items-center gap-2 text-sm font-medium">
-            <span className={step >= 1 ? "text-primary" : "text-muted-foreground"}>Upload</span>
+            <button 
+              onClick={() => setStep(1)}
+              className={cn(
+                "transition-colors hover:text-primary",
+                step >= 1 ? "text-primary" : "text-muted-foreground"
+              )}
+            >
+              Upload
+            </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <span className={step >= 2 ? "text-primary" : "text-muted-foreground"}>Template</span>
+            <button 
+              onClick={() => step >= 2 && setStep(2)}
+              disabled={step < 2}
+              className={cn(
+                "transition-colors",
+                step >= 2 ? "text-primary hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
+              )}
+            >
+              Template
+            </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
             <span className={step >= 3 ? "text-primary" : "text-muted-foreground"}>Editor</span>
           </nav>
