@@ -69,6 +69,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [endCardSubtext, setEndCardSubtext] = useState("$500 BONUS + 50 SPINS");
   const [endCardCta, setEndCardCta] = useState("CLAIM PRIZE");
   const [showEndCard, setShowEndCard] = useState(false);
+  const [endCardBackground, setEndCardBackground] = useState<string | null>(null);
+  const [endCardImage, setEndCardImage] = useState<string | null>(null);
+  const [showEndCardLogo, setShowEndCardLogo] = useState(true);
 
   // Element Visibility (Switch Elements)
   const [visibleElements, setVisibleElements] = useState({
@@ -550,6 +553,73 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   </p>
                 </div>
 
+                {/* End Card Branding */}
+                <div className="space-y-4 border-b border-border pb-4">
+                  <h4 className="text-sm font-medium">Branding & Visuals</h4>
+                  
+                  <div className="flex items-center justify-between">
+                     <label className="text-sm text-muted-foreground">Show Logo</label>
+                     <Switch 
+                       checked={showEndCardLogo} 
+                       onCheckedChange={setShowEndCardLogo}
+                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground">Background Image</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div 
+                        onClick={() => setEndCardBackground(null)}
+                        className={cn(
+                          "aspect-video rounded border flex items-center justify-center cursor-pointer text-xs",
+                          endCardBackground === null ? "border-primary bg-primary/10 text-primary" : "border-border bg-background"
+                        )}
+                      >
+                        Default (Dark)
+                      </div>
+                      {getAssetsByType('background').map(asset => (
+                        <div 
+                          key={asset.id}
+                          onClick={() => setEndCardBackground(asset.previewUrl)}
+                          className={cn(
+                            "aspect-video rounded border overflow-hidden cursor-pointer relative",
+                            endCardBackground === asset.previewUrl ? "border-primary ring-1 ring-primary" : "border-transparent"
+                          )}
+                        >
+                          <img src={asset.previewUrl} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground">Prize Image / Icon</label>
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                       <div 
+                         onClick={() => setEndCardImage(null)}
+                         className={cn(
+                           "h-12 w-12 rounded border flex items-center justify-center cursor-pointer shrink-0",
+                           endCardImage === null ? "border-primary bg-primary/10 text-primary" : "border-border bg-background"
+                         )}
+                       >
+                         <Trophy className="h-6 w-6" />
+                       </div>
+                       {getAssetsByType('product').concat(getAssetsByType('symbol')).map(asset => (
+                         <div 
+                           key={asset.id}
+                           onClick={() => setEndCardImage(asset.previewUrl)}
+                           className={cn(
+                             "h-12 w-12 rounded border overflow-hidden cursor-pointer shrink-0 bg-white",
+                             endCardImage === asset.previewUrl ? "border-primary ring-1 ring-primary" : "border-border"
+                           )}
+                         >
+                           <img src={asset.previewUrl} className="w-full h-full object-contain" />
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-3">
                   <label className="text-sm font-medium">End Headline</label>
                   <input 
@@ -883,12 +953,34 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
               {/* End Card Overlay */}
               {(viewMode === 'endcard' || showEndCard) && (
-                <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
-                  <div className="w-full max-w-sm text-center space-y-6">
-                    {/* Winner Icon */}
-                    <div className="mx-auto h-24 w-24 rounded-full bg-yellow-500/20 flex items-center justify-center border-4 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.4)] animate-bounce">
-                      <Trophy className="h-12 w-12 text-yellow-400 fill-yellow-400" />
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300 overflow-hidden">
+                  {/* Background Layer */}
+                  <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
+                  {endCardBackground && (
+                    <div className="absolute inset-0 z-0">
+                      <img src={endCardBackground} className="w-full h-full object-cover opacity-50" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                     </div>
+                  )}
+
+                  <div className="w-full max-w-sm text-center space-y-6 relative z-10">
+                    {/* Optional Logo */}
+                    {showEndCardLogo && (
+                       <div className="flex justify-center mb-4">
+                         <img src={logo} className="h-12 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                       </div>
+                    )}
+
+                    {/* Winner Icon / Image */}
+                    {endCardImage ? (
+                      <div className="mx-auto h-32 w-32 flex items-center justify-center animate-bounce">
+                        <img src={endCardImage} className="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]" />
+                      </div>
+                    ) : (
+                      <div className="mx-auto h-24 w-24 rounded-full bg-yellow-500/20 flex items-center justify-center border-4 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.4)] animate-bounce">
+                        <Trophy className="h-12 w-12 text-yellow-400 fill-yellow-400" />
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <h2 className="text-4xl font-black text-white uppercase drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]">
