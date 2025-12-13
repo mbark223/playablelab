@@ -40,7 +40,8 @@ const templates = [
     description: 'Auto-populated with your high-value symbols.',
     image: slotsBg,
     category: 'Casino',
-    compatibility: ['logo', 'symbol', 'background']
+    compatibility: ['logo', 'symbol', 'background'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'egyptian-slots',
@@ -48,7 +49,8 @@ const templates = [
     description: 'Mysterious Egyptian theme with expanding wilds.',
     image: egyptianImg,
     category: 'Casino',
-    compatibility: ['logo', 'symbol']
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'greek-slots',
@@ -56,7 +58,8 @@ const templates = [
     description: 'Epic mythology theme with lightning bonuses.',
     image: greekImg,
     category: 'Casino',
-    compatibility: ['logo', 'symbol']
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'wild-west-slots',
@@ -64,7 +67,8 @@ const templates = [
     description: 'High volatility western theme with sticky wilds.',
     image: wildWestImg,
     category: 'Casino',
-    compatibility: ['logo', 'symbol', 'background']
+    compatibility: ['logo', 'symbol', 'background'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'ocean-slots',
@@ -72,7 +76,8 @@ const templates = [
     description: 'Relaxing underwater theme with bubble pop bonus.',
     image: oceanImg,
     category: 'Casino',
-    compatibility: ['logo', 'symbol']
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'space-slots',
@@ -80,7 +85,8 @@ const templates = [
     description: 'Futuristic sci-fi theme with cascading reels.',
     image: spaceImg,
     category: 'Casino',
-    compatibility: ['logo', 'symbol', 'background']
+    compatibility: ['logo', 'symbol', 'background'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'fruit-slots',
@@ -88,7 +94,8 @@ const templates = [
     description: 'Classic fruit machine with a modern twist.',
     image: fruitImg,
     category: 'Casino',
-    compatibility: ['logo', 'symbol']
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'roulette',
@@ -96,7 +103,8 @@ const templates = [
     description: 'Premium European roulette experience.',
     image: rouletteImg,
     category: 'Table Game',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   },
   {
     id: 'blackjack',
@@ -104,7 +112,8 @@ const templates = [
     description: 'First-person blackjack with side bets.',
     image: blackjackImg,
     category: 'Table Game',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   },
   {
     id: 'poker',
@@ -112,7 +121,8 @@ const templates = [
     description: 'Tournament style poker showdown.',
     image: pokerImg,
     category: 'Card Game',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   },
   {
     id: 'wheel',
@@ -120,7 +130,8 @@ const templates = [
     description: 'Colorful fortune wheel with custom prizes.',
     image: wheelImg,
     category: 'Instant Win',
-    compatibility: ['logo', 'product', 'background']
+    compatibility: ['logo', 'product', 'background'],
+    requiredAssets: ['product']
   },
   {
     id: 'scratch',
@@ -128,7 +139,8 @@ const templates = [
     description: 'Satisfying scratch card reveal mechanic.',
     image: scratchImg,
     category: 'Instant Win',
-    compatibility: ['logo', 'symbol']
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
   },
   {
     id: 'plinko',
@@ -136,7 +148,8 @@ const templates = [
     description: 'Addictive ball drop game with multipliers.',
     image: plinkoImg,
     category: 'Arcade',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   },
   {
     id: 'baccarat',
@@ -144,7 +157,8 @@ const templates = [
     description: 'High-stakes baccarat for VIP players.',
     image: baccaratImg,
     category: 'Table Game',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   },
   {
     id: 'craps',
@@ -152,7 +166,8 @@ const templates = [
     description: 'Exciting craps table with realistic physics.',
     image: crapsImg,
     category: 'Table Game',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   },
   {
     id: 'keno',
@@ -160,7 +175,8 @@ const templates = [
     description: 'Fast-paced lottery style number game.',
     image: kenoImg,
     category: 'Instant Win',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   },
   {
     id: 'runner',
@@ -168,7 +184,8 @@ const templates = [
     description: 'Your character running in your branded environment.',
     image: runnerImg,
     category: 'Action',
-    compatibility: ['character', 'background', 'logo']
+    compatibility: ['character', 'background', 'logo'],
+    requiredAssets: ['character']
   },
   {
     id: 'puzzle',
@@ -176,7 +193,8 @@ const templates = [
     description: 'Match your product icons to win points.',
     image: puzzleImg,
     category: 'Puzzle',
-    compatibility: ['product', 'logo', 'background']
+    compatibility: ['product', 'logo', 'background'],
+    requiredAssets: ['product']
   },
   {
     id: 'quiz',
@@ -184,7 +202,8 @@ const templates = [
     description: 'Trivia about your brand features.',
     image: quizImg,
     category: 'Trivia',
-    compatibility: ['logo', 'background']
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
   }
 ];
 
@@ -192,13 +211,25 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
   const { assets } = useAssets();
   const uploadedTypes = new Set(assets.map(a => a.type));
 
+  // Filter templates based on required assets
+  const matchingTemplates = templates.filter(template => {
+    // If no required assets are defined, it's always compatible (or fallback to logo)
+    if (!template.requiredAssets || template.requiredAssets.length === 0) return true;
+    
+    // Check if user has uploaded ANY of the required asset types for this template
+    // (Relaxed strictness: has at least one required type)
+    // Or Strict: Must have ALL required types? 
+    // Let's go with: Must have at least one of the "required" types (usually the key mechanic asset)
+    return template.requiredAssets.some(type => uploadedTypes.has(type as any));
+  });
+
   return (
     <div className="w-full max-w-6xl mx-auto py-12 px-6">
       <div className="flex items-center justify-between mb-10">
         <div>
           <h2 className="text-3xl font-display font-bold mb-2">Recommended Templates</h2>
           <p className="text-muted-foreground text-lg">
-            We've matched your assets to these playable formats.
+            Showing {matchingTemplates.length} templates compatible with your uploaded assets.
           </p>
         </div>
         <div className="flex gap-3">
@@ -206,98 +237,109 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
           <Button disabled={!selectedId} onClick={onNext}>Customize Design</Button>
         </div>
       </div>
+      
+      {matchingTemplates.length === 0 ? (
+        <div className="text-center py-20 border-2 border-dashed border-border rounded-xl bg-card/50">
+          <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-xl font-bold mb-2">No Matching Templates Found</h3>
+          <p className="text-muted-foreground max-w-md mx-auto mb-6">
+            We couldn't find any templates that match your uploaded assets. Try uploading a <strong>Logo</strong>, <strong>Character</strong>, or <strong>Product Image</strong> to unlock more options.
+          </p>
+          <Button variant="secondary" onClick={onBack}>Upload More Assets</Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {matchingTemplates.map((template) => {
+            // Calculate match score based on uploaded assets
+            const matchCount = template.compatibility.filter(type => uploadedTypes.has(type as any)).length;
+            const isBestMatch = matchCount >= 2;
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {templates.map((template) => {
-          // Calculate match score based on uploaded assets
-          const matchCount = template.compatibility.filter(type => uploadedTypes.has(type as any)).length;
-          const isBestMatch = matchCount >= 2;
-
-          return (
-            <motion.div
-              key={template.id}
-              whileHover={{ y: -5 }}
-              onClick={() => onSelect(template.id)}
-              className={cn(
-                "group relative rounded-xl overflow-hidden border-2 cursor-pointer transition-all h-[360px] flex flex-col bg-card",
-                selectedId === template.id
-                  ? "border-primary shadow-[0_0_0_4px_rgba(124,58,237,0.2)]"
-                  : "border-transparent hover:border-primary/50"
-              )}
-            >
-              <div className="h-48 overflow-hidden relative">
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
-                 <img 
-                   src={template.image} 
-                   alt={template.title}
-                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                 />
-                 
-                 {/* Asset Preview Overlay - Simulating "Your assets inside" */}
-                 {assets.length > 0 && (
-                   <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                     <div className="flex -space-x-2">
-                       {assets.slice(0, 3).map((asset, i) => (
-                         <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-background overflow-hidden">
-                           <img src={asset.previewUrl} className="w-full h-full object-cover" />
-                         </div>
-                       ))}
-                       {assets.length > 3 && (
-                         <div className="h-8 w-8 rounded-full border-2 border-white bg-background flex items-center justify-center text-[10px] font-bold">
-                           +{assets.length - 3}
-                         </div>
-                       )}
+            return (
+              <motion.div
+                key={template.id}
+                whileHover={{ y: -5 }}
+                onClick={() => onSelect(template.id)}
+                className={cn(
+                  "group relative rounded-xl overflow-hidden border-2 cursor-pointer transition-all h-[360px] flex flex-col bg-card",
+                  selectedId === template.id
+                    ? "border-primary shadow-[0_0_0_4px_rgba(124,58,237,0.2)]"
+                    : "border-transparent hover:border-primary/50"
+                )}
+              >
+                <div className="h-48 overflow-hidden relative">
+                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                   <img 
+                     src={template.image} 
+                     alt={template.title}
+                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                   />
+                   
+                   {/* Asset Preview Overlay - Simulating "Your assets inside" */}
+                   {assets.length > 0 && (
+                     <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                       <div className="flex -space-x-2">
+                         {assets.filter(a => template.compatibility.includes(a.type)).slice(0, 3).map((asset, i) => (
+                           <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-background overflow-hidden">
+                             <img src={asset.previewUrl} className="w-full h-full object-cover" />
+                           </div>
+                         ))}
+                         {assets.filter(a => template.compatibility.includes(a.type)).length > 3 && (
+                           <div className="h-8 w-8 rounded-full border-2 border-white bg-background flex items-center justify-center text-[10px] font-bold">
+                             +{assets.filter(a => template.compatibility.includes(a.type)).length - 3}
+                           </div>
+                         )}
+                       </div>
                      </div>
-                   </div>
-                 )}
-
-                 <div className="absolute top-3 left-3 z-20 flex gap-2">
-                   <span className="px-2 py-1 rounded-full bg-black/50 backdrop-blur-md text-xs font-medium text-white border border-white/10">
-                     {template.category}
-                   </span>
-                   {isBestMatch && (
-                      <span className="px-2 py-1 rounded-full bg-primary/90 backdrop-blur-md text-xs font-bold text-white shadow-lg flex items-center gap-1">
-                        <Sparkles className="h-3 w-3" /> Best Match
-                      </span>
                    )}
-                 </div>
-              </div>
-              
-              <div className="p-4 flex flex-col flex-1">
-                <h3 className="font-display font-bold text-lg mb-1">{template.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                  {template.description}
-                </p>
+
+                   <div className="absolute top-3 left-3 z-20 flex gap-2">
+                     <span className="px-2 py-1 rounded-full bg-black/50 backdrop-blur-md text-xs font-medium text-white border border-white/10">
+                       {template.category}
+                     </span>
+                     {isBestMatch && (
+                        <span className="px-2 py-1 rounded-full bg-primary/90 backdrop-blur-md text-xs font-bold text-white shadow-lg flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" /> Best Match
+                        </span>
+                     )}
+                   </div>
+                </div>
                 
-                <div className="mt-auto">
-                  <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Asset Usage</p>
-                  <div className="flex flex-wrap gap-1">
-                    {template.compatibility.map(type => (
-                      <span 
-                        key={type} 
-                        className={cn(
-                          "text-[10px] px-1.5 py-0.5 rounded border capitalize",
-                          uploadedTypes.has(type as any) 
-                            ? "bg-green-500/10 text-green-500 border-green-500/20" 
-                            : "bg-muted text-muted-foreground/50 border-transparent"
-                        )}
-                      >
-                        {type}
-                      </span>
-                    ))}
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="font-display font-bold text-lg mb-1">{template.title}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                    {template.description}
+                  </p>
+                  
+                  <div className="mt-auto">
+                    <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Required Assets</p>
+                    <div className="flex flex-wrap gap-1">
+                      {template.compatibility.map(type => (
+                        <span 
+                          key={type} 
+                          className={cn(
+                            "text-[10px] px-1.5 py-0.5 rounded border capitalize",
+                            uploadedTypes.has(type as any) 
+                              ? "bg-green-500/10 text-green-500 border-green-500/20" 
+                              : (template.requiredAssets?.includes(type) ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-muted text-muted-foreground/50 border-transparent")
+                          )}
+                        >
+                          {type}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {selectedId === template.id && (
-                <div className="absolute top-3 right-3 z-20 h-6 w-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg">
-                  <Check className="h-3.5 w-3.5" />
-                </div>
-              )}
-            </motion.div>
-          );
-        })}
-      </div>
+                {selectedId === template.id && (
+                  <div className="absolute top-3 right-3 z-20 h-6 w-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-lg">
+                    <Check className="h-3.5 w-3.5" />
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
