@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
@@ -85,7 +85,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [disclaimerText, setDisclaimerText] = useState('No purchase necessary. 18+ only. T&Cs apply.');
   const [winText, setWinText] = useState('BIG WIN!');
   const [showWinMessage, setShowWinMessage] = useState(false);
-  const [winAnimationType, setWinAnimationType] = useState<'coins' | 'confetti' | 'pulse' | 'flash'>('coins');
+  const [winAnimationType, setWinAnimationType] = useState<'coins' | 'confetti' | 'pulse' | 'flash' | 'balloons' | 'money-rain' | 'lightning' | 'heart-burst' | 'starfall' | 'glitch' | 'neon-glow' | 'spotlight' | 'disco-ball' | 'snowfall' | 'fire' | 'bubbles' | 'laser-beams' | 'ribbon' | 'shockwave' | 'magic'>('coins');
 
   // End Card Settings
   const [endCardHeadline, setEndCardHeadline] = useState("YOU WON!");
@@ -328,38 +328,68 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                 <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
                     <label className="text-xs font-medium text-muted-foreground">Win Celebration Style</label>
-                    <div className="grid grid-cols-2 gap-2">
-                        <Button 
-                            variant={winAnimationType === 'coins' ? 'default' : 'outline'}
-                            size="sm"
-                            className="text-xs justify-start h-8"
-                            onClick={() => setWinAnimationType('coins')}
-                        >
+                    <div className="grid grid-cols-2 gap-2 h-48 overflow-y-auto custom-scrollbar pr-1">
+                        <Button variant={winAnimationType === 'coins' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('coins')}>
                             <Coins className="h-3 w-3 mr-2" /> Coin Shower
                         </Button>
-                        <Button 
-                            variant={winAnimationType === 'confetti' ? 'default' : 'outline'}
-                            size="sm"
-                            className="text-xs justify-start h-8"
-                            onClick={() => setWinAnimationType('confetti')}
-                        >
+                        <Button variant={winAnimationType === 'confetti' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('confetti')}>
                             <PartyPopper className="h-3 w-3 mr-2" /> Fireworks
                         </Button>
-                        <Button 
-                            variant={winAnimationType === 'pulse' ? 'default' : 'outline'}
-                            size="sm"
-                            className="text-xs justify-start h-8"
-                            onClick={() => setWinAnimationType('pulse')}
-                        >
-                            <Zap className="h-3 w-3 mr-2" /> Pulse
+                        <Button variant={winAnimationType === 'pulse' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('pulse')}>
+                            <Activity className="h-3 w-3 mr-2" /> Pulse
                         </Button>
-                        <Button 
-                            variant={winAnimationType === 'flash' ? 'default' : 'outline'}
-                            size="sm"
-                            className="text-xs justify-start h-8"
-                            onClick={() => setWinAnimationType('flash')}
-                        >
-                            <Crown className="h-3 w-3 mr-2" /> Flash
+                        <Button variant={winAnimationType === 'flash' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('flash')}>
+                            <Zap className="h-3 w-3 mr-2" /> Flash
+                        </Button>
+                        
+                        {/* New Styles */}
+                        <Button variant={winAnimationType === 'balloons' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('balloons')}>
+                            <div className="h-3 w-3 mr-2 rounded-full bg-red-400" /> Balloons
+                        </Button>
+                        <Button variant={winAnimationType === 'money-rain' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('money-rain')}>
+                            <CloudRain className="h-3 w-3 mr-2" /> Money Rain
+                        </Button>
+                        <Button variant={winAnimationType === 'lightning' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('lightning')}>
+                            <ZapOff className="h-3 w-3 mr-2" /> Lightning
+                        </Button>
+                        <Button variant={winAnimationType === 'heart-burst' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('heart-burst')}>
+                            <Heart className="h-3 w-3 mr-2" /> Heart Burst
+                        </Button>
+                        <Button variant={winAnimationType === 'starfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('starfall')}>
+                            <Star className="h-3 w-3 mr-2" /> Starfall
+                        </Button>
+                        <Button variant={winAnimationType === 'glitch' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('glitch')}>
+                            <Zap className="h-3 w-3 mr-2" /> Glitch
+                        </Button>
+                        <Button variant={winAnimationType === 'neon-glow' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('neon-glow')}>
+                            <Lightbulb className="h-3 w-3 mr-2" /> Neon Glow
+                        </Button>
+                        <Button variant={winAnimationType === 'spotlight' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('spotlight')}>
+                            <Aperture className="h-3 w-3 mr-2" /> Spotlight
+                        </Button>
+                        <Button variant={winAnimationType === 'disco-ball' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('disco-ball')}>
+                            <Disc className="h-3 w-3 mr-2" /> Disco Ball
+                        </Button>
+                        <Button variant={winAnimationType === 'snowfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('snowfall')}>
+                            <Snowflake className="h-3 w-3 mr-2" /> Snowfall
+                        </Button>
+                        <Button variant={winAnimationType === 'fire' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('fire')}>
+                            <Flame className="h-3 w-3 mr-2" /> Fire
+                        </Button>
+                        <Button variant={winAnimationType === 'bubbles' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('bubbles')}>
+                            <Droplets className="h-3 w-3 mr-2" /> Bubbles
+                        </Button>
+                        <Button variant={winAnimationType === 'laser-beams' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('laser-beams')}>
+                            <div className="h-0.5 w-3 mr-2 bg-red-500" /> Lasers
+                        </Button>
+                        <Button variant={winAnimationType === 'ribbon' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('ribbon')}>
+                            <Ribbon className="h-3 w-3 mr-2" /> Ribbon
+                        </Button>
+                        <Button variant={winAnimationType === 'shockwave' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('shockwave')}>
+                            <Waves className="h-3 w-3 mr-2" /> Shockwave
+                        </Button>
+                         <Button variant={winAnimationType === 'magic' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('magic')}>
+                            <Wand2 className="h-3 w-3 mr-2" /> Magic
                         </Button>
                     </div>
                 </div>
@@ -989,6 +1019,288 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                             transition={{ duration: 0.8, repeat: 2 }}
                             className="absolute inset-0 border-8 border-yellow-400 rounded-xl"
                         />
+                    )}
+
+                    {/* NEW ANIMATIONS */}
+                    
+                    {/* Balloons */}
+                    {winAnimationType === 'balloons' && (
+                        <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(20)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: "110%", x: `${Math.random() * 100}%` }}
+                                    animate={{ y: "-120%" }}
+                                    transition={{ duration: 3, delay: i * 0.1, ease: "easeIn" }}
+                                    className="absolute"
+                                >
+                                    <div className={cn("w-8 h-10 rounded-full opacity-90 shadow-lg", ["bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500", "bg-purple-500"][i % 5])} />
+                                    <div className="w-0.5 h-12 bg-white/50 mx-auto mt-[-5px]" />
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Money Rain */}
+                    {winAnimationType === 'money-rain' && (
+                        <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(30)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: "-20%", x: `${Math.random() * 100}%`, rotate: Math.random() * 360 }}
+                                    animate={{ y: "120%", rotate: Math.random() * 360 }}
+                                    transition={{ duration: 2.5, delay: i * 0.05, ease: "linear" }}
+                                    className="absolute text-green-500 font-bold text-2xl drop-shadow-md"
+                                >
+                                    $
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Lightning */}
+                    {winAnimationType === 'lightning' && (
+                        <>
+                             <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: [0, 1, 0, 1, 0, 1, 0] }}
+                                transition={{ duration: 0.6 }}
+                                className="absolute inset-0 bg-blue-100/30 mix-blend-overlay"
+                            />
+                            <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    animate={{ opacity: [0, 1, 0, 1, 0], scale: 1.5 }}
+                                    transition={{ duration: 0.3, repeat: 3 }}
+                                >
+                                    <Zap className="w-96 h-96 text-yellow-400 drop-shadow-[0_0_30px_rgba(255,215,0,0.8)]" fill="currentColor" />
+                                </motion.div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Heart Burst */}
+                    {winAnimationType === 'heart-burst' && (
+                        <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
+                            {[...Array(15)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ scale: 0, x: 0, y: 0 }}
+                                    animate={{ 
+                                        scale: [0, 2, 0], 
+                                        x: (Math.random() - 0.5) * 600,
+                                        y: (Math.random() - 0.5) * 600
+                                    }}
+                                    transition={{ duration: 1, delay: i * 0.05, ease: "easeOut" }}
+                                    className="absolute text-red-500 drop-shadow-lg"
+                                >
+                                    <Heart fill="currentColor" size={40} />
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Starfall */}
+                    {winAnimationType === 'starfall' && (
+                        <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(40)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: -50, x: `${Math.random() * 100}%`, scale: 0 }}
+                                    animate={{ y: "120%", scale: Math.random() * 1.5 }}
+                                    transition={{ duration: 1.5, delay: i * 0.05 }}
+                                    className="absolute text-yellow-300 drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]"
+                                >
+                                    <Star fill="currentColor" size={24} />
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Glitch */}
+                    {winAnimationType === 'glitch' && (
+                        <motion.div
+                            className="absolute inset-0 bg-transparent z-40"
+                            animate={{
+                                x: [0, -10, 10, -5, 5, 0],
+                                filter: ["none", "hue-rotate(90deg)", "invert(1)", "none"]
+                            }}
+                            transition={{ duration: 0.5, repeat: 3 }}
+                        >
+                            <div className="absolute inset-0 bg-red-500/10 mix-blend-color-burn" />
+                            <div className="absolute top-1/2 left-0 w-full h-2 bg-white/50" />
+                        </motion.div>
+                    )}
+
+                    {/* Neon Glow */}
+                    {winAnimationType === 'neon-glow' && (
+                         <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 0.5, 1, 0.5, 1] }}
+                            transition={{ duration: 1 }}
+                            className="absolute inset-0 border-4 border-pink-500 shadow-[0_0_100px_rgba(236,72,153,0.8),inset_0_0_50px_rgba(236,72,153,0.5)] rounded-xl z-10"
+                        />
+                    )}
+
+                    {/* Spotlight */}
+                    {winAnimationType === 'spotlight' && (
+                        <div className="absolute inset-0 overflow-hidden z-10 pointer-events-none">
+                            <motion.div 
+                                animate={{ rotate: [0, 45, 0, -45, 0] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute -top-1/2 left-1/4 w-1/2 h-[200%] bg-gradient-to-b from-white/30 to-transparent transform origin-top blur-xl"
+                            />
+                             <motion.div 
+                                animate={{ rotate: [0, -45, 0, 45, 0] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                                className="absolute -top-1/2 right-1/4 w-1/2 h-[200%] bg-gradient-to-b from-white/30 to-transparent transform origin-top blur-xl"
+                            />
+                        </div>
+                    )}
+
+                    {/* Disco Ball */}
+                    {winAnimationType === 'disco-ball' && (
+                        <div className="absolute inset-0 z-10 overflow-hidden">
+                             {[...Array(20)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    animate={{ 
+                                        opacity: [0, 1, 0],
+                                        scale: [0.5, 1.5, 0.5]
+                                    }}
+                                    transition={{ duration: 1, delay: i * 0.1, repeat: Infinity }}
+                                    className="absolute rounded-full blur-md"
+                                    style={{
+                                        top: `${Math.random() * 100}%`,
+                                        left: `${Math.random() * 100}%`,
+                                        width: '50px',
+                                        height: '50px',
+                                        backgroundColor: ['#ff0000', '#00ff00', '#0000ff', '#ffff00'][Math.floor(Math.random() * 4)]
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Snowfall */}
+                    {winAnimationType === 'snowfall' && (
+                         <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(50)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: -20, x: `${Math.random() * 100}%` }}
+                                    animate={{ y: "120%", x: `${(Math.random() * 100) + (Math.random() > 0.5 ? 20 : -20)}%` }}
+                                    transition={{ duration: 3, delay: i * 0.05, ease: "linear" }}
+                                    className="absolute text-white/80"
+                                >
+                                    <Snowflake size={Math.random() * 10 + 10} />
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Fire */}
+                    {winAnimationType === 'fire' && (
+                        <div className="absolute inset-0 overflow-hidden flex items-end justify-center">
+                             {[...Array(30)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: "20%", opacity: 0, scale: 0 }}
+                                    animate={{ y: "-100%", opacity: [1, 0], scale: [1, 2] }}
+                                    transition={{ duration: 1.5, delay: i * 0.05, repeat: Infinity }}
+                                    className="absolute bottom-0 w-20 h-20 bg-orange-500 rounded-full blur-xl mix-blend-screen"
+                                    style={{ left: `${Math.random() * 100}%` }}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                     {/* Bubbles */}
+                    {winAnimationType === 'bubbles' && (
+                        <div className="absolute inset-0 overflow-hidden">
+                             {[...Array(30)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: "110%", opacity: 0 }}
+                                    animate={{ y: "-20%", opacity: [0, 1, 0], x: "+=20" }}
+                                    transition={{ duration: 4, delay: i * 0.1, ease: "easeInOut" }}
+                                    className="absolute w-8 h-8 rounded-full border border-white/50 bg-white/10 backdrop-blur-sm"
+                                    style={{ left: `${Math.random() * 100}%` }}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Laser Beams */}
+                    {winAnimationType === 'laser-beams' && (
+                        <div className="absolute inset-0 overflow-hidden z-0">
+                             {[...Array(5)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    animate={{ rotate: [0, 360] }}
+                                    transition={{ duration: 3, delay: i * 0.5, repeat: Infinity, ease: "linear" }}
+                                    className="absolute top-1/2 left-1/2 w-[200%] h-1 bg-red-500 shadow-[0_0_20px_red] origin-left"
+                                    style={{ marginLeft: '-100%' }}
+                                />
+                            ))}
+                             {[...Array(5)].map((_, i) => (
+                                <motion.div
+                                    key={`b-${i}`}
+                                    animate={{ rotate: [360, 0] }}
+                                    transition={{ duration: 3, delay: i * 0.5, repeat: Infinity, ease: "linear" }}
+                                    className="absolute top-1/2 left-1/2 w-[200%] h-1 bg-blue-500 shadow-[0_0_20px_blue] origin-left"
+                                    style={{ marginLeft: '-100%' }}
+                                />
+                            ))}
+                        </div>
+                    )}
+                    
+                    {/* Ribbon */}
+                    {winAnimationType === 'ribbon' && (
+                        <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
+                            <motion.div
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: 1 }}
+                                transition={{ duration: 0.8, type: "spring" }}
+                                className="w-full h-32 bg-red-600 flex items-center justify-center shadow-lg transform -skew-y-6"
+                            >
+                                <div className="w-full h-2 border-t border-dashed border-white/30 absolute top-2" />
+                                <div className="w-full h-2 border-b border-dashed border-white/30 absolute bottom-2" />
+                            </motion.div>
+                        </div>
+                    )}
+
+                    {/* Shockwave */}
+                    {winAnimationType === 'shockwave' && (
+                        <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                             {[...Array(3)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ width: 0, height: 0, opacity: 1, borderWidth: 20 }}
+                                    animate={{ width: "200%", height: "200%", opacity: 0, borderWidth: 0 }}
+                                    transition={{ duration: 1.5, delay: i * 0.4, repeat: Infinity }}
+                                    className="absolute rounded-full border-white"
+                                />
+                             ))}
+                        </div>
+                    )}
+
+                     {/* Magic */}
+                    {winAnimationType === 'magic' && (
+                         <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(40)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: [0, 1, 0], scale: [0, 1, 0], rotate: 180 }}
+                                    transition={{ duration: 1, delay: Math.random() * 1.5, repeat: Infinity }}
+                                    className="absolute text-purple-400"
+                                    style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%` }}
+                                >
+                                    <Sparkles size={Math.random() * 20 + 10} />
+                                </motion.div>
+                            ))}
+                        </div>
                     )}
 
                     {/* The Win Text Itself */}
