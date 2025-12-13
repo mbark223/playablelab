@@ -30,6 +30,7 @@ export default function EditorCanvas() {
   const [logo, setLogo] = useState(casinoLogo);
   const [customSymbols, setCustomSymbols] = useState<string[]>([]);
   const [background, setBackground] = useState(slotsBg);
+  const [spins, setSpins] = useState(5);
 
   // Auto-populate from uploaded assets
   useEffect(() => {
@@ -111,6 +112,40 @@ export default function EditorCanvas() {
             <TabsContent value="casino" className="mt-0 space-y-6">
               <div className="space-y-4">
                 <label className="text-sm font-medium flex items-center gap-2">
+                  <Dices className="h-4 w-4 text-primary" />
+                  Game Settings
+                </label>
+                <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
+                   <div className="flex justify-between items-center">
+                     <label className="text-xs font-medium text-muted-foreground">Free Spins Count</label>
+                     <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">{spins}</span>
+                   </div>
+                   <div className="flex items-center gap-3">
+                     <Button 
+                       variant="outline" size="icon" className="h-8 w-8"
+                       onClick={() => setSpins(Math.max(1, spins - 1))}
+                     >
+                       -
+                     </Button>
+                     <div className="flex-1">
+                       <input 
+                         type="range" 
+                         min="1" max="50" 
+                         value={spins} 
+                         onChange={(e) => setSpins(parseInt(e.target.value))}
+                         className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                       />
+                     </div>
+                     <Button 
+                       variant="outline" size="icon" className="h-8 w-8"
+                       onClick={() => setSpins(Math.min(50, spins + 1))}
+                     >
+                       +
+                     </Button>
+                   </div>
+                </div>
+
+                <label className="text-sm font-medium flex items-center gap-2 mt-6">
                   <Crown className="h-4 w-4 text-yellow-500" />
                   High Value Symbols
                 </label>
@@ -282,6 +317,13 @@ export default function EditorCanvas() {
 
                 {/* Footer Controls */}
                 <div className="pb-12 pt-4 px-6 flex flex-col items-center gap-4 bg-gradient-to-t from-black/90 to-transparent">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="bg-black/80 backdrop-blur border border-white/20 px-3 py-1 rounded text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 shadow-lg">
+                      <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                      {spins} Free Spins
+                    </div>
+                  </div>
+
                   <Button 
                     size="lg" 
                     className="w-full max-w-[280px] h-14 text-xl font-black rounded-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 border-b-4 border-yellow-700 shadow-[0_0_25px_rgba(255,215,0,0.4)] hover:scale-105 transition-transform active:scale-95 active:border-b-0 translate-y-0 text-yellow-950 animate-pulse"
