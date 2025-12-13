@@ -38,8 +38,23 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const editorMode = templateId?.includes('wheel') ? 'wheel' : 
                      templateId?.includes('scratch') ? 'scratch' : 'slots';
 
+  // Helper for template configuration
+  const getTemplateConfig = (id: string | null) => {
+    if (!id) return {};
+    if (id.includes('egyptian')) return { rows: 3, cols: 5, color: '#fbbf24', headline: 'PHARAOH\'S GOLD' }; // Gold
+    if (id.includes('greek')) return { rows: 4, cols: 5, color: '#3b82f6', headline: 'ZEUS THUNDER' }; // Blue
+    if (id.includes('fruit')) return { rows: 3, cols: 3, color: '#ef4444', headline: 'FRUIT PARTY' }; // Red
+    if (id.includes('neon')) return { rows: 4, cols: 4, color: '#10b981', headline: 'NEON NIGHTS' }; // Green/Neon
+    if (id.includes('ocean')) return { rows: 3, cols: 5, color: '#3b82f6', headline: 'DEEP BLUE' }; // Blue
+    if (id.includes('wild-west')) return { rows: 3, cols: 5, color: '#fbbf24', headline: 'WESTERN WINS' }; // Orange/Gold
+    if (id.includes('space')) return { rows: 4, cols: 4, color: '#8b5cf6', headline: 'GALACTIC SPINS' }; // Purple
+    return { rows: 1, cols: 3, color: '#ffffff', headline: 'MEGA JACKPOT' };
+  };
+
+  const templateConfig = getTemplateConfig(templateId || null);
+
   // Customization State
-  const [headline, setHeadline] = useState("MEGA JACKPOT");
+  const [headline, setHeadline] = useState(templateConfig.headline || "MEGA JACKPOT");
   const [ctaText, setCtaText] = useState(editorMode === 'wheel' ? "SPIN WHEEL" : editorMode === 'scratch' ? "SCRATCH NOW" : "SPIN NOW");
   const [logo, setLogo] = useState(casinoLogo);
   // Initialize with defaults so we can always edit indices 0, 1, 2
@@ -61,10 +76,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [isReelSpinning, setIsReelSpinning] = useState(false);
   
   // Advanced Settings
-  const [slotRows, setSlotRows] = useState(1); // 1 = 3x1 (classic), 3 = 3x3 (video slot)
-  const [slotCols, setSlotCols] = useState(3); // Default 3 columns
+  const [slotRows, setSlotRows] = useState(templateConfig.rows || 1); // 1 = 3x1 (classic), 3 = 3x3 (video slot)
+  const [slotCols, setSlotCols] = useState(templateConfig.cols || 3); // Default 3 columns
   const [isCustomGrid, setIsCustomGrid] = useState(false);
-  const [textColor, setTextColor] = useState('#ffffff');
+  const [textColor, setTextColor] = useState(templateConfig.color || '#ffffff');
   const [subheadline, setSubheadline] = useState('');
   const [disclaimerText, setDisclaimerText] = useState('No purchase necessary. 18+ only. T&Cs apply.');
   const [winText, setWinText] = useState('BIG WIN!');

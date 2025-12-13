@@ -37,7 +37,7 @@ const templates = [
   {
     id: 'slots',
     title: 'Jackpot Slots',
-    description: 'Auto-populated with your high-value symbols.',
+    description: 'Auto-populated with your high-value symbols. (3x1 Classic)',
     image: slotsBg,
     category: 'Casino',
     compatibility: ['logo', 'symbol', 'background'],
@@ -46,7 +46,7 @@ const templates = [
   {
     id: 'egyptian-slots',
     title: 'Pharaoh\'s Riches',
-    description: 'Mysterious Egyptian theme with expanding wilds.',
+    description: 'Mysterious Egyptian theme with expanding wilds. (5x3 Grid)',
     image: egyptianImg,
     category: 'Casino',
     compatibility: ['logo', 'symbol'],
@@ -55,7 +55,7 @@ const templates = [
   {
     id: 'greek-slots',
     title: 'Zeus Thunder',
-    description: 'Epic mythology theme with lightning bonuses.',
+    description: 'Epic mythology theme with lightning bonuses. (5x4 Grid)',
     image: greekImg,
     category: 'Casino',
     compatibility: ['logo', 'symbol'],
@@ -64,7 +64,7 @@ const templates = [
   {
     id: 'wild-west-slots',
     title: 'Sheriff\'s Gold',
-    description: 'High volatility western theme with sticky wilds.',
+    description: 'High volatility western theme with sticky wilds. (3x5 Grid)',
     image: wildWestImg,
     category: 'Casino',
     compatibility: ['logo', 'symbol', 'background'],
@@ -73,7 +73,7 @@ const templates = [
   {
     id: 'ocean-slots',
     title: 'Deep Blue Treasure',
-    description: 'Relaxing underwater theme with bubble pop bonus.',
+    description: 'Relaxing underwater theme with bubble pop bonus. (5x3 Grid)',
     image: oceanImg,
     category: 'Casino',
     compatibility: ['logo', 'symbol'],
@@ -82,7 +82,7 @@ const templates = [
   {
     id: 'space-slots',
     title: 'Galactic Spins',
-    description: 'Futuristic sci-fi theme with cascading reels.',
+    description: 'Futuristic sci-fi theme with cascading reels. (4x4 Grid)',
     image: spaceImg,
     category: 'Casino',
     compatibility: ['logo', 'symbol', 'background'],
@@ -91,7 +91,7 @@ const templates = [
   {
     id: 'fruit-slots',
     title: 'Fruit Party',
-    description: 'Classic fruit machine with a modern twist.',
+    description: 'Classic fruit machine with a modern twist. (3x3 Grid)',
     image: fruitImg,
     category: 'Casino',
     compatibility: ['logo', 'symbol'],
@@ -226,7 +226,7 @@ const templates = [
   {
     id: 'neon-slots',
     title: 'Neon Nights',
-    description: 'Retro 80s synthwave style with glowing reels.',
+    description: 'Retro 80s synthwave style with glowing reels. (4x4 Grid)',
     image: spaceImg, // Dark/Glowing
     category: 'Casino',
     compatibility: ['logo', 'symbol', 'background'],
