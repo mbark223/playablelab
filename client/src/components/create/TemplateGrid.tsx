@@ -204,6 +204,87 @@ const templates = [
     category: 'Trivia',
     compatibility: ['logo', 'background'],
     requiredAssets: ['logo']
+  },
+  {
+    id: 'dragon-slots',
+    title: 'Dragon Empire',
+    description: 'Fortune awaits in this golden Asian-themed slot.',
+    image: egyptianImg, // Reusing distinct style
+    category: 'Casino',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'irish-slots',
+    title: 'Leprechaun\'s Luck',
+    description: 'Chase the rainbow for the pot of gold.',
+    image: fruitImg, // Bright/Colorful
+    category: 'Casino',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'neon-slots',
+    title: 'Neon Nights',
+    description: 'Retro 80s synthwave style with glowing reels.',
+    image: spaceImg, // Dark/Glowing
+    category: 'Casino',
+    compatibility: ['logo', 'symbol', 'background'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'safari-slots',
+    title: 'Safari King',
+    description: 'Wild animals and savannah sunsets.',
+    image: wildWestImg, // Earthy tones
+    category: 'Casino',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'viking-slots',
+    title: 'Viking Voyage',
+    description: 'Raid the reels for massive plunder.',
+    image: greekImg, // Epic/Mythology
+    category: 'Casino',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'maya-slots',
+    title: 'Mayan Mystery',
+    description: 'Uncover ancient treasures in the jungle.',
+    image: egyptianImg, // Ancient/Stone
+    category: 'Casino',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'pirate-slots',
+    title: 'Pirate\'s Gold',
+    description: 'High seas adventure with stacking wilds.',
+    image: oceanImg, // Water/Blue
+    category: 'Casino',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'luxury-slots',
+    title: 'Diamond Deluxe',
+    description: 'High roller experience with diamond symbols.',
+    image: rouletteImg, // Luxury/Green/Gold
+    category: 'Casino',
+    compatibility: ['logo', 'symbol', 'background'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'candy-slots',
+    title: 'Candy Kingdom',
+    description: 'Sweet wins with tumbling sugar blocks.',
+    image: fruitImg, // Colorful
+    category: 'Casino',
+    compatibility: ['logo', 'symbol'],
+    requiredAssets: ['symbol']
   }
 ];
 
