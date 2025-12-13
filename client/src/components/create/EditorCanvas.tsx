@@ -399,7 +399,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                            </Button>
                         </div>
                         
-                        <div className="grid grid-cols-5 gap-2 mb-3">
+                        <div className="grid grid-cols-5 gap-2 mb-3 max-h-[200px] overflow-y-auto p-1 custom-scrollbar">
                           {/* Defaults */}
                           {[symbol7, symbolDiamond, symbolBell, symbolCherry, chipRed, chipBlue].map((s, i) => (
                             <div 
