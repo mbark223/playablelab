@@ -1304,15 +1304,157 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* The Win Text Itself */}
-                    <motion.div 
-                        initial={{ scale: 0, rotate: -10 }}
-                        animate={{ scale: 1.2, rotate: 0 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        className="bg-black/80 text-white font-black text-5xl px-10 py-6 rounded-2xl border-4 border-yellow-400 shadow-[0_0_60px_rgba(255,215,0,0.6)] backdrop-blur-md text-center z-50"
-                    >
-                        <span className="block text-yellow-400 text-7xl mb-2 filter drop-shadow-lg">{winText}</span>
-                        <span className="text-xl font-bold tracking-widest uppercase text-white/90">You Won!</span>
-                    </motion.div>
+                    {winAnimationType === 'coins' && (
+                         <motion.div 
+                            initial={{ scale: 0, rotate: -10 }}
+                            animate={{ scale: 1.2, rotate: 0 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="bg-black/80 text-white font-black text-5xl px-10 py-6 rounded-2xl border-4 border-yellow-400 shadow-[0_0_60px_rgba(255,215,0,0.6)] backdrop-blur-md text-center z-50 relative"
+                        >
+                            <span className="block text-yellow-400 text-7xl mb-2 filter drop-shadow-lg">{winText}</span>
+                            <span className="text-xl font-bold tracking-widest uppercase text-white/90">You Won!</span>
+                        </motion.div>
+                    )}
+
+                     {winAnimationType === 'money-rain' && (
+                         <motion.div 
+                            initial={{ scale: 0, y: -50 }}
+                            animate={{ scale: 1.2, y: 0 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="bg-green-900/90 text-white font-black text-5xl px-12 py-8 rounded-xl border-4 border-green-400 shadow-[0_0_40px_rgba(34,197,94,0.6)] backdrop-blur-md text-center z-50 relative"
+                        >
+                            <span className="block text-green-300 text-7xl mb-2 filter drop-shadow-lg tracking-tighter">{winText}</span>
+                            <span className="text-xl font-bold tracking-widest uppercase text-white/90 bg-green-600 px-4 py-1 rounded-full">Cash Out!</span>
+                        </motion.div>
+                    )}
+
+                    {(winAnimationType === 'confetti' || winAnimationType === 'balloons') && (
+                         <motion.div 
+                            initial={{ scale: 0, rotate: 10 }}
+                            animate={{ scale: 1.3, rotate: [-5, 5, -5, 0] }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="bg-white text-blue-600 font-black text-6xl px-8 py-6 rounded-3xl border-8 border-dashed border-pink-400 shadow-2xl text-center z-50 relative transform -rotate-2"
+                        >
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 mb-0 filter drop-shadow-sm">{winText}</span>
+                            <span className="text-2xl font-bold tracking-wider text-slate-400 uppercase">Party Time!</span>
+                        </motion.div>
+                    )}
+
+                    {(winAnimationType === 'pulse' || winAnimationType === 'shockwave') && (
+                         <motion.div 
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: [1, 1.1, 1], opacity: 1 }}
+                            transition={{ repeat: Infinity, duration: 0.8 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="bg-transparent text-white font-black text-8xl px-4 py-4 text-center z-50 relative tracking-tighter"
+                        >
+                            <span className="block text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">{winText}</span>
+                        </motion.div>
+                    )}
+
+                    {(winAnimationType === 'flash' || winAnimationType === 'lightning' || winAnimationType === 'laser-beams') && (
+                         <motion.div 
+                            initial={{ scale: 2, opacity: 0, filter: 'blur(10px)' }}
+                            animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+                            exit={{ scale: 2, opacity: 0, filter: 'blur(20px)' }}
+                            className="bg-blue-600/20 text-white font-black text-6xl px-12 py-4 border-y-4 border-blue-400 backdrop-blur-sm text-center z-50 relative w-full"
+                        >
+                            <span className="block text-cyan-200 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] italic">{winText}</span>
+                        </motion.div>
+                    )}
+                    
+                    {winAnimationType === 'heart-burst' && (
+                         <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: [0, 1.2, 1] }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="bg-pink-100 text-pink-600 font-black text-6xl px-12 py-8 rounded-full border-8 border-pink-300 shadow-[0_0_50px_rgba(244,114,182,0.6)] text-center z-50 relative"
+                        >
+                            <span className="block mb-2">❤️ {winText} ❤️</span>
+                        </motion.div>
+                    )}
+
+                    {(winAnimationType === 'glitch') && (
+                         <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1, x: [-2, 2, -2, 0] }}
+                            transition={{ repeat: Infinity, duration: 0.1 }}
+                            exit={{ opacity: 0 }}
+                            className="bg-black text-white font-mono font-bold text-6xl px-8 py-4 border border-green-500 shadow-[4px_4px_0_green] text-center z-50 relative"
+                        >
+                            <span className="block text-green-500 drop-shadow-[2px_0_0_red] tracking-widest">&lt;{winText}/&gt;</span>
+                        </motion.div>
+                    )}
+
+                    {(winAnimationType === 'neon-glow' || winAnimationType === 'spotlight' || winAnimationType === 'disco-ball') && (
+                         <motion.div 
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -50 }}
+                            className="bg-slate-900/90 text-white font-black text-6xl px-10 py-6 rounded-xl border-2 border-fuchsia-500 shadow-[0_0_30px_fuchsia,inset_0_0_20px_fuchsia] text-center z-50 relative"
+                        >
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white to-fuchsia-200 drop-shadow-[0_0_5px_white]">{winText}</span>
+                        </motion.div>
+                    )}
+
+                    {(winAnimationType === 'fire') && (
+                         <motion.div 
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 1.5, opacity: 0 }}
+                            className="text-white font-black text-7xl text-center z-50 relative"
+                        >
+                            <span className="block text-orange-500 drop-shadow-[0_0_15px_orange] animate-pulse">{winText}</span>
+                            <span className="block text-2xl text-yellow-500 font-bold uppercase tracking-[0.5em] mt-2">Hot Streak!</span>
+                        </motion.div>
+                    )}
+
+                    {(winAnimationType === 'snowfall') && (
+                         <motion.div 
+                            initial={{ y: -100, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="bg-white/10 text-white font-black text-6xl px-10 py-6 rounded-lg border border-white/50 backdrop-blur-md shadow-[0_0_30px_rgba(255,255,255,0.3)] text-center z-50 relative"
+                        >
+                            <span className="block text-cyan-100 drop-shadow-md">{winText}</span>
+                            <span className="block text-xl text-white/80 font-light tracking-widest mt-2 uppercase">Cool Win</span>
+                        </motion.div>
+                    )}
+                    
+                    {(winAnimationType === 'starfall' || winAnimationType === 'magic') && (
+                         <motion.div 
+                            initial={{ scale: 0, rotate: 180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="bg-indigo-900/90 text-white font-serif font-bold text-6xl px-12 py-8 rounded-[3rem] border-4 border-indigo-400 shadow-[0_0_60px_indigo] text-center z-50 relative"
+                        >
+                            <span className="block text-yellow-200 drop-shadow-lg mb-1">✨ {winText} ✨</span>
+                        </motion.div>
+                    )}
+                    
+                    {(winAnimationType === 'bubbles') && (
+                         <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1.1 }}
+                            transition={{ type: "spring", bounce: 0.6 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="bg-blue-400/30 text-white font-black text-6xl h-64 w-64 rounded-full border-4 border-white/40 shadow-[0_0_40px_rgba(59,130,246,0.4)] backdrop-blur-sm flex flex-col items-center justify-center z-50 relative"
+                        >
+                            <span className="block text-white drop-shadow-lg">{winText}</span>
+                        </motion.div>
+                    )}
+                    
+                    {(winAnimationType === 'ribbon') && (
+                         <motion.div 
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            exit={{ scaleX: 0, opacity: 0 }}
+                            className="bg-red-600 text-white font-serif font-bold text-5xl px-20 py-4 shadow-xl text-center z-50 relative"
+                            style={{ clipPath: 'polygon(0% 0%, 100% 0%, 95% 50%, 100% 100%, 0% 100%, 5% 50%)' }}
+                        >
+                            <span className="block text-yellow-300 drop-shadow-md tracking-widest">{winText}</span>
+                        </motion.div>
+                    )}
                 </div>
             )}
         </AnimatePresence>
