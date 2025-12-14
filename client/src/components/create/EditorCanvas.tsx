@@ -253,7 +253,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             </TabsList>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
             <TabsContent value="assets" className="mt-0 space-y-6">
               <div className="space-y-3">
                 <label className="text-sm font-medium">Brand Logo</label>
