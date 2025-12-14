@@ -69,12 +69,14 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [activeCell, setActiveCell] = useState<{row: number, col: number} | null>(null);
 
   const [activeSymbolIndex, setActiveSymbolIndex] = useState<number | null>(null);
-  const [uploadTarget, setUploadTarget] = useState<{ type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder' | 'music', index?: number } | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<{ type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder' | 'music' | 'spinSound' | 'winSound', index?: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [background, setBackground] = useState(slotsBg);
   const [backgroundMusic, setBackgroundMusic] = useState<string | null>(null);
+  const [spinSound, setSpinSound] = useState<string | null>(null);
+  const [winSound, setWinSound] = useState<string | null>(null);
   
   // Game Settings
   const [jackpots, setJackpots] = useState<{label: string, value: string, border?: string}[]>([
@@ -176,6 +178,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
         setJackpots(newJackpots);
       } else if (uploadTarget?.type === 'music') {
         setBackgroundMusic(previewUrl);
+      } else if (uploadTarget?.type === 'spinSound') {
+        setSpinSound(previewUrl);
+      } else if (uploadTarget?.type === 'winSound') {
+        setWinSound(previewUrl);
       }
       
       // Reset target
@@ -183,7 +189,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     }
   };
 
-  const triggerUpload = (target: { type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder' | 'music', index?: number }) => {
+  const triggerUpload = (target: { type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder' | 'music' | 'spinSound' | 'winSound', index?: number }) => {
     setUploadTarget(target);
     fileInputRef.current?.click();
   };
@@ -203,6 +209,15 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   // Handle Game Interaction
   const handleInteraction = () => {
     if (!isPlaying || currentSpins <= 0 || isReelSpinning) return;
+
+    // Play Spin Sound
+    if (spinSound) {
+      const audio = document.getElementById('sfx-spin') as HTMLAudioElement;
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(console.error);
+      }
+    }
 
     setIsReelSpinning(true);
     setReelsSpinning(new Array(slotCols).fill(true));
@@ -232,6 +247,16 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
       // Trigger win animation occasionally or on last spin
       if (currentSpins - 1 === 0 || Math.random() > 0.5) {
          setShowWinMessage(true);
+         
+         // Play Win Sound
+         if (winSound) {
+           const audio = document.getElementById('sfx-win') as HTMLAudioElement;
+           if (audio) {
+             audio.currentTime = 0;
+             audio.play().catch(console.error);
+           }
+         }
+         
          setTimeout(() => setShowWinMessage(false), 2000);
       }
 
@@ -260,7 +285,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
         type="file" 
         ref={fileInputRef}
         className="hidden" 
-        accept={uploadTarget?.type === 'music' ? "audio/*" : "image/*"}
+        accept={['music', 'spinSound', 'winSound'].includes(uploadTarget?.type || '') ? "audio/*" : "image/*"}
         onChange={handleFileUpload}
       />
       
@@ -280,6 +305,22 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           }}
           src={backgroundMusic} 
           loop 
+        />
+      )}
+
+      {/* SFX Players (Hidden) */}
+      {spinSound && (
+        <audio 
+          id="sfx-spin"
+          src={spinSound} 
+          preload="auto"
+        />
+      )}
+      {winSound && (
+        <audio 
+          id="sfx-win"
+          src={winSound} 
+          preload="auto"
         />
       )}
 
@@ -528,6 +569,74 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Sound Effects Section */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Sound Effects</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Spin Sound */}
+                  <div className="p-2 border rounded-md bg-muted/10 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-medium">Spin Sound</label>
+                      {spinSound && (
+                        <Button 
+                          variant="ghost" size="icon" className="h-4 w-4 text-destructive"
+                          onClick={() => setSpinSound(null)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                    {!spinSound ? (
+                      <Button 
+                        variant="outline" size="sm" className="w-full text-xs h-8 border-dashed"
+                        onClick={() => triggerUpload({ type: 'spinSound' })}
+                      >
+                        <Plus className="h-3 w-3 mr-1" /> Add
+                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-background p-1.5 rounded border">
+                        <Music className="h-3 w-3 text-primary" />
+                        <span className="text-[10px] truncate flex-1">Spin.mp3</span>
+                        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => triggerUpload({ type: 'spinSound' })}>
+                          <RotateCcw className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Win Sound */}
+                  <div className="p-2 border rounded-md bg-muted/10 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-medium">Win Sound</label>
+                      {winSound && (
+                        <Button 
+                          variant="ghost" size="icon" className="h-4 w-4 text-destructive"
+                          onClick={() => setWinSound(null)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                    {!winSound ? (
+                      <Button 
+                        variant="outline" size="sm" className="w-full text-xs h-8 border-dashed"
+                        onClick={() => triggerUpload({ type: 'winSound' })}
+                      >
+                        <Plus className="h-3 w-3 mr-1" /> Add
+                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-background p-1.5 rounded border">
+                        <Music className="h-3 w-3 text-primary" />
+                        <span className="text-[10px] truncate flex-1">Win.mp3</span>
+                        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => triggerUpload({ type: 'winSound' })}>
+                          <RotateCcw className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </TabsContent>
             
