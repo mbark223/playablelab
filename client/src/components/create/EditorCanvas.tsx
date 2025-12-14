@@ -72,7 +72,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [background, setBackground] = useState(slotsBg);
   
   // Game Settings
-  const [jackpotValue, setJackpotValue] = useState('$1,240,500');
+  const [jackpots, setJackpots] = useState([
+    { label: "GRAND", value: "$1,240,500" },
+    { label: "MAJOR", value: "$50,000" },
+    { label: "MINOR", value: "$2,500" },
+    { label: "MINI", value: "$500" }
+  ]);
   const [jackpotCount, setJackpotCount] = useState(1);
   const [spins, setSpins] = useState(5);
   const [currentSpins, setCurrentSpins] = useState(5);
@@ -271,14 +276,34 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
               <div className="space-y-3">
                 <label className="text-sm font-medium">Jackpot Settings</label>
                 <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
-                   <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground">Jackpot Amount</label>
-                      <input 
-                         type="text" 
-                         value={jackpotValue}
-                         onChange={(e) => setJackpotValue(e.target.value)}
-                         className="w-full h-8 px-2 text-sm rounded-md border border-input bg-background"
-                      />
+                   <div className="space-y-2">
+                      <label className="text-xs font-medium text-muted-foreground">Jackpot Tiers</label>
+                      {jackpots.slice(0, jackpotCount).map((jackpot, index) => (
+                        <div key={index} className="grid grid-cols-3 gap-2">
+                          <input 
+                             type="text" 
+                             value={jackpot.label}
+                             onChange={(e) => {
+                               const newJackpots = [...jackpots];
+                               newJackpots[index].label = e.target.value;
+                               setJackpots(newJackpots);
+                             }}
+                             placeholder="Label"
+                             className="col-span-1 h-8 px-2 text-xs rounded-md border border-input bg-background font-bold uppercase"
+                          />
+                          <input 
+                             type="text" 
+                             value={jackpot.value}
+                             onChange={(e) => {
+                               const newJackpots = [...jackpots];
+                               newJackpots[index].value = e.target.value;
+                               setJackpots(newJackpots);
+                             }}
+                             placeholder="Value"
+                             className="col-span-2 h-8 px-2 text-xs rounded-md border border-input bg-background"
+                          />
+                        </div>
+                      ))}
                    </div>
                    
                    <div className="space-y-1 pt-2">
@@ -1524,11 +1549,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                   {/* Jackpot Counter */}
                   {visibleElements.jackpot && (
-                    <div className="flex flex-col gap-2 items-center w-full">
-                       {Array.from({ length: jackpotCount }).map((_, idx) => (
-                           <div key={idx} className="bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-6 py-2 rounded-full shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
-                              <span className="text-yellow-400 font-display font-black text-2xl tracking-widest drop-shadow-md">
-                                {jackpotValue}
+                    <div className="flex flex-row gap-2 justify-center w-full px-4 flex-wrap z-20">
+                       {jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
+                           <div key={idx} className="flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center" style={{ animationDelay: `${idx * 100}ms` }}>
+                              <span className="text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80">{jackpot.label}</span>
+                              <span className="text-yellow-400 font-display font-black text-lg md:text-xl tracking-widest drop-shadow-md leading-none whitespace-nowrap">
+                                {jackpot.value}
                               </span>
                             </div>
                        ))}
