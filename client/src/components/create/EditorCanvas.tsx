@@ -268,7 +268,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           <p className="text-xs text-muted-foreground capitalize">Mode: {editorMode}</p>
         </div>
         
-        <Tabs defaultValue="assets" value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <Tabs defaultValue="assets" value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col relative">
           <div className="px-4 pt-4">
             <TabsList className="w-full grid grid-cols-5 h-auto py-1">
               <TabsTrigger value="assets" className="px-1"><Layers className="h-4 w-4" /></TabsTrigger>
@@ -283,26 +283,26 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             </TabsList>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
-            {/* Scroll to Bottom Button */}
-            <div className="absolute bottom-20 right-6 z-20">
-              <Button 
-                size="icon" 
-                variant="secondary" 
-                className="h-8 w-8 rounded-full shadow-lg opacity-50 hover:opacity-100 transition-opacity"
-                onClick={() => {
-                  if (scrollContainerRef.current) {
-                    scrollContainerRef.current.scrollTo({
-                      top: scrollContainerRef.current.scrollHeight,
-                      behavior: 'smooth'
-                    });
-                  }
-                }}
-              >
-                <ArrowDown className="h-4 w-4" />
-              </Button>
-            </div>
+          {/* Scroll to Bottom Button */}
+          <div className="absolute bottom-6 right-6 z-20">
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="h-8 w-8 rounded-full shadow-lg opacity-50 hover:opacity-100 transition-opacity"
+              onClick={() => {
+                if (scrollContainerRef.current) {
+                  scrollContainerRef.current.scrollTo({
+                    top: scrollContainerRef.current.scrollHeight,
+                    behavior: 'smooth'
+                  });
+                }
+              }}
+            >
+              <ArrowDown className="h-4 w-4" />
+            </Button>
+          </div>
 
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
             <TabsContent value="assets" className="mt-0 space-y-6">
               <div className="space-y-3">
                 <label className="text-sm font-medium">Brand Logo</label>
