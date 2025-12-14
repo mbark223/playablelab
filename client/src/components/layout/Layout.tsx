@@ -6,9 +6,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   const navItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/" },
     { icon: PlusCircle, label: "Create New", href: "/create" },
-    { icon: Layers, label: "Templates", href: "/templates" },
     { icon: Box, label: "Assets", href: "/assets" },
   ];
 
