@@ -1301,6 +1301,75 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                 />
               </div>
 
+              {/* Win Animation Settings */}
+              <div className="space-y-3 pt-2 border-t border-border">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Win Celebration
+                </label>
+                <p className="text-xs text-muted-foreground">Customize the animation that plays on big wins.</p>
+                
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
+                    <Button variant={winAnimationType === 'coins' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('coins')}>
+                        <Coins className="h-3 w-3 mr-2" /> Coins
+                    </Button>
+                    <Button variant={winAnimationType === 'confetti' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('confetti')}>
+                        <PartyPopper className="h-3 w-3 mr-2" /> Confetti
+                    </Button>
+                    <Button variant={winAnimationType === 'pulse' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('pulse')}>
+                        <Activity className="h-3 w-3 mr-2" /> Pulse
+                    </Button>
+                    <Button variant={winAnimationType === 'flash' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('flash')}>
+                        <Zap className="h-3 w-3 mr-2" /> Flash
+                    </Button>
+                    <Button variant={winAnimationType === 'money-rain' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('money-rain')}>
+                        <CloudRain className="h-3 w-3 mr-2" /> Money Rain
+                    </Button>
+                    <Button variant={winAnimationType === 'lightning' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('lightning')}>
+                        <ZapOff className="h-3 w-3 mr-2" /> Lightning
+                    </Button>
+                    <Button variant={winAnimationType === 'heart-burst' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('heart-burst')}>
+                        <Heart className="h-3 w-3 mr-2" /> Heart Burst
+                    </Button>
+                    <Button variant={winAnimationType === 'starfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('starfall')}>
+                        <Star className="h-3 w-3 mr-2" /> Starfall
+                    </Button>
+                    <Button variant={winAnimationType === 'glitch' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('glitch')}>
+                        <Activity className="h-3 w-3 mr-2" /> Glitch
+                    </Button>
+                    <Button variant={winAnimationType === 'neon-glow' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('neon-glow')}>
+                        <Lightbulb className="h-3 w-3 mr-2" /> Neon Glow
+                    </Button>
+                    <Button variant={winAnimationType === 'spotlight' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('spotlight')}>
+                        <Aperture className="h-3 w-3 mr-2" /> Spotlight
+                    </Button>
+                    <Button variant={winAnimationType === 'disco-ball' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('disco-ball')}>
+                        <Disc className="h-3 w-3 mr-2" /> Disco Ball
+                    </Button>
+                    <Button variant={winAnimationType === 'snowfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('snowfall')}>
+                        <Snowflake className="h-3 w-3 mr-2" /> Snowfall
+                    </Button>
+                    <Button variant={winAnimationType === 'fire' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('fire')}>
+                        <Flame className="h-3 w-3 mr-2" /> Fire
+                    </Button>
+                    <Button variant={winAnimationType === 'bubbles' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('bubbles')}>
+                        <Droplets className="h-3 w-3 mr-2" /> Bubbles
+                    </Button>
+                    <Button variant={winAnimationType === 'laser-beams' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('laser-beams')}>
+                        <div className="h-0.5 w-3 mr-2 bg-red-500" /> Lasers
+                    </Button>
+                    <Button variant={winAnimationType === 'ribbon' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('ribbon')}>
+                        <Ribbon className="h-3 w-3 mr-2" /> Ribbon
+                    </Button>
+                    <Button variant={winAnimationType === 'shockwave' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('shockwave')}>
+                        <Waves className="h-3 w-3 mr-2" /> Shockwave
+                    </Button>
+                     <Button variant={winAnimationType === 'magic' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('magic')}>
+                        <Wand2 className="h-3 w-3 mr-2" /> Magic
+                    </Button>
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-sm font-medium">Disclaimer Text</label>
                 <textarea 
