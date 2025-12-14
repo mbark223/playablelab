@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown, Layout } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown, Layout, Gamepad2, Gift, MousePointerClick, Combine, Brush, AlertCircle, PackageOpen, Timer, Grid3X3, BarChart3, MousePointer2, LockOpen, Shuffle, RefreshCw, Diamond, Sword, Hammer, Scroll } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
@@ -93,33 +93,198 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [jackpotLayout, setJackpotLayout] = useState<'row' | 'distributed'>('row');
   const [spins, setSpins] = useState(5);
 
-  const templates = [
-    { id: 'classic', name: "Mega Jackpot", color: '#ffffff', rows: 1, cols: 3, description: "Classic 3-reel single line slot" },
-    { id: 'egyptian', name: "Pharaoh's Gold", color: '#fbbf24', rows: 3, cols: 5, description: "5x3 Video slot with Gold theme" },
-    { id: 'greek', name: "Zeus Thunder", color: '#3b82f6', rows: 4, cols: 5, description: "Mythology themed 5x4 layout" },
-    { id: 'fruit', name: "Fruit Party", color: '#ef4444', rows: 3, cols: 3, description: "Traditional 3x3 Fruit machine" },
-    { id: 'neon', name: "Neon Nights", color: '#10b981', rows: 4, cols: 4, description: "Modern 4x4 Grid slot" },
-    { id: 'ocean', name: "Deep Blue", color: '#3b82f6', rows: 3, cols: 5, description: "Underwater themed 5x3 slot" },
-    { id: 'wild-west', name: "Western Wins", color: '#fbbf24', rows: 3, cols: 5, description: "Wild West adventure slot" },
-    { id: 'space', name: "Galactic Spins", color: '#8b5cf6', rows: 4, cols: 4, description: "Sci-fi themed 4x4 slot" },
+  // --- PLAYABLE TEMPLATE DEFINITIONS ---
+  
+  interface MechanicTemplate {
+    id: string;
+    name: string;
+    description: string;
+    icon: React.ElementType;
+    features: string[];
+    config?: { rows?: number; cols?: number; spins?: number; color?: string };
+  }
+
+  interface MechanicCategory {
+    id: string;
+    name: string;
+    description: string;
+    icon: React.ElementType;
+    templates: MechanicTemplate[];
+  }
+
+  const mechanicCategories: MechanicCategory[] = [
+    {
+      id: 'spin-based',
+      name: 'Spin-Based Slots',
+      description: 'Classic reel mechanics with various progression styles',
+      icon: Disc,
+      templates: [
+        { 
+          id: 'spin-2-win', 
+          name: '2 Spins → Win', 
+          description: 'Guaranteed small win on 2nd spin', 
+          icon: Zap,
+          features: ['Quick gratification', 'High conversion', 'Simple loop'],
+          config: { spins: 2 }
+        },
+        { 
+          id: 'spin-3-tease', 
+          name: '3 Spins → Near Miss', 
+          description: 'Near miss on 2nd, bonus tease on 3rd', 
+          icon: AlertCircle,
+          features: ['Engagement building', 'Retention focus', 'Emotional hook'],
+          config: { spins: 3 }
+        },
+        { 
+          id: 'spin-mega', 
+          name: 'Spin → Collect → Mega', 
+          description: 'Collect symbols to trigger final mega spin', 
+          icon: Crown,
+          features: ['Progressive', 'High stakes finale', 'Collection mechanic'],
+          config: { spins: 5 }
+        },
+      ]
+    },
+    {
+      id: 'bonus-round',
+      name: 'Bonus Rounds',
+      description: 'Interactive mini-games and pick mechanics',
+      icon: Gift,
+      templates: [
+        { 
+          id: 'pick-chest', 
+          name: 'Pick 1 of 3', 
+          description: 'Player chooses 1 of 3 mystery chests', 
+          icon: PackageOpen,
+          features: ['Player agency', 'Mystery', 'Instant reward']
+        },
+        { 
+          id: 'tap-reveal', 
+          name: 'Tap-to-Reveal', 
+          description: 'Tap multiple items to find multipliers', 
+          icon: MousePointerClick,
+          features: ['High interaction', 'Variable reward', 'Speed']
+        },
+        { 
+          id: 'timed-bonus', 
+          name: 'Timed Countdown', 
+          description: 'Complete task before timer expires', 
+          icon: Timer,
+          features: ['Urgency', 'Skill element', 'Excitement']
+        },
+      ]
+    },
+    {
+      id: 'match-mechanics',
+      name: 'Match Mechanics',
+      description: 'Grid-based matching puzzles',
+      icon: Combine,
+      templates: [
+        { 
+          id: 'match-3', 
+          name: 'Match 3 Colors', 
+          description: 'Connect 3 same-colored items to win', 
+          icon: Grid3X3,
+          features: ['Puzzle element', 'Casual appeal', 'Visual feedback'],
+          config: { rows: 5, cols: 5 }
+        },
+        { 
+          id: 'match-progressive', 
+          name: 'Progressive Match', 
+          description: 'Fills meter to trigger bonus', 
+          icon: BarChart3,
+          features: ['Goal oriented', 'Visual progress', 'Reward loop']
+        },
+      ]
+    },
+    {
+      id: 'tap-collect',
+      name: 'Tap / Collect',
+      description: 'Active gameplay requiring player input',
+      icon: MousePointer2,
+      templates: [
+        { 
+          id: 'tap-falling', 
+          name: 'Tap Falling Coins', 
+          description: 'Catch items falling from top', 
+          icon: ArrowDown,
+          features: ['Reflex based', 'High activity', 'Fun chaos']
+        },
+        { 
+          id: 'collect-unlock', 
+          name: 'Collect to Unlock', 
+          description: 'Gather specific symbols to spin', 
+          icon: LockOpen,
+          features: ['Collection', 'Anticipation', 'Reward gate']
+        },
+      ]
+    },
+    {
+      id: 'hybrid',
+      name: 'Hybrid',
+      description: 'Mixed mechanics for deeper gameplay',
+      icon: Shuffle,
+      templates: [
+        { 
+          id: 'match-spin', 
+          name: 'Match → Spin', 
+          description: 'Match items to earn spins', 
+          icon: RefreshCw,
+          features: ['Multi-stage', 'Genre blend', 'Deep engagement']
+        },
+        { 
+          id: 'spin-pick', 
+          name: 'Spin → Pick', 
+          description: 'Spin results trigger pick bonus', 
+          icon: Gift,
+          features: ['Classic combo', 'Variety', 'Extended play']
+        },
+      ]
+    }
   ];
 
-  const applyTemplate = (template: typeof templates[0]) => {
-    setSlotRows(template.rows);
-    setSlotCols(template.cols);
-    setTextColor(template.color);
-    setHeadline(template.name.toUpperCase());
+  interface ThemeTemplate {
+    id: string;
+    name: string;
+    color: string;
+    bg?: string;
+    icon: React.ElementType;
+  }
+
+  const themes: ThemeTemplate[] = [
+    { id: 'vegas', name: 'Vegas Luxury', color: '#fbbf24', icon: Diamond },
+    { id: 'fantasy', name: 'Epic Fantasy', color: '#8b5cf6', icon: Sword },
+    { id: 'sports', name: 'Sports Arena', color: '#3b82f6', icon: Trophy },
+    { id: 'gold-rush', name: 'Gold Rush', color: '#f59e0b', icon: Hammer },
+    { id: 'neon', name: 'Neon Cyber', color: '#ec4899', icon: Zap },
+    { id: 'ocean', name: 'Deep Ocean', color: '#0ea5e9', icon: Waves },
+    { id: 'candy', name: 'Sweet Candy', color: '#f43f5e', icon: Heart },
+    { id: 'ancient', name: 'Ancient Gods', color: '#d97706', icon: Scroll },
+  ];
+
+  // Helper icons for templates (imports needed)
+  // Assuming these are available or I need to import them. 
+  // I'll add imports for missing icons in a separate edit if needed, or replace with generic ones.
+  // Using Lucide icons already imported + some new ones.
+  
+  const applyMechanic = (template: MechanicTemplate) => {
+    // Logic to apply mechanic settings
+    // For now, we simulate config changes
+    if (template.config?.rows) setSlotRows(template.config.rows);
+    if (template.config?.cols) setSlotCols(template.config.cols);
+    if (template.config?.spins) setSpins(template.config.spins);
     
-    // Reset some states for fresh start
-    setJackpotCount(3);
-    setJackpots([
-      { label: "GRAND", value: "$10,000", border: borderBrick },
-      { label: "MAJOR", value: "$5,000", border: borderWood },
-      { label: "MINOR", value: "$1,000", border: borderStraw },
-      { label: "MINI", value: "$500" },
-      { label: "TINY", value: "$100" }
-    ]);
+    // Set headline based on mechanic for feedback
+    setSubheadline(template.name.toUpperCase());
+    
+    // In a real app, this would switch the entire engine logic
   };
+
+  const applyTheme = (theme: ThemeTemplate) => {
+    setTextColor(theme.color);
+    // In real app, this would swap assets/bg/sounds
+  };
+
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
   const [reelsSpinning, setReelsSpinning] = useState<boolean[]>([]);
@@ -354,7 +519,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
         <Tabs defaultValue="assets" value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col relative">
           <div className="px-4 pt-4">
             <TabsList className="w-full grid grid-cols-6 h-auto py-1">
-              <TabsTrigger value="templates" className="px-1"><Layout className="h-4 w-4" /></TabsTrigger>
+              <TabsTrigger value="playables" className="px-1"><Gamepad2 className="h-4 w-4" /></TabsTrigger>
               <TabsTrigger value="assets" className="px-1"><Layers className="h-4 w-4" /></TabsTrigger>
               <TabsTrigger value="game" className="px-1">
                 {editorMode === 'wheel' ? <Disc className="h-4 w-4" /> : 
@@ -387,32 +552,78 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-40 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
-            <TabsContent value="templates" className="mt-0 space-y-4">
-              <div className="grid grid-cols-1 gap-3">
-                {templates.map((template) => (
-                  <div 
-                    key={template.id}
-                    onClick={() => applyTemplate(template)}
-                    className="p-3 rounded-lg border border-border bg-card hover:border-primary hover:bg-muted/50 cursor-pointer transition-all group"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                          {template.rows}x{template.cols}
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-bold leading-none">{template.name}</h4>
-                          <span className="text-[10px] text-muted-foreground">{template.description}</span>
-                        </div>
-                      </div>
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: template.color }}
-                      />
+            <TabsContent value="playables" className="mt-0 space-y-6">
+              
+              {/* Mechanics Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-border">
+                  <Gamepad2 className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider">Game Mechanics</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  {mechanicCategories.map((category) => (
+                    <div key={category.id} className="space-y-3">
+                       <div className="flex items-center gap-2 text-muted-foreground">
+                         <category.icon className="h-4 w-4" />
+                         <span className="text-xs font-bold uppercase">{category.name}</span>
+                       </div>
+                       
+                       <div className="grid grid-cols-1 gap-2 pl-2 border-l-2 border-border/50">
+                         {category.templates.map((template) => (
+                           <div 
+                             key={template.id}
+                             onClick={() => applyMechanic(template)}
+                             className="p-3 rounded-lg border border-border bg-card hover:border-primary hover:bg-muted/50 cursor-pointer transition-all group flex gap-3 items-start"
+                           >
+                             <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
+                               <template.icon className="h-4 w-4" />
+                             </div>
+                             <div>
+                               <h4 className="text-sm font-bold leading-none mb-1 group-hover:text-primary transition-colors">{template.name}</h4>
+                               <p className="text-[10px] text-muted-foreground mb-2">{template.description}</p>
+                               <div className="flex flex-wrap gap-1">
+                                 {template.features.map((feature, i) => (
+                                   <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
+                                     {feature}
+                                   </span>
+                                 ))}
+                               </div>
+                             </div>
+                           </div>
+                         ))}
+                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+
+              {/* Themes Section */}
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-border">
+                  <Palette className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider">Visual Themes</h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  {themes.map((theme) => (
+                    <div 
+                      key={theme.id}
+                      onClick={() => applyTheme(theme)}
+                      className="p-3 rounded-lg border border-border bg-card hover:border-primary cursor-pointer transition-all group flex flex-col gap-2 items-center text-center"
+                    >
+                      <div 
+                        className="h-10 w-10 rounded-full flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform"
+                        style={{ backgroundColor: theme.color }}
+                      >
+                        <theme.icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-xs font-bold">{theme.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </TabsContent>
 
             <TabsContent value="assets" className="mt-0 space-y-6">
