@@ -88,6 +88,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [spins, setSpins] = useState(5);
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
+  const [reelsSpinning, setReelsSpinning] = useState<boolean[]>([]);
   
   // Advanced Settings
   const [slotRows, setSlotRows] = useState(templateConfig.rows || 1); // 1 = 3x1 (classic), 3 = 3x3 (video slot)
@@ -200,9 +201,27 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     if (!isPlaying || currentSpins <= 0 || isReelSpinning) return;
 
     setIsReelSpinning(true);
+    setReelsSpinning(new Array(slotCols).fill(true));
     setCurrentSpins(prev => prev - 1);
 
-    // Simulate duration
+    // Staggered stop
+    const totalDuration = 2000;
+    const staggerDelay = 300; // Time between each reel stopping
+    
+    // Stop reels one by one
+    for (let i = 0; i < slotCols; i++) {
+        setTimeout(() => {
+            setReelsSpinning(prev => {
+                const newState = [...prev];
+                newState[i] = false;
+                return newState;
+            });
+        }, totalDuration + (i * staggerDelay));
+    }
+
+    // End game logic
+    const totalTime = totalDuration + (slotCols * staggerDelay) + 500; // Buffer
+
     setTimeout(() => {
       setIsReelSpinning(false);
       
@@ -218,7 +237,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           setShowEndCard(true);
         }, 2500); // Wait for win animation
       }
-    }, 2000);
+    }, totalTime);
   };
 
   const toggleElement = (key: keyof typeof visibleElements) => {
@@ -1746,13 +1765,17 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                              {/* Reel Strip Animation */}
                              <div className={cn(
                                "flex flex-col gap-1 w-full h-full",
-                               isReelSpinning && (templateConfig.animation === 'spin' || !templateConfig.animation) && "animate-spin-reel",
+                               // Spinning state (loops)
+                               reelsSpinning[colIndex] && (templateConfig.animation === 'spin' || !templateConfig.animation) && "animate-spin-reel",
+                               // Stopped state (landing animation)
+                               !reelsSpinning[colIndex] && isReelSpinning && "animate-spin-stop",
+                               
                                isReelSpinning && templateConfig.animation === 'bounce' && "animate-bounce-spin",
                                isReelSpinning && templateConfig.animation === 'cascade' && "animate-cascade",
                                isReelSpinning && templateConfig.animation === 'fade' && "animate-fade-reveal",
                                isReelSpinning && templateConfig.animation === 'shake' && "animate-shake"
                              )}
-                             style={{ animationDelay: `${colIndex * 100}ms` }}
+                             style={{ animationDelay: reelsSpinning[colIndex] ? `${colIndex * 100}ms` : '0ms' }}
                              >
                                {Array.from({ length: slotRows }).map((_, rowIndex) => {
                                  // Determine symbol source: Specific cell override OR random default
@@ -1776,7 +1799,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                                        src={hasOverride || defaultSymbol} 
                                        className={cn(
                                          "w-full h-full object-contain drop-shadow-md transition-all duration-300",
-                                         isReelSpinning && (templateConfig.animation === 'spin' || !templateConfig.animation) && "blur-[2px]",
+                                         reelsSpinning[colIndex] && (templateConfig.animation === 'spin' || !templateConfig.animation) && "blur-[2px]",
                                          isReelSpinning && templateConfig.animation === 'fade' && "opacity-50 scale-90"
                                        )}
                                      />

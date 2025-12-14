@@ -113,8 +113,8 @@
 }
 
 @keyframes spin-reel {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(100%); }
+  0% { transform: translateY(0); filter: blur(0); }
+  100% { transform: translateY(calc(100% / 3)); filter: blur(8px); }
 }
 
 /* New Animations */
@@ -123,6 +123,13 @@
   50% { opacity: 1; }
   70% { transform: translateY(10%); }
   100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce-stop {
+  0% { transform: translateY(-20%); filter: blur(2px); }
+  60% { transform: translateY(5%); filter: blur(0); }
+  80% { transform: translateY(-2%); }
+  100% { transform: translateY(0); }
 }
 
 @keyframes bounce-spin {
@@ -143,7 +150,11 @@
 }
 
 .animate-spin-reel {
-  animation: spin-reel 0.2s linear infinite;
+  animation: spin-reel 0.1s linear infinite;
+}
+
+.animate-spin-stop {
+  animation: bounce-stop 0.5s ease-out forwards;
 }
 
 .animate-spin-blur {
