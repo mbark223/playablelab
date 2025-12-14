@@ -79,6 +79,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     { label: "MINI", value: "$500" }
   ]);
   const [jackpotCount, setJackpotCount] = useState(1);
+  const [jackpotFontSize, setJackpotFontSize] = useState(18); // Default font size in px
   const [spins, setSpins] = useState(5);
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
@@ -316,6 +317,20 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                          min="1" max="4" 
                          value={jackpotCount}
                          onChange={(e) => setJackpotCount(parseInt(e.target.value))}
+                         className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                       />
+                   </div>
+
+                   <div className="space-y-1 pt-2">
+                       <div className="flex justify-between items-center">
+                         <label className="text-xs font-medium text-muted-foreground">Text Size</label>
+                         <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">{jackpotFontSize}px</span>
+                       </div>
+                       <input 
+                         type="range" 
+                         min="10" max="32" 
+                         value={jackpotFontSize}
+                         onChange={(e) => setJackpotFontSize(parseInt(e.target.value))}
                          className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
                        />
                    </div>
@@ -1553,7 +1568,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        {jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
                            <div key={idx} className="flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center" style={{ animationDelay: `${idx * 100}ms` }}>
                               <span className="text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80">{jackpot.label}</span>
-                              <span className="text-yellow-400 font-display font-black text-lg md:text-xl tracking-widest drop-shadow-md leading-none whitespace-nowrap">
+                              <span 
+                                className="text-yellow-400 font-display font-black tracking-widest drop-shadow-md leading-none whitespace-nowrap"
+                                style={{ fontSize: `${jackpotFontSize}px` }}
+                              >
                                 {jackpot.value}
                               </span>
                             </div>
