@@ -72,6 +72,8 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [uploadTarget, setUploadTarget] = useState<{ type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder' | 'music' | 'spinSound' | 'winSound', index?: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const spinAudioRef = useRef<HTMLAudioElement>(null);
+  const winAudioRef = useRef<HTMLAudioElement>(null);
 
   const [background, setBackground] = useState(slotsBg);
   const [backgroundMusic, setBackgroundMusic] = useState<string | null>(null);
@@ -211,12 +213,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     if (!isPlaying || currentSpins <= 0 || isReelSpinning) return;
 
     // Play Spin Sound
-    if (spinSound) {
-      const audio = document.getElementById('sfx-spin') as HTMLAudioElement;
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(console.error);
-      }
+    if (spinSound && spinAudioRef.current) {
+      spinAudioRef.current.currentTime = 0;
+      spinAudioRef.current.play().catch(console.error);
     }
 
     setIsReelSpinning(true);
@@ -249,12 +248,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
          setShowWinMessage(true);
          
          // Play Win Sound
-         if (winSound) {
-           const audio = document.getElementById('sfx-win') as HTMLAudioElement;
-           if (audio) {
-             audio.currentTime = 0;
-             audio.play().catch(console.error);
-           }
+         if (winSound && winAudioRef.current) {
+           winAudioRef.current.currentTime = 0;
+           winAudioRef.current.play().catch(console.error);
          }
          
          setTimeout(() => setShowWinMessage(false), 2000);
@@ -309,20 +305,16 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
       )}
 
       {/* SFX Players (Hidden) */}
-      {spinSound && (
-        <audio 
-          id="sfx-spin"
-          src={spinSound} 
-          preload="auto"
-        />
-      )}
-      {winSound && (
-        <audio 
-          id="sfx-win"
-          src={winSound} 
-          preload="auto"
-        />
-      )}
+      <audio 
+        ref={spinAudioRef}
+        src={spinSound || undefined} 
+        preload="auto"
+      />
+      <audio 
+        ref={winAudioRef}
+        src={winSound || undefined} 
+        preload="auto"
+      />
 
       {/* Left Sidebar - Controls */}
       <div className="w-80 border-r border-border bg-card flex flex-col">
