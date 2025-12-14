@@ -1614,6 +1614,392 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           </div>
         </div>
         
+
+        {/* Viewport */}
+        <div className="flex-1 flex items-center justify-center p-8 overflow-hidden">
+          <div 
+            className={cn(
+              "relative bg-black shadow-2xl transition-all duration-500 ease-in-out border-[8px] border-zinc-800 overflow-hidden",
+              device === 'mobile' && "w-[375px] h-[667px] rounded-[3rem]",
+              device === 'tablet' && "w-[768px] h-[1024px] rounded-[2rem]",
+              device === 'desktop' && "w-full h-full rounded-none border-0"
+            )}
+          >
+            {/* Mockup Content */}
+            <div className="absolute inset-0 bg-black">
+              {/* Background */}
+              <img 
+                src={background} 
+                className="absolute inset-0 w-full h-full object-cover opacity-90" 
+                alt="Game Background" 
+              />
+              
+              {/* UI Layer */}
+              <div className="absolute inset-0 flex flex-col z-10">
+                {/* Header / Logo */}
+                {visibleElements.logo && (
+                  <div className="h-24 flex items-center justify-center pt-8 animate-in slide-in-from-top duration-700">
+                    <img src={logo} className="h-16 w-auto drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
+                  </div>
+                )}
+
+                {/* GAME CONTENT AREA */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2 relative w-full">
+                  {/* (Old Win Message Overlay removed - now handled by global AnimatePresence above) */}
+
+                  {/* Jackpot Counter */}
+                  {visibleElements.jackpot && (
+                    <div className={cn("w-full px-4 z-20 transition-all duration-300", 
+                      jackpotLayout === 'distributed' ? "flex flex-col gap-2 w-full mb-2" : "flex flex-row gap-2 justify-center flex-wrap"
+                    )}>
+                       {jackpotLayout === 'row' ? (
+                         // Row Layout (Original)
+                         jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
+                             <div key={idx} className={cn("flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center relative overflow-visible", jackpot.border ? "border-none bg-transparent shadow-none" : "")} style={{ animationDelay: `${idx * 100}ms` }}>
+                                {jackpot.border && (
+                                  <div className="absolute inset-[-4px] z-0 pointer-events-none">
+                                    <img src={jackpot.border} className="w-full h-full object-fill" />
+                                  </div>
+                                )}
+                                <span className={cn("text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80 z-10", jackpot.border ? "drop-shadow-md text-white" : "")}>{jackpot.label}</span>
+                                <span 
+                                  className="text-yellow-400 font-display font-black tracking-widest drop-shadow-md leading-none whitespace-nowrap"
+                                  style={{ fontSize: `${jackpotFontSize}px` }}
+                                >
+                                  {jackpot.value}
+                                </span>
+                              </div>
+                         ))
+                       ) : (
+                         // Distributed Layout (Refactored to sit ABOVE gameplay)
+                         <div className="w-full flex flex-col gap-2">
+                           {/* Grand Jackpot (Always Top) */}
+                           {jackpots.length > 0 && jackpotCount >= 1 && (
+                             <div className={cn("w-full h-20 relative bg-black/80 backdrop-blur-md border-4 border-yellow-400 rounded-xl shadow-[0_0_50px_rgba(255,215,0,0.6)] flex flex-col items-center justify-center animate-in zoom-in duration-500 overflow-visible", jackpots[0].border ? "bg-transparent border-none shadow-none" : "")}>
+                                {/* Border Image Overlay */}
+                                {jackpots[0].border && (
+                                  <div className="absolute inset-[-6px] z-0 pointer-events-none">
+                                    <img src={jackpots[0].border} className="w-full h-full object-fill" />
+                                  </div>
+                                )}
+                                
+                                {/* Industrial Stripes (Only if no border) */}
+                                {!jackpots[0].border && (
+                                  <>
+                                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-r border-yellow-500/30" />
+                                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-l border-yellow-500/30" />
+                                  </>
+                                )}
+                                
+                                <span className="font-display font-black uppercase tracking-widest opacity-90 z-10 text-red-500 text-lg drop-shadow-[0_2px_0_rgba(0,0,0,1)] stroke-black">
+                                  {jackpots[0].label}
+                                </span>
+                                <span className="font-display font-black tracking-widest drop-shadow-lg leading-none whitespace-nowrap z-10 text-gradient bg-clip-text text-transparent bg-gradient-to-b from-yellow-300 via-yellow-100 to-yellow-500 text-4xl drop-shadow-[0_4px_0_rgba(0,0,0,0.8)]">
+                                  {jackpots[0].value}
+                                </span>
+                             </div>
+                           )}
+
+                           {/* Secondary Jackpots Grid */}
+                           {jackpotCount > 1 && (
+                             <div className="grid grid-cols-2 gap-2 w-full">
+                               {jackpots.slice(1, jackpotCount).map((jackpot, idx) => (
+                                 <div 
+                                   key={idx + 1}
+                                   className={cn("relative bg-black/80 backdrop-blur-md border-2 border-yellow-500/50 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.4)] flex flex-col items-center justify-center animate-in zoom-in duration-500 h-16 overflow-visible", jackpot.border ? "bg-transparent border-none shadow-none" : "")}
+                                   style={{ animationDelay: `${(idx + 1) * 100}ms` }}
+                                 >
+                                    {jackpot.border && (
+                                      <div className="absolute inset-[-4px] z-0 pointer-events-none">
+                                        <img src={jackpot.border} className="w-full h-full object-fill" />
+                                      </div>
+                                    )}
+                                    <span className="font-display font-black uppercase tracking-widest opacity-90 z-10 text-yellow-200 text-[10px]">
+                                      {jackpot.label}
+                                    </span>
+                                    <span 
+                                      className="font-display font-black tracking-widest drop-shadow-lg leading-none whitespace-nowrap z-10 text-gradient bg-clip-text text-transparent bg-gradient-to-b from-yellow-300 via-yellow-100 to-yellow-500"
+                                      style={{ fontSize: `${jackpotFontSize}px` }}
+                                    >
+                                      {jackpot.value}
+                                    </span>
+                                 </div>
+                               ))}
+                             </div>
+                           )}
+                         </div>
+                       )}
+                    </div>
+                  )}
+
+                  {/* === MODE: SLOTS === */}
+                  {editorMode === 'slots' && (
+                    <div className={cn(
+                      "w-[98%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
+                      slotRows >= 3 ? "aspect-[3/4]" : "aspect-[4/3]"
+                    )}>
+                      {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
+                      
+                      {/* Reels Container */}
+                      <div 
+                        className={cn(
+                          "w-full h-full bg-white/5 rounded grid gap-1 p-1"
+                        )}
+                        style={{ gridTemplateColumns: `repeat(${slotCols}, minmax(0, 1fr))` }}
+                      >
+                        {Array.from({ length: slotCols }).map((_, colIndex) => (
+                          <div key={`col-${colIndex}`} className="flex flex-col gap-1 h-full overflow-hidden relative">
+                             {/* Reel Strip Animation */}
+                             <div className={cn(
+                               "flex flex-col gap-1 w-full h-full",
+                               // Spinning state (loops)
+                               reelsSpinning[colIndex] && (templateConfig.animation === 'spin' || !templateConfig.animation) && "animate-spin-reel",
+                               // Stopped state (landing animation)
+                               !reelsSpinning[colIndex] && isReelSpinning && "animate-spin-stop",
+                               
+                               isReelSpinning && templateConfig.animation === 'bounce' && "animate-bounce-spin",
+                               isReelSpinning && templateConfig.animation === 'cascade' && "animate-cascade",
+                               isReelSpinning && templateConfig.animation === 'fade' && "animate-fade-reveal",
+                               isReelSpinning && templateConfig.animation === 'shake' && "animate-shake"
+                             )}
+                             style={{ animationDelay: reelsSpinning[colIndex] ? `${colIndex * 100}ms` : '0ms' }}
+                             >
+                               {Array.from({ length: slotRows }).map((_, rowIndex) => {
+                                 // Determine symbol source: Specific cell override OR random default
+                                 const cellKey = `${rowIndex}-${colIndex}`;
+                                 const hasOverride = gridSymbols[cellKey];
+                                 const defaultSymbol = customSymbols[(colIndex + rowIndex) % customSymbols.length]; // Fallback pattern
+                                 
+                                 return (
+                                   <div 
+                                     key={`cell-${rowIndex}-${colIndex}`} 
+                                     className={cn(
+                                       "bg-white rounded border-2 border-slate-200 flex items-center justify-center p-2 shadow-inner relative group cursor-pointer hover:border-primary transition-colors flex-1 min-h-0",
+                                       activeCell?.row === rowIndex && activeCell?.col === colIndex ? "border-primary ring-2 ring-primary z-10" : ""
+                                     )}
+                                     onClick={() => {
+                                       setActiveCell({ row: rowIndex, col: colIndex });
+                                       setActiveTab('game'); // Ensure game tab is open
+                                     }}
+                                   >
+                                     <img 
+                                       src={hasOverride || defaultSymbol} 
+                                       className={cn(
+                                         "w-full h-full object-contain drop-shadow-md transition-all duration-300",
+                                         reelsSpinning[colIndex] && (templateConfig.animation === 'spin' || !templateConfig.animation) && "blur-[2px]",
+                                         isReelSpinning && templateConfig.animation === 'fade' && "opacity-50 scale-90"
+                                       )}
+                                     />
+                                     {/* Hover indicator */}
+                                     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded">
+                                        <div className="bg-primary text-primary-foreground p-1 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform">
+                                          <Palette className="h-3 w-3" />
+                                        </div>
+                                     </div>
+                                   </div>
+                                 );
+                               })}
+                             </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Payline */}
+                      {visibleElements.paylines && (
+                        <div className="absolute top-1/2 left-0 right-0 h-1 bg-red-500/50 shadow-[0_0_10px_red]" />
+                      )}
+                    </div>
+                  )}
+
+                  {/* === MODE: WHEEL === */}
+                  {editorMode === 'wheel' && (
+                    <div className="w-[98%] aspect-square relative flex items-center justify-center">
+                      {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
+                      <div className={cn(
+                        "w-full h-full rounded-full border-8 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.5)] overflow-hidden bg-black/50 relative transition-transform duration-[3000ms] cubic-bezier(0.2, 0.8, 0.2, 1)",
+                        isReelSpinning ? "rotate-[1080deg]" : "rotate-0"
+                      )}>
+                         <img src={wheelImg} className="w-full h-full object-cover opacity-80" />
+                         <div className="absolute inset-0 flex items-center justify-center">
+                           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 shadow-xl z-20 flex items-center justify-center border-4 border-white">
+                             <div className="w-2 h-2 rounded-full bg-black/20" />
+                           </div>
+                         </div>
+                      </div>
+                      {/* Pointer */}
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-red-600 z-30 shadow-lg" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+                    </div>
+                  )}
+
+                  {/* === MODE: SCRATCH === */}
+                  {editorMode === 'scratch' && (
+                    <div className="w-[98%] aspect-[3/4] bg-white rounded-xl shadow-2xl p-1 relative overflow-hidden">
+                      {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-10" />
+                      <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg p-4 grid grid-cols-2 gap-4">
+                        {[1, 2, 3, 4].map((i) => (
+                           <div key={i} className="relative rounded-lg overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
+                             <span className="font-bold text-gray-400">PRIZE</span>
+                             
+                             {/* Scratch Layer */}
+                             <div className={cn(
+                               "absolute inset-0 bg-gray-300 flex items-center justify-center cursor-crosshair transition-opacity duration-700",
+                               isReelSpinning ? "opacity-0" : "opacity-100 bg-[url('https://www.transparenttextures.com/patterns/foil.png')]"
+                             )}>
+                               <Hexagon className="text-gray-400 opacity-20 w-8 h-8" />
+                             </div>
+                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Disclaimer */}
+                  {disclaimerText && (
+                    <div className="mt-2 text-center px-4 w-full z-10">
+                      <p className="text-[10px] text-white/50 font-medium leading-tight whitespace-pre-wrap">
+                        {disclaimerText}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Headline */}
+                  {visibleElements.headline && (
+                    <div className="text-center space-y-2 z-20">
+                      <h2 
+                        className="text-3xl font-display font-black text-white text-center uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4"
+                        style={{ color: textColor }}
+                      >
+                        {headline}
+                      </h2>
+                      {subheadline && (
+                        <p className="text-sm font-bold text-white/90 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm inline-block tracking-wider animate-pulse border border-white/10">
+                          {subheadline}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer Controls */}
+                <div className="pb-12 pt-4 px-6 flex flex-col items-center gap-4 bg-gradient-to-t from-black/90 to-transparent">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className={cn(
+                      "backdrop-blur border px-3 py-1 rounded text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg transition-colors",
+                      currentSpins > 0 ? "bg-black/80 border-white/20 text-white" : "bg-red-500/90 border-red-400 text-white"
+                    )}>
+                      {currentSpins > 0 && <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />}
+                      {currentSpins} {editorMode === 'scratch' ? 'Cards' : 'Spins'} Left
+                    </div>
+                  </div>
+
+                  <Button 
+                    size="lg" 
+                    onClick={handleInteraction}
+                    disabled={!isPlaying || currentSpins <= 0 || isReelSpinning}
+                    className={cn(
+                      "w-full max-w-[280px] h-14 text-xl font-black rounded-full border-b-4 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all",
+                      !isPlaying 
+                        ? "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50"
+                        : currentSpins > 0
+                          ? "bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 border-yellow-700 hover:scale-105 active:scale-95 active:border-b-0 translate-y-0 text-yellow-950 animate-pulse"
+                          : "bg-gray-700 border-gray-800 text-gray-400 cursor-not-allowed"
+                    )}
+                  >
+                    {currentSpins > 0 ? ctaText : "No Plays Left"}
+                  </Button>
+                  <p className="text-[10px] text-white/40 font-medium text-center max-w-[200px] leading-tight">
+                    No Purchase Necessary. 18+. T&Cs Apply.
+                  </p>
+                </div>
+              </div>
+
+              {/* End Card Overlay */}
+              {(viewMode === 'endcard' || showEndCard) && (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300 overflow-hidden">
+                  {/* Background Layer */}
+                  <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
+                  {endCardBackground && (
+                    <div className="absolute inset-0 z-0">
+                      <img src={endCardBackground} className="w-full h-full object-cover opacity-50" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                    </div>
+                  )}
+
+                  <div className="w-full max-w-sm text-center space-y-6 relative z-10">
+                    {/* Optional Logo */}
+                    {showEndCardLogo && (
+                       <div className="flex justify-center mb-4">
+                         <img src={logo} className="h-12 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                       </div>
+                    )}
+
+                    {/* Winner Icon / Image */}
+                    {endCardImage ? (
+                      <div className="mx-auto h-32 w-32 flex items-center justify-center animate-bounce">
+                        <img src={endCardImage} className="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]" />
+                      </div>
+                    ) : (
+                      <div className="mx-auto h-24 w-24 rounded-full bg-yellow-500/20 flex items-center justify-center border-4 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.4)] animate-bounce">
+                        <Trophy className="h-12 w-12 text-yellow-400 fill-yellow-400" />
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <h2 className="text-4xl font-black text-white uppercase drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]">
+                        {endCardHeadline}
+                      </h2>
+                      <p className="text-xl text-yellow-300 font-bold tracking-wide">
+                        {endCardSubtext}
+                      </p>
+                    </div>
+
+                    <div className="pt-4">
+                      <Button 
+                        size="lg" 
+                        className="w-full h-16 text-2xl font-black rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 border-b-4 border-emerald-800 shadow-[0_0_25px_rgba(16,185,129,0.4)] hover:scale-105 transition-transform animate-pulse"
+                      >
+                        {endCardCta}
+                      </Button>
+                      <p className="text-xs text-white/50 mt-4">
+                        Offer expires in 10:00 minutes
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Confetti (Simulated with simple particles for mockup) */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    {[...Array(20)].map((_, i) => (
+                      <div 
+                        key={i}
+                        className="absolute h-2 w-2 bg-yellow-500 rounded-full animate-pulse"
+                        style={{
+                          top: `${Math.random() * 100}%`,
+                          left: `${Math.random() * 100}%`,
+                          animationDelay: `${Math.random() * 2}s`,
+                          opacity: Math.random()
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
         {/* Win Animation Overlay */}
         <AnimatePresence>
             {showWinMessage && (
@@ -2121,392 +2507,6 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                 </div>
             )}
         </AnimatePresence>
-
-        {/* Viewport */}
-        <div className="flex-1 flex items-center justify-center p-8 overflow-hidden">
-          <div 
-            className={cn(
-              "relative bg-black shadow-2xl transition-all duration-500 ease-in-out border-[8px] border-zinc-800 overflow-hidden",
-              device === 'mobile' && "w-[375px] h-[667px] rounded-[3rem]",
-              device === 'tablet' && "w-[768px] h-[1024px] rounded-[2rem]",
-              device === 'desktop' && "w-full h-full rounded-none border-0"
-            )}
-          >
-            {/* Mockup Content */}
-            <div className="absolute inset-0 bg-black">
-              {/* Background */}
-              <img 
-                src={background} 
-                className="absolute inset-0 w-full h-full object-cover opacity-90" 
-                alt="Game Background" 
-              />
-              
-              {/* UI Layer */}
-              <div className="absolute inset-0 flex flex-col z-10">
-                {/* Header / Logo */}
-                {visibleElements.logo && (
-                  <div className="h-24 flex items-center justify-center pt-8 animate-in slide-in-from-top duration-700">
-                    <img src={logo} className="h-16 w-auto drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
-                  </div>
-                )}
-
-                {/* GAME CONTENT AREA */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2 relative w-full">
-                  {/* (Old Win Message Overlay removed - now handled by global AnimatePresence above) */}
-
-                  {/* Jackpot Counter */}
-                  {visibleElements.jackpot && (
-                    <div className={cn("w-full px-4 z-20 transition-all duration-300", 
-                      jackpotLayout === 'distributed' ? "flex flex-col gap-2 w-full mb-2" : "flex flex-row gap-2 justify-center flex-wrap"
-                    )}>
-                       {jackpotLayout === 'row' ? (
-                         // Row Layout (Original)
-                         jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
-                             <div key={idx} className={cn("flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center relative overflow-visible", jackpot.border ? "border-none bg-transparent shadow-none" : "")} style={{ animationDelay: `${idx * 100}ms` }}>
-                                {jackpot.border && (
-                                  <div className="absolute inset-[-4px] z-0 pointer-events-none">
-                                    <img src={jackpot.border} className="w-full h-full object-fill" />
-                                  </div>
-                                )}
-                                <span className={cn("text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80 z-10", jackpot.border ? "drop-shadow-md text-white" : "")}>{jackpot.label}</span>
-                                <span 
-                                  className="text-yellow-400 font-display font-black tracking-widest drop-shadow-md leading-none whitespace-nowrap"
-                                  style={{ fontSize: `${jackpotFontSize}px` }}
-                                >
-                                  {jackpot.value}
-                                </span>
-                              </div>
-                         ))
-                       ) : (
-                         // Distributed Layout (Refactored to sit ABOVE gameplay)
-                         <div className="w-full flex flex-col gap-2">
-                           {/* Grand Jackpot (Always Top) */}
-                           {jackpots.length > 0 && jackpotCount >= 1 && (
-                             <div className={cn("w-full h-20 relative bg-black/80 backdrop-blur-md border-4 border-yellow-400 rounded-xl shadow-[0_0_50px_rgba(255,215,0,0.6)] flex flex-col items-center justify-center animate-in zoom-in duration-500 overflow-visible", jackpots[0].border ? "bg-transparent border-none shadow-none" : "")}>
-                                {/* Border Image Overlay */}
-                                {jackpots[0].border && (
-                                  <div className="absolute inset-[-6px] z-0 pointer-events-none">
-                                    <img src={jackpots[0].border} className="w-full h-full object-fill" />
-                                  </div>
-                                )}
-                                
-                                {/* Industrial Stripes (Only if no border) */}
-                                {!jackpots[0].border && (
-                                  <>
-                                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-r border-yellow-500/30" />
-                                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-l border-yellow-500/30" />
-                                  </>
-                                )}
-                                
-                                <span className="font-display font-black uppercase tracking-widest opacity-90 z-10 text-red-500 text-lg drop-shadow-[0_2px_0_rgba(0,0,0,1)] stroke-black">
-                                  {jackpots[0].label}
-                                </span>
-                                <span className="font-display font-black tracking-widest drop-shadow-lg leading-none whitespace-nowrap z-10 text-gradient bg-clip-text text-transparent bg-gradient-to-b from-yellow-300 via-yellow-100 to-yellow-500 text-4xl drop-shadow-[0_4px_0_rgba(0,0,0,0.8)]">
-                                  {jackpots[0].value}
-                                </span>
-                             </div>
-                           )}
-
-                           {/* Secondary Jackpots Grid */}
-                           {jackpotCount > 1 && (
-                             <div className="grid grid-cols-2 gap-2 w-full">
-                               {jackpots.slice(1, jackpotCount).map((jackpot, idx) => (
-                                 <div 
-                                   key={idx + 1}
-                                   className={cn("relative bg-black/80 backdrop-blur-md border-2 border-yellow-500/50 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.4)] flex flex-col items-center justify-center animate-in zoom-in duration-500 h-16 overflow-visible", jackpot.border ? "bg-transparent border-none shadow-none" : "")}
-                                   style={{ animationDelay: `${(idx + 1) * 100}ms` }}
-                                 >
-                                    {jackpot.border && (
-                                      <div className="absolute inset-[-4px] z-0 pointer-events-none">
-                                        <img src={jackpot.border} className="w-full h-full object-fill" />
-                                      </div>
-                                    )}
-                                    <span className="font-display font-black uppercase tracking-widest opacity-90 z-10 text-yellow-200 text-[10px]">
-                                      {jackpot.label}
-                                    </span>
-                                    <span 
-                                      className="font-display font-black tracking-widest drop-shadow-lg leading-none whitespace-nowrap z-10 text-gradient bg-clip-text text-transparent bg-gradient-to-b from-yellow-300 via-yellow-100 to-yellow-500"
-                                      style={{ fontSize: `${jackpotFontSize}px` }}
-                                    >
-                                      {jackpot.value}
-                                    </span>
-                                 </div>
-                               ))}
-                             </div>
-                           )}
-                         </div>
-                       )}
-                    </div>
-                  )}
-
-                  {/* === MODE: SLOTS === */}
-                  {editorMode === 'slots' && (
-                    <div className={cn(
-                      "w-[98%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
-                      slotRows >= 3 ? "aspect-[3/4]" : "aspect-[4/3]"
-                    )}>
-                      {/* Win Border Filter */}
-                      {showWinMessage && winBorder && (
-                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
-                          <img src={winBorder} className="w-full h-full object-fill" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
-                      
-                      {/* Reels Container */}
-                      <div 
-                        className={cn(
-                          "w-full h-full bg-white/5 rounded grid gap-1 p-1"
-                        )}
-                        style={{ gridTemplateColumns: `repeat(${slotCols}, minmax(0, 1fr))` }}
-                      >
-                        {Array.from({ length: slotCols }).map((_, colIndex) => (
-                          <div key={`col-${colIndex}`} className="flex flex-col gap-1 h-full overflow-hidden relative">
-                             {/* Reel Strip Animation */}
-                             <div className={cn(
-                               "flex flex-col gap-1 w-full h-full",
-                               // Spinning state (loops)
-                               reelsSpinning[colIndex] && (templateConfig.animation === 'spin' || !templateConfig.animation) && "animate-spin-reel",
-                               // Stopped state (landing animation)
-                               !reelsSpinning[colIndex] && isReelSpinning && "animate-spin-stop",
-                               
-                               isReelSpinning && templateConfig.animation === 'bounce' && "animate-bounce-spin",
-                               isReelSpinning && templateConfig.animation === 'cascade' && "animate-cascade",
-                               isReelSpinning && templateConfig.animation === 'fade' && "animate-fade-reveal",
-                               isReelSpinning && templateConfig.animation === 'shake' && "animate-shake"
-                             )}
-                             style={{ animationDelay: reelsSpinning[colIndex] ? `${colIndex * 100}ms` : '0ms' }}
-                             >
-                               {Array.from({ length: slotRows }).map((_, rowIndex) => {
-                                 // Determine symbol source: Specific cell override OR random default
-                                 const cellKey = `${rowIndex}-${colIndex}`;
-                                 const hasOverride = gridSymbols[cellKey];
-                                 const defaultSymbol = customSymbols[(colIndex + rowIndex) % customSymbols.length]; // Fallback pattern
-                                 
-                                 return (
-                                   <div 
-                                     key={`cell-${rowIndex}-${colIndex}`} 
-                                     className={cn(
-                                       "bg-white rounded border-2 border-slate-200 flex items-center justify-center p-2 shadow-inner relative group cursor-pointer hover:border-primary transition-colors flex-1 min-h-0",
-                                       activeCell?.row === rowIndex && activeCell?.col === colIndex ? "border-primary ring-2 ring-primary z-10" : ""
-                                     )}
-                                     onClick={() => {
-                                       setActiveCell({ row: rowIndex, col: colIndex });
-                                       setActiveTab('game'); // Ensure game tab is open
-                                     }}
-                                   >
-                                     <img 
-                                       src={hasOverride || defaultSymbol} 
-                                       className={cn(
-                                         "w-full h-full object-contain drop-shadow-md transition-all duration-300",
-                                         reelsSpinning[colIndex] && (templateConfig.animation === 'spin' || !templateConfig.animation) && "blur-[2px]",
-                                         isReelSpinning && templateConfig.animation === 'fade' && "opacity-50 scale-90"
-                                       )}
-                                     />
-                                     {/* Hover indicator */}
-                                     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded">
-                                        <div className="bg-primary text-primary-foreground p-1 rounded-full shadow-lg transform scale-0 group-hover:scale-100 transition-transform">
-                                          <Palette className="h-3 w-3" />
-                                        </div>
-                                     </div>
-                                   </div>
-                                 );
-                               })}
-                             </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Payline */}
-                      {visibleElements.paylines && (
-                        <div className="absolute top-1/2 left-0 right-0 h-1 bg-red-500/50 shadow-[0_0_10px_red]" />
-                      )}
-                    </div>
-                  )}
-
-                  {/* === MODE: WHEEL === */}
-                  {editorMode === 'wheel' && (
-                    <div className="w-[98%] aspect-square relative flex items-center justify-center">
-                      {/* Win Border Filter */}
-                      {showWinMessage && winBorder && (
-                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
-                          <img src={winBorder} className="w-full h-full object-fill" />
-                        </div>
-                      )}
-                      <div className={cn(
-                        "w-full h-full rounded-full border-8 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.5)] overflow-hidden bg-black/50 relative transition-transform duration-[3000ms] cubic-bezier(0.2, 0.8, 0.2, 1)",
-                        isReelSpinning ? "rotate-[1080deg]" : "rotate-0"
-                      )}>
-                         <img src={wheelImg} className="w-full h-full object-cover opacity-80" />
-                         <div className="absolute inset-0 flex items-center justify-center">
-                           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 shadow-xl z-20 flex items-center justify-center border-4 border-white">
-                             <div className="w-2 h-2 rounded-full bg-black/20" />
-                           </div>
-                         </div>
-                      </div>
-                      {/* Pointer */}
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-red-600 z-30 shadow-lg" style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
-                    </div>
-                  )}
-
-                  {/* === MODE: SCRATCH === */}
-                  {editorMode === 'scratch' && (
-                    <div className="w-[98%] aspect-[3/4] bg-white rounded-xl shadow-2xl p-1 relative overflow-hidden">
-                      {/* Win Border Filter */}
-                      {showWinMessage && winBorder && (
-                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
-                          <img src={winBorder} className="w-full h-full object-fill" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-10" />
-                      <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg p-4 grid grid-cols-2 gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                           <div key={i} className="relative rounded-lg overflow-hidden bg-gray-100 shadow-inner flex items-center justify-center">
-                             <span className="font-bold text-gray-400">PRIZE</span>
-                             
-                             {/* Scratch Layer */}
-                             <div className={cn(
-                               "absolute inset-0 bg-gray-300 flex items-center justify-center cursor-crosshair transition-opacity duration-700",
-                               isReelSpinning ? "opacity-0" : "opacity-100 bg-[url('https://www.transparenttextures.com/patterns/foil.png')]"
-                             )}>
-                               <Hexagon className="text-gray-400 opacity-20 w-8 h-8" />
-                             </div>
-                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Disclaimer */}
-                  {disclaimerText && (
-                    <div className="mt-2 text-center px-4 w-full z-10">
-                      <p className="text-[10px] text-white/50 font-medium leading-tight whitespace-pre-wrap">
-                        {disclaimerText}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Headline */}
-                  {visibleElements.headline && (
-                    <div className="text-center space-y-2 z-20">
-                      <h2 
-                        className="text-3xl font-display font-black text-white text-center uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4"
-                        style={{ color: textColor }}
-                      >
-                        {headline}
-                      </h2>
-                      {subheadline && (
-                        <p className="text-sm font-bold text-white/90 bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm inline-block tracking-wider animate-pulse border border-white/10">
-                          {subheadline}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer Controls */}
-                <div className="pb-12 pt-4 px-6 flex flex-col items-center gap-4 bg-gradient-to-t from-black/90 to-transparent">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className={cn(
-                      "backdrop-blur border px-3 py-1 rounded text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg transition-colors",
-                      currentSpins > 0 ? "bg-black/80 border-white/20 text-white" : "bg-red-500/90 border-red-400 text-white"
-                    )}>
-                      {currentSpins > 0 && <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />}
-                      {currentSpins} {editorMode === 'scratch' ? 'Cards' : 'Spins'} Left
-                    </div>
-                  </div>
-
-                  <Button 
-                    size="lg" 
-                    onClick={handleInteraction}
-                    disabled={!isPlaying || currentSpins <= 0 || isReelSpinning}
-                    className={cn(
-                      "w-full max-w-[280px] h-14 text-xl font-black rounded-full border-b-4 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all",
-                      !isPlaying 
-                        ? "bg-muted text-muted-foreground border-border cursor-not-allowed opacity-50"
-                        : currentSpins > 0
-                          ? "bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 border-yellow-700 hover:scale-105 active:scale-95 active:border-b-0 translate-y-0 text-yellow-950 animate-pulse"
-                          : "bg-gray-700 border-gray-800 text-gray-400 cursor-not-allowed"
-                    )}
-                  >
-                    {currentSpins > 0 ? ctaText : "No Plays Left"}
-                  </Button>
-                  <p className="text-[10px] text-white/40 font-medium text-center max-w-[200px] leading-tight">
-                    No Purchase Necessary. 18+. T&Cs Apply.
-                  </p>
-                </div>
-              </div>
-
-              {/* End Card Overlay */}
-              {(viewMode === 'endcard' || showEndCard) && (
-                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300 overflow-hidden">
-                  {/* Background Layer */}
-                  <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-0" />
-                  {endCardBackground && (
-                    <div className="absolute inset-0 z-0">
-                      <img src={endCardBackground} className="w-full h-full object-cover opacity-50" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-                    </div>
-                  )}
-
-                  <div className="w-full max-w-sm text-center space-y-6 relative z-10">
-                    {/* Optional Logo */}
-                    {showEndCardLogo && (
-                       <div className="flex justify-center mb-4">
-                         <img src={logo} className="h-12 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
-                       </div>
-                    )}
-
-                    {/* Winner Icon / Image */}
-                    {endCardImage ? (
-                      <div className="mx-auto h-32 w-32 flex items-center justify-center animate-bounce">
-                        <img src={endCardImage} className="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]" />
-                      </div>
-                    ) : (
-                      <div className="mx-auto h-24 w-24 rounded-full bg-yellow-500/20 flex items-center justify-center border-4 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.4)] animate-bounce">
-                        <Trophy className="h-12 w-12 text-yellow-400 fill-yellow-400" />
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <h2 className="text-4xl font-black text-white uppercase drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]">
-                        {endCardHeadline}
-                      </h2>
-                      <p className="text-xl text-yellow-300 font-bold tracking-wide">
-                        {endCardSubtext}
-                      </p>
-                    </div>
-
-                    <div className="pt-4">
-                      <Button 
-                        size="lg" 
-                        className="w-full h-16 text-2xl font-black rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 border-b-4 border-emerald-800 shadow-[0_0_25px_rgba(16,185,129,0.4)] hover:scale-105 transition-transform animate-pulse"
-                      >
-                        {endCardCta}
-                      </Button>
-                      <p className="text-xs text-white/50 mt-4">
-                        Offer expires in 10:00 minutes
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Confetti (Simulated with simple particles for mockup) */}
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    {[...Array(20)].map((_, i) => (
-                      <div 
-                        key={i}
-                        className="absolute h-2 w-2 bg-yellow-500 rounded-full animate-pulse"
-                        style={{
-                          top: `${Math.random() * 100}%`,
-                          left: `${Math.random() * 100}%`,
-                          animationDelay: `${Math.random() * 2}s`,
-                          opacity: Math.random()
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
