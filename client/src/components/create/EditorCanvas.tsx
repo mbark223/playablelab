@@ -22,6 +22,9 @@ import chipBlue from '@assets/generated_images/poker_chip_blue.png';
 import casinoLogo from '@assets/generated_images/casino_logo_placeholder.png';
 import wheelImg from '@assets/generated_images/wheel_of_fortune.png';
 import scratchImg from '@assets/generated_images/scratch_card_game.png';
+import borderBrick from '@assets/Huff_N_Even_More_Puff_Sym_Brick_House_border_1765722611336.png';
+import borderStraw from '@assets/Huff_N_Even_More_Puff_Sym_Staw_House_border_1765722616572.png';
+import borderWood from '@assets/Huff_N_Even_More_Puff_sym_Wood_House_border_1765722627179.png';
 
 interface EditorCanvasProps {
   templateId?: string | null;
@@ -66,16 +69,16 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [activeCell, setActiveCell] = useState<{row: number, col: number} | null>(null);
 
   const [activeSymbolIndex, setActiveSymbolIndex] = useState<number | null>(null);
-  const [uploadTarget, setUploadTarget] = useState<'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<{ type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder', index?: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [background, setBackground] = useState(slotsBg);
   
   // Game Settings
-  const [jackpots, setJackpots] = useState([
-    { label: "GRAND", value: "$1,240,500" },
-    { label: "MAJOR", value: "$50,000" },
-    { label: "MINOR", value: "$2,500" },
+  const [jackpots, setJackpots] = useState<{label: string, value: string, border?: string}[]>([
+    { label: "GRAND", value: "$1,240,500", border: borderBrick },
+    { label: "MAJOR", value: "$50,000", border: borderWood },
+    { label: "MINOR", value: "$2,500", border: borderStraw },
     { label: "MINI", value: "$500" },
     { label: "TINY", value: "$100" }
   ]);
@@ -157,12 +160,16 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
       const file = e.target.files[0];
       const previewUrl = URL.createObjectURL(file);
       
-      if (uploadTarget === 'symbol' || uploadTarget === 'gridCell') {
+      if (uploadTarget?.type === 'symbol' || uploadTarget?.type === 'gridCell') {
         handleSymbolUpdate(previewUrl);
-      } else if (uploadTarget === 'endCardBg') {
+      } else if (uploadTarget?.type === 'endCardBg') {
         setEndCardBackground(previewUrl);
-      } else if (uploadTarget === 'endCardImage') {
+      } else if (uploadTarget?.type === 'endCardImage') {
         setEndCardImage(previewUrl);
+      } else if (uploadTarget?.type === 'jackpotBorder' && typeof uploadTarget.index === 'number') {
+        const newJackpots = [...jackpots];
+        newJackpots[uploadTarget.index].border = previewUrl;
+        setJackpots(newJackpots);
       }
       
       // Reset target
@@ -170,7 +177,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     }
   };
 
-  const triggerUpload = (target: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell') => {
+  const triggerUpload = (target: { type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder', index?: number }) => {
     setUploadTarget(target);
     fileInputRef.current?.click();
   };
@@ -282,7 +289,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                    <div className="space-y-2">
                       <label className="text-xs font-medium text-muted-foreground">Jackpot Tiers</label>
                       {jackpots.slice(0, jackpotCount).map((jackpot, index) => (
-                        <div key={index} className="grid grid-cols-3 gap-2">
+                      <div key={index} className="grid grid-cols-[1fr_1.5fr_auto] gap-2 items-center">
                           <input 
                              type="text" 
                              value={jackpot.label}
@@ -292,7 +299,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                                setJackpots(newJackpots);
                              }}
                              placeholder="Label"
-                             className="col-span-1 h-8 px-2 text-xs rounded-md border border-input bg-background font-bold uppercase"
+                             className="h-8 px-2 text-xs rounded-md border border-input bg-background font-bold uppercase w-full"
                           />
                           <input 
                              type="text" 
@@ -303,8 +310,21 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                                setJackpots(newJackpots);
                              }}
                              placeholder="Value"
-                             className="col-span-2 h-8 px-2 text-xs rounded-md border border-input bg-background"
+                             className="h-8 px-2 text-xs rounded-md border border-input bg-background w-full"
                           />
+                          <Button 
+                             variant="outline" 
+                             size="icon" 
+                             className="h-8 w-8 shrink-0 relative overflow-hidden group"
+                             onClick={() => triggerUpload({ type: 'jackpotBorder', index })}
+                             title="Upload Border Image"
+                          >
+                             {jackpot.border ? (
+                               <img src={jackpot.border} className="w-full h-full object-cover opacity-80 group-hover:opacity-100" />
+                             ) : (
+                               <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                             )}
+                          </Button>
                         </div>
                       ))}
                    </div>
@@ -1594,8 +1614,13 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        {jackpotLayout === 'row' ? (
                          // Row Layout (Original)
                          jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
-                             <div key={idx} className="flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center" style={{ animationDelay: `${idx * 100}ms` }}>
-                                <span className="text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80">{jackpot.label}</span>
+                             <div key={idx} className={cn("flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center relative overflow-visible", jackpot.border ? "border-none bg-transparent shadow-none" : "")} style={{ animationDelay: `${idx * 100}ms` }}>
+                                {jackpot.border && (
+                                  <div className="absolute inset-[-4px] z-0 pointer-events-none">
+                                    <img src={jackpot.border} className="w-full h-full object-fill" />
+                                  </div>
+                                )}
+                                <span className={cn("text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80 z-10", jackpot.border ? "drop-shadow-md text-white" : "")}>{jackpot.label}</span>
                                 <span 
                                   className="text-yellow-400 font-display font-black tracking-widest drop-shadow-md leading-none whitespace-nowrap"
                                   style={{ fontSize: `${jackpotFontSize}px` }}
@@ -1609,10 +1634,21 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                          <div className="w-full flex flex-col gap-2">
                            {/* Grand Jackpot (Always Top) */}
                            {jackpots.length > 0 && jackpotCount >= 1 && (
-                             <div className="w-full h-20 relative bg-black/80 backdrop-blur-md border-4 border-yellow-400 rounded-xl shadow-[0_0_50px_rgba(255,215,0,0.6)] flex flex-col items-center justify-center animate-in zoom-in duration-500 overflow-hidden">
-                                {/* Industrial Stripes */}
-                                <div className="absolute left-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-r border-yellow-500/30" />
-                                <div className="absolute right-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-l border-yellow-500/30" />
+                             <div className={cn("w-full h-20 relative bg-black/80 backdrop-blur-md border-4 border-yellow-400 rounded-xl shadow-[0_0_50px_rgba(255,215,0,0.6)] flex flex-col items-center justify-center animate-in zoom-in duration-500 overflow-visible", jackpots[0].border ? "bg-transparent border-none shadow-none" : "")}>
+                                {/* Border Image Overlay */}
+                                {jackpots[0].border && (
+                                  <div className="absolute inset-[-6px] z-0 pointer-events-none">
+                                    <img src={jackpots[0].border} className="w-full h-full object-fill" />
+                                  </div>
+                                )}
+                                
+                                {/* Industrial Stripes (Only if no border) */}
+                                {!jackpots[0].border && (
+                                  <>
+                                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-r border-yellow-500/30" />
+                                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-l border-yellow-500/30" />
+                                  </>
+                                )}
                                 
                                 <span className="font-display font-black uppercase tracking-widest opacity-90 z-10 text-red-500 text-lg drop-shadow-[0_2px_0_rgba(0,0,0,1)] stroke-black">
                                   {jackpots[0].label}
@@ -1629,9 +1665,14 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                                {jackpots.slice(1, jackpotCount).map((jackpot, idx) => (
                                  <div 
                                    key={idx + 1}
-                                   className="relative bg-black/80 backdrop-blur-md border-2 border-yellow-500/50 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.4)] flex flex-col items-center justify-center animate-in zoom-in duration-500 h-16"
+                                   className={cn("relative bg-black/80 backdrop-blur-md border-2 border-yellow-500/50 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.4)] flex flex-col items-center justify-center animate-in zoom-in duration-500 h-16 overflow-visible", jackpot.border ? "bg-transparent border-none shadow-none" : "")}
                                    style={{ animationDelay: `${(idx + 1) * 100}ms` }}
                                  >
+                                    {jackpot.border && (
+                                      <div className="absolute inset-[-4px] z-0 pointer-events-none">
+                                        <img src={jackpot.border} className="w-full h-full object-fill" />
+                                      </div>
+                                    )}
                                     <span className="font-display font-black uppercase tracking-widest opacity-90 z-10 text-yellow-200 text-[10px]">
                                       {jackpot.label}
                                     </span>
