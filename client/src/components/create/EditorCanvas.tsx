@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown, Layout } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
@@ -92,6 +92,34 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [jackpotFontSize, setJackpotFontSize] = useState(18); // Default font size in px
   const [jackpotLayout, setJackpotLayout] = useState<'row' | 'distributed'>('row');
   const [spins, setSpins] = useState(5);
+
+  const templates = [
+    { id: 'classic', name: "Mega Jackpot", color: '#ffffff', rows: 1, cols: 3, description: "Classic 3-reel single line slot" },
+    { id: 'egyptian', name: "Pharaoh's Gold", color: '#fbbf24', rows: 3, cols: 5, description: "5x3 Video slot with Gold theme" },
+    { id: 'greek', name: "Zeus Thunder", color: '#3b82f6', rows: 4, cols: 5, description: "Mythology themed 5x4 layout" },
+    { id: 'fruit', name: "Fruit Party", color: '#ef4444', rows: 3, cols: 3, description: "Traditional 3x3 Fruit machine" },
+    { id: 'neon', name: "Neon Nights", color: '#10b981', rows: 4, cols: 4, description: "Modern 4x4 Grid slot" },
+    { id: 'ocean', name: "Deep Blue", color: '#3b82f6', rows: 3, cols: 5, description: "Underwater themed 5x3 slot" },
+    { id: 'wild-west', name: "Western Wins", color: '#fbbf24', rows: 3, cols: 5, description: "Wild West adventure slot" },
+    { id: 'space', name: "Galactic Spins", color: '#8b5cf6', rows: 4, cols: 4, description: "Sci-fi themed 4x4 slot" },
+  ];
+
+  const applyTemplate = (template: typeof templates[0]) => {
+    setSlotRows(template.rows);
+    setSlotCols(template.cols);
+    setTextColor(template.color);
+    setHeadline(template.name.toUpperCase());
+    
+    // Reset some states for fresh start
+    setJackpotCount(3);
+    setJackpots([
+      { label: "GRAND", value: "$10,000", border: borderBrick },
+      { label: "MAJOR", value: "$5,000", border: borderWood },
+      { label: "MINOR", value: "$1,000", border: borderStraw },
+      { label: "MINI", value: "$500" },
+      { label: "TINY", value: "$100" }
+    ]);
+  };
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
   const [reelsSpinning, setReelsSpinning] = useState<boolean[]>([]);
@@ -325,7 +353,8 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
         
         <Tabs defaultValue="assets" value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col relative">
           <div className="px-4 pt-4">
-            <TabsList className="w-full grid grid-cols-5 h-auto py-1">
+            <TabsList className="w-full grid grid-cols-6 h-auto py-1">
+              <TabsTrigger value="templates" className="px-1"><Layout className="h-4 w-4" /></TabsTrigger>
               <TabsTrigger value="assets" className="px-1"><Layers className="h-4 w-4" /></TabsTrigger>
               <TabsTrigger value="game" className="px-1">
                 {editorMode === 'wheel' ? <Disc className="h-4 w-4" /> : 
@@ -358,6 +387,34 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-40 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
+            <TabsContent value="templates" className="mt-0 space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                {templates.map((template) => (
+                  <div 
+                    key={template.id}
+                    onClick={() => applyTemplate(template)}
+                    className="p-3 rounded-lg border border-border bg-card hover:border-primary hover:bg-muted/50 cursor-pointer transition-all group"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                          {template.rows}x{template.cols}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold leading-none">{template.name}</h4>
+                          <span className="text-[10px] text-muted-foreground">{template.description}</span>
+                        </div>
+                      </div>
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: template.color }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+
             <TabsContent value="assets" className="mt-0 space-y-6">
               <div className="space-y-3">
                 <label className="text-sm font-medium">Brand Logo</label>
