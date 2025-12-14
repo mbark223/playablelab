@@ -296,9 +296,18 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [textColor, setTextColor] = useState(templateConfig.color || '#ffffff');
   const [subheadline, setSubheadline] = useState('');
   const [disclaimerText, setDisclaimerText] = useState('No purchase necessary. 18+ only. T&Cs apply.');
-  const [winText, setWinText] = useState('BIG WIN!');
+  
+  // Win Configurations per Spin
+  const [activeConfigIndex, setActiveConfigIndex] = useState(0);
+  const [winConfigs, setWinConfigs] = useState<Array<{text: string, animation: string}>>(
+    Array(10).fill(null).map((_, i) => ({
+      text: i === 4 ? 'JACKPOT!' : 'BIG WIN!', 
+      animation: ['coins', 'confetti', 'money-rain', 'starfall', 'fire'][i % 5]
+    }))
+  );
+
   const [showWinMessage, setShowWinMessage] = useState(false);
-  const [winAnimationType, setWinAnimationType] = useState<'coins' | 'confetti' | 'pulse' | 'flash' | 'balloons' | 'money-rain' | 'lightning' | 'heart-burst' | 'starfall' | 'glitch' | 'neon-glow' | 'spotlight' | 'disco-ball' | 'snowfall' | 'fire' | 'bubbles' | 'laser-beams' | 'ribbon' | 'shockwave' | 'magic'>('coins');
+  const [currentWinConfig, setCurrentWinConfig] = useState(winConfigs[0]);
   const [winBorder, setWinBorder] = useState<string | null>(null);
 
   // End Card Settings
@@ -433,11 +442,16 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     // End game logic
     const totalTime = totalDuration + (slotCols * staggerDelay) + 500; // Buffer
 
+    // Determine which spin this is (0-indexed)
+    const spinIndex = spins - currentSpins; 
+    const thisWinConfig = winConfigs[spinIndex] || winConfigs[0];
+
     setTimeout(() => {
       setIsReelSpinning(false);
       
       // Trigger win animation occasionally or on last spin
       if (currentSpins - 1 === 0 || Math.random() > 0.5) {
+         setCurrentWinConfig(thisWinConfig);
          setShowWinMessage(true);
          
          // Play Win Sound
@@ -938,73 +952,6 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                    </div>
                 </div>
 
-                <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
-                    <label className="text-xs font-medium text-muted-foreground">Win Celebration Style</label>
-                    <div className="grid grid-cols-2 gap-2 h-48 overflow-y-auto custom-scrollbar pr-1">
-                        <Button variant={winAnimationType === 'coins' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('coins')}>
-                            <Coins className="h-3 w-3 mr-2" /> Coin Shower
-                        </Button>
-                        <Button variant={winAnimationType === 'confetti' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('confetti')}>
-                            <PartyPopper className="h-3 w-3 mr-2" /> Fireworks
-                        </Button>
-                        <Button variant={winAnimationType === 'pulse' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('pulse')}>
-                            <Activity className="h-3 w-3 mr-2" /> Pulse
-                        </Button>
-                        <Button variant={winAnimationType === 'flash' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('flash')}>
-                            <Zap className="h-3 w-3 mr-2" /> Flash
-                        </Button>
-                        
-                        {/* New Styles */}
-                        <Button variant={winAnimationType === 'balloons' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('balloons')}>
-                            <div className="h-3 w-3 mr-2 rounded-full bg-red-400" /> Balloons
-                        </Button>
-                        <Button variant={winAnimationType === 'money-rain' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('money-rain')}>
-                            <CloudRain className="h-3 w-3 mr-2" /> Money Rain
-                        </Button>
-                        <Button variant={winAnimationType === 'lightning' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('lightning')}>
-                            <ZapOff className="h-3 w-3 mr-2" /> Lightning
-                        </Button>
-                        <Button variant={winAnimationType === 'heart-burst' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('heart-burst')}>
-                            <Heart className="h-3 w-3 mr-2" /> Heart Burst
-                        </Button>
-                        <Button variant={winAnimationType === 'starfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('starfall')}>
-                            <Star className="h-3 w-3 mr-2" /> Starfall
-                        </Button>
-                        <Button variant={winAnimationType === 'glitch' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('glitch')}>
-                            <Zap className="h-3 w-3 mr-2" /> Glitch
-                        </Button>
-                        <Button variant={winAnimationType === 'neon-glow' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('neon-glow')}>
-                            <Lightbulb className="h-3 w-3 mr-2" /> Neon Glow
-                        </Button>
-                        <Button variant={winAnimationType === 'spotlight' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('spotlight')}>
-                            <Aperture className="h-3 w-3 mr-2" /> Spotlight
-                        </Button>
-                        <Button variant={winAnimationType === 'disco-ball' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('disco-ball')}>
-                            <Disc className="h-3 w-3 mr-2" /> Disco Ball
-                        </Button>
-                        <Button variant={winAnimationType === 'snowfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('snowfall')}>
-                            <Snowflake className="h-3 w-3 mr-2" /> Snowfall
-                        </Button>
-                        <Button variant={winAnimationType === 'fire' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('fire')}>
-                            <Flame className="h-3 w-3 mr-2" /> Fire
-                        </Button>
-                        <Button variant={winAnimationType === 'bubbles' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('bubbles')}>
-                            <Droplets className="h-3 w-3 mr-2" /> Bubbles
-                        </Button>
-                        <Button variant={winAnimationType === 'laser-beams' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('laser-beams')}>
-                            <div className="h-0.5 w-3 mr-2 bg-red-500" /> Lasers
-                        </Button>
-                        <Button variant={winAnimationType === 'ribbon' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('ribbon')}>
-                            <Ribbon className="h-3 w-3 mr-2" /> Ribbon
-                        </Button>
-                        <Button variant={winAnimationType === 'shockwave' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('shockwave')}>
-                            <Waves className="h-3 w-3 mr-2" /> Shockwave
-                        </Button>
-                         <Button variant={winAnimationType === 'magic' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('magic')}>
-                            <Wand2 className="h-3 w-3 mr-2" /> Magic
-                        </Button>
-                    </div>
-                </div>
 
                 <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border mt-3">
                     <label className="text-xs font-medium text-muted-foreground">Win Frame (Big Win)</label>
@@ -1291,86 +1238,93 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-sm font-medium">Win Message</label>
-                <input 
-                  type="text" 
-                  value={winText}
-                  onChange={(e) => setWinText(e.target.value)}
-                  className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-bold uppercase"
-                />
-              </div>
+              {/* Win Configuration Selector */}
+              <div className="space-y-3 pt-4 border-t border-border">
+                <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Win Configuration</label>
+                    <div className="flex bg-muted rounded-md p-1 gap-1">
+                        {[0, 1, 2, 3, 4].map(i => (
+                            <button
+                                key={i}
+                                onClick={() => setActiveConfigIndex(i)}
+                                className={cn(
+                                    "px-2.5 py-1 text-xs rounded font-medium transition-all",
+                                    activeConfigIndex === i 
+                                        ? "bg-background text-primary shadow-sm" 
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                Spin {i + 1}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-              {/* Win Animation Settings */}
-              <div className="space-y-3 pt-2 border-t border-border">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Win Celebration
-                </label>
-                <p className="text-xs text-muted-foreground">Customize the animation that plays on big wins.</p>
-                
-                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
-                    <Button variant={winAnimationType === 'coins' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('coins')}>
-                        <Coins className="h-3 w-3 mr-2" /> Coins
-                    </Button>
-                    <Button variant={winAnimationType === 'confetti' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('confetti')}>
-                        <PartyPopper className="h-3 w-3 mr-2" /> Confetti
-                    </Button>
-                    <Button variant={winAnimationType === 'pulse' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('pulse')}>
-                        <Activity className="h-3 w-3 mr-2" /> Pulse
-                    </Button>
-                    <Button variant={winAnimationType === 'flash' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('flash')}>
-                        <Zap className="h-3 w-3 mr-2" /> Flash
-                    </Button>
-                    <Button variant={winAnimationType === 'money-rain' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('money-rain')}>
-                        <CloudRain className="h-3 w-3 mr-2" /> Money Rain
-                    </Button>
-                    <Button variant={winAnimationType === 'lightning' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('lightning')}>
-                        <ZapOff className="h-3 w-3 mr-2" /> Lightning
-                    </Button>
-                    <Button variant={winAnimationType === 'heart-burst' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('heart-burst')}>
-                        <Heart className="h-3 w-3 mr-2" /> Heart Burst
-                    </Button>
-                    <Button variant={winAnimationType === 'starfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('starfall')}>
-                        <Star className="h-3 w-3 mr-2" /> Starfall
-                    </Button>
-                    <Button variant={winAnimationType === 'glitch' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('glitch')}>
-                        <Activity className="h-3 w-3 mr-2" /> Glitch
-                    </Button>
-                    <Button variant={winAnimationType === 'neon-glow' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('neon-glow')}>
-                        <Lightbulb className="h-3 w-3 mr-2" /> Neon Glow
-                    </Button>
-                    <Button variant={winAnimationType === 'spotlight' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('spotlight')}>
-                        <Aperture className="h-3 w-3 mr-2" /> Spotlight
-                    </Button>
-                    <Button variant={winAnimationType === 'disco-ball' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('disco-ball')}>
-                        <Disc className="h-3 w-3 mr-2" /> Disco Ball
-                    </Button>
-                    <Button variant={winAnimationType === 'snowfall' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('snowfall')}>
-                        <Snowflake className="h-3 w-3 mr-2" /> Snowfall
-                    </Button>
-                    <Button variant={winAnimationType === 'fire' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('fire')}>
-                        <Flame className="h-3 w-3 mr-2" /> Fire
-                    </Button>
-                    <Button variant={winAnimationType === 'bubbles' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('bubbles')}>
-                        <Droplets className="h-3 w-3 mr-2" /> Bubbles
-                    </Button>
-                    <Button variant={winAnimationType === 'laser-beams' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('laser-beams')}>
-                        <div className="h-0.5 w-3 mr-2 bg-red-500" /> Lasers
-                    </Button>
-                    <Button variant={winAnimationType === 'ribbon' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('ribbon')}>
-                        <Ribbon className="h-3 w-3 mr-2" /> Ribbon
-                    </Button>
-                    <Button variant={winAnimationType === 'shockwave' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('shockwave')}>
-                        <Waves className="h-3 w-3 mr-2" /> Shockwave
-                    </Button>
-                     <Button variant={winAnimationType === 'magic' ? 'default' : 'outline'} size="sm" className="text-xs justify-start h-8" onClick={() => setWinAnimationType('magic')}>
-                        <Wand2 className="h-3 w-3 mr-2" /> Magic
-                    </Button>
+                <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground">Win Message (Spin {activeConfigIndex + 1})</label>
+                        <input 
+                          type="text" 
+                          value={winConfigs[activeConfigIndex]?.text || ''}
+                          onChange={(e) => {
+                              const newConfigs = [...winConfigs];
+                              newConfigs[activeConfigIndex] = { ...newConfigs[activeConfigIndex], text: e.target.value };
+                              setWinConfigs(newConfigs);
+                          }}
+                          className="w-full h-9 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-bold uppercase text-sm"
+                        />
+                    </div>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              {/* Win Animation Settings */}
+              <div className="space-y-3 pt-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Celebration Style
+                </label>
+                <p className="text-xs text-muted-foreground">Animation for Spin {activeConfigIndex + 1} win.</p>
+                
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
+                    {[
+                        { id: 'coins', icon: Coins, label: 'Coins' },
+                        { id: 'confetti', icon: PartyPopper, label: 'Confetti' },
+                        { id: 'pulse', icon: Activity, label: 'Pulse' },
+                        { id: 'flash', icon: Zap, label: 'Flash' },
+                        { id: 'money-rain', icon: CloudRain, label: 'Money Rain' },
+                        { id: 'lightning', icon: ZapOff, label: 'Lightning' },
+                        { id: 'heart-burst', icon: Heart, label: 'Heart Burst' },
+                        { id: 'starfall', icon: Star, label: 'Starfall' },
+                        { id: 'glitch', icon: Activity, label: 'Glitch' },
+                        { id: 'neon-glow', icon: Lightbulb, label: 'Neon Glow' },
+                        { id: 'spotlight', icon: Aperture, label: 'Spotlight' },
+                        { id: 'disco-ball', icon: Disc, label: 'Disco Ball' },
+                        { id: 'snowfall', icon: Snowflake, label: 'Snowfall' },
+                        { id: 'fire', icon: Flame, label: 'Fire' },
+                        { id: 'bubbles', icon: Droplets, label: 'Bubbles' },
+                        { id: 'laser-beams', icon: Zap, label: 'Lasers' },
+                        { id: 'ribbon', icon: Ribbon, label: 'Ribbon' },
+                        { id: 'shockwave', icon: Waves, label: 'Shockwave' },
+                        { id: 'magic', icon: Wand2, label: 'Magic' }
+                    ].map((anim) => (
+                        <Button 
+                            key={anim.id}
+                            variant={winConfigs[activeConfigIndex]?.animation === anim.id ? 'default' : 'outline'} 
+                            size="sm" 
+                            className="text-xs justify-start h-8" 
+                            onClick={() => {
+                                const newConfigs = [...winConfigs];
+                                newConfigs[activeConfigIndex] = { ...newConfigs[activeConfigIndex], animation: anim.id };
+                                setWinConfigs(newConfigs);
+                            }}
+                        >
+                            <anim.icon className="h-3 w-3 mr-2" /> {anim.label}
+                        </Button>
+                    ))}
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-2 border-t border-border">
                 <label className="text-sm font-medium">Disclaimer Text</label>
                 <textarea 
                   value={disclaimerText}
@@ -1668,7 +1622,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     {/* <div className="absolute inset-0 bg-black/20" /> */}
 
                     {/* Flash Effect */}
-                    {winAnimationType === 'flash' && (
+                    {currentWinConfig.animation === 'flash' && (
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 0, 1, 0] }}
@@ -1679,7 +1633,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Coin Shower */}
-                    {winAnimationType === 'coins' && (
+                    {currentWinConfig.animation === 'coins' && (
                         <div className="absolute inset-0 overflow-hidden">
                             {[...Array(30)].map((_, i) => (
                                 <motion.div
@@ -1696,7 +1650,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Confetti / Fireworks */}
-                    {winAnimationType === 'confetti' && (
+                    {currentWinConfig.animation === 'confetti' && (
                         <div className="absolute inset-0 overflow-hidden">
                             {[...Array(50)].map((_, i) => (
                                 <motion.div
@@ -1721,7 +1675,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     {/* Pulse Effect (on the game container) */}
                     {/* Note: This logic is slightly abstracted here, but we can animate the container itself if we passed a ref, 
                         or just overlay a pulsing ring */}
-                    {winAnimationType === 'pulse' && (
+                    {currentWinConfig.animation === 'pulse' && (
                         <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: [1, 1.2, 1], opacity: [0, 1, 0] }}
@@ -1733,7 +1687,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     {/* NEW ANIMATIONS */}
                     
                     {/* Balloons */}
-                    {winAnimationType === 'balloons' && (
+                    {currentWinConfig.animation === 'balloons' && (
                         <div className="absolute inset-0 overflow-hidden">
                             {[...Array(20)].map((_, i) => (
                                 <motion.div
@@ -1751,7 +1705,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Money Rain */}
-                    {winAnimationType === 'money-rain' && (
+                    {currentWinConfig.animation === 'money-rain' && (
                         <div className="absolute inset-0 overflow-hidden">
                             {[...Array(30)].map((_, i) => (
                                 <motion.div
@@ -1768,7 +1722,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Lightning */}
-                    {winAnimationType === 'lightning' && (
+                    {currentWinConfig.animation === 'lightning' && (
                         <>
                              <motion.div 
                                 initial={{ opacity: 0 }}
@@ -1789,7 +1743,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Heart Burst */}
-                    {winAnimationType === 'heart-burst' && (
+                    {currentWinConfig.animation === 'heart-burst' && (
                         <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
                             {[...Array(15)].map((_, i) => (
                                 <motion.div
@@ -1810,7 +1764,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Starfall */}
-                    {winAnimationType === 'starfall' && (
+                    {currentWinConfig.animation === 'starfall' && (
                         <div className="absolute inset-0 overflow-hidden">
                             {[...Array(40)].map((_, i) => (
                                 <motion.div
@@ -1827,7 +1781,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Glitch */}
-                    {winAnimationType === 'glitch' && (
+                    {currentWinConfig.animation === 'glitch' && (
                         <motion.div
                             className="absolute inset-0 bg-transparent z-40"
                             animate={{
@@ -1842,7 +1796,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Neon Glow */}
-                    {winAnimationType === 'neon-glow' && (
+                    {currentWinConfig.animation === 'neon-glow' && (
                          <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 0.5, 1, 0.5, 1] }}
@@ -1852,7 +1806,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Spotlight */}
-                    {winAnimationType === 'spotlight' && (
+                    {currentWinConfig.animation === 'spotlight' && (
                         <div className="absolute inset-0 overflow-hidden z-10 pointer-events-none">
                             <motion.div 
                                 animate={{ rotate: [0, 45, 0, -45, 0] }}
@@ -1868,7 +1822,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Disco Ball */}
-                    {winAnimationType === 'disco-ball' && (
+                    {currentWinConfig.animation === 'disco-ball' && (
                         <div className="absolute inset-0 z-10 overflow-hidden">
                              {[...Array(20)].map((_, i) => (
                                 <motion.div
@@ -1892,7 +1846,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Snowfall */}
-                    {winAnimationType === 'snowfall' && (
+                    {currentWinConfig.animation === 'snowfall' && (
                          <div className="absolute inset-0 overflow-hidden">
                             {[...Array(50)].map((_, i) => (
                                 <motion.div
@@ -1909,7 +1863,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Fire */}
-                    {winAnimationType === 'fire' && (
+                    {currentWinConfig.animation === 'fire' && (
                         <div className="absolute inset-0 overflow-hidden flex items-end justify-center">
                              {[...Array(30)].map((_, i) => (
                                 <motion.div
@@ -1925,7 +1879,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                      {/* Bubbles */}
-                    {winAnimationType === 'bubbles' && (
+                    {currentWinConfig.animation === 'bubbles' && (
                         <div className="absolute inset-0 overflow-hidden">
                              {[...Array(30)].map((_, i) => (
                                 <motion.div
@@ -1941,7 +1895,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Laser Beams */}
-                    {winAnimationType === 'laser-beams' && (
+                    {currentWinConfig.animation === 'laser-beams' && (
                         <div className="absolute inset-0 overflow-hidden z-0">
                              {[...Array(5)].map((_, i) => (
                                 <motion.div
@@ -1965,7 +1919,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
                     
                     {/* Ribbon */}
-                    {winAnimationType === 'ribbon' && (
+                    {currentWinConfig.animation === 'ribbon' && (
                         <div className="absolute inset-0 overflow-hidden flex items-center justify-center">
                             <motion.div
                                 initial={{ scaleX: 0 }}
@@ -1980,7 +1934,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* Shockwave */}
-                    {winAnimationType === 'shockwave' && (
+                    {currentWinConfig.animation === 'shockwave' && (
                         <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
                              {[...Array(3)].map((_, i) => (
                                 <motion.div
@@ -1995,7 +1949,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                      {/* Magic */}
-                    {winAnimationType === 'magic' && (
+                    {currentWinConfig.animation === 'magic' && (
                          <div className="absolute inset-0 overflow-hidden">
                             {[...Array(40)].map((_, i) => (
                                 <motion.div
@@ -2013,43 +1967,43 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     )}
 
                     {/* The Win Text Itself */}
-                    {winAnimationType === 'coins' && (
+                    {currentWinConfig.animation === 'coins' && (
                          <motion.div 
                             initial={{ scale: 0, rotate: -10 }}
                             animate={{ scale: 1.2, rotate: 0 }}
                             exit={{ scale: 0, opacity: 0 }}
                             className="bg-black/80 text-white font-black text-5xl px-10 py-6 rounded-2xl border-4 border-yellow-400 shadow-[0_0_60px_rgba(255,215,0,0.6)] backdrop-blur-md text-center z-50 relative"
                         >
-                            <span className="block text-yellow-400 text-7xl mb-2 filter drop-shadow-lg">{winText}</span>
+                            <span className="block text-yellow-400 text-7xl mb-2 filter drop-shadow-lg">{currentWinConfig.text}</span>
                             <span className="text-xl font-bold tracking-widest uppercase text-white/90">You Won!</span>
                         </motion.div>
                     )}
 
-                     {winAnimationType === 'money-rain' && (
+                     {currentWinConfig.animation === 'money-rain' && (
                          <motion.div 
                             initial={{ scale: 0, y: -50 }}
                             animate={{ scale: 1.2, y: 0 }}
                             exit={{ scale: 0, opacity: 0 }}
                             className="bg-green-900/90 text-white font-black text-5xl px-12 py-8 rounded-xl border-4 border-green-400 shadow-[0_0_40px_rgba(34,197,94,0.6)] backdrop-blur-md text-center z-50 relative"
                         >
-                            <span className="block text-green-300 text-7xl mb-2 filter drop-shadow-lg tracking-tighter">{winText}</span>
+                            <span className="block text-green-300 text-7xl mb-2 filter drop-shadow-lg tracking-tighter">{currentWinConfig.text}</span>
                             <span className="text-xl font-bold tracking-widest uppercase text-white/90 bg-green-600 px-4 py-1 rounded-full">Cash Out!</span>
                         </motion.div>
                     )}
 
-                    {(winAnimationType === 'confetti' || winAnimationType === 'balloons') && (
+                    {(currentWinConfig.animation === 'confetti' || currentWinConfig.animation === 'balloons') && (
                          <motion.div 
                             initial={{ scale: 0, rotate: 10 }}
                             animate={{ scale: 1.3, rotate: [-5, 5, -5, 0] }}
                             exit={{ scale: 0, opacity: 0 }}
                             className="bg-white text-blue-600 font-black text-6xl px-8 py-6 rounded-3xl border-8 border-dashed border-pink-400 shadow-2xl text-center z-50 relative transform -rotate-2"
                         >
-                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 mb-0 filter drop-shadow-sm">{winText}</span>
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 mb-0 filter drop-shadow-sm">{currentWinConfig.text}</span>
                             <span className="text-2xl font-bold tracking-wider text-slate-400 uppercase">Party Time!</span>
                         </motion.div>
                     )}
 
-                    {(winAnimationType === 'pulse' || winAnimationType === 'shockwave') && (
+                    {(currentWinConfig.animation === 'pulse' || currentWinConfig.animation === 'shockwave') && (
                          <motion.div 
                             initial={{ scale: 0.5, opacity: 0 }}
                             animate={{ scale: [1, 1.1, 1], opacity: 1 }}
@@ -2057,33 +2011,33 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                             exit={{ scale: 0, opacity: 0 }}
                             className="bg-transparent text-white font-black text-8xl px-4 py-4 text-center z-50 relative tracking-tighter"
                         >
-                            <span className="block text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">{winText}</span>
+                            <span className="block text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">{currentWinConfig.text}</span>
                         </motion.div>
                     )}
 
-                    {(winAnimationType === 'flash' || winAnimationType === 'lightning' || winAnimationType === 'laser-beams') && (
+                    {(currentWinConfig.animation === 'flash' || currentWinConfig.animation === 'lightning' || currentWinConfig.animation === 'laser-beams') && (
                          <motion.div 
                             initial={{ scale: 2, opacity: 0, filter: 'blur(10px)' }}
                             animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
                             exit={{ scale: 2, opacity: 0, filter: 'blur(20px)' }}
                             className="bg-blue-600/20 text-white font-black text-6xl px-12 py-4 border-y-4 border-blue-400 backdrop-blur-sm text-center z-50 relative w-full"
                         >
-                            <span className="block text-cyan-200 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] italic">{winText}</span>
+                            <span className="block text-cyan-200 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)] italic">{currentWinConfig.text}</span>
                         </motion.div>
                     )}
                     
-                    {winAnimationType === 'heart-burst' && (
+                    {currentWinConfig.animation === 'heart-burst' && (
                          <motion.div 
                             initial={{ scale: 0 }}
                             animate={{ scale: [0, 1.2, 1] }}
                             exit={{ scale: 0, opacity: 0 }}
                             className="bg-pink-100 text-pink-600 font-black text-6xl px-12 py-8 rounded-full border-8 border-pink-300 shadow-[0_0_50px_rgba(244,114,182,0.6)] text-center z-50 relative"
                         >
-                            <span className="block mb-2">❤️ {winText} ❤️</span>
+                            <span className="block mb-2">❤️ {currentWinConfig.text} ❤️</span>
                         </motion.div>
                     )}
 
-                    {(winAnimationType === 'glitch') && (
+                    {(currentWinConfig.animation === 'glitch') && (
                          <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1, x: [-2, 2, -2, 0] }}
@@ -2091,57 +2045,57 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                             exit={{ opacity: 0 }}
                             className="bg-black text-white font-mono font-bold text-6xl px-8 py-4 border border-green-500 shadow-[4px_4px_0_green] text-center z-50 relative"
                         >
-                            <span className="block text-green-500 drop-shadow-[2px_0_0_red] tracking-widest">&lt;{winText}/&gt;</span>
+                            <span className="block text-green-500 drop-shadow-[2px_0_0_red] tracking-widest">&lt;{currentWinConfig.text}/&gt;</span>
                         </motion.div>
                     )}
 
-                    {(winAnimationType === 'neon-glow' || winAnimationType === 'spotlight' || winAnimationType === 'disco-ball') && (
+                    {(currentWinConfig.animation === 'neon-glow' || currentWinConfig.animation === 'spotlight' || currentWinConfig.animation === 'disco-ball') && (
                          <motion.div 
                             initial={{ opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -50 }}
                             className="bg-slate-900/90 text-white font-black text-6xl px-10 py-6 rounded-xl border-2 border-fuchsia-500 shadow-[0_0_30px_fuchsia,inset_0_0_20px_fuchsia] text-center z-50 relative"
                         >
-                            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white to-fuchsia-200 drop-shadow-[0_0_5px_white]">{winText}</span>
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white to-fuchsia-200 drop-shadow-[0_0_5px_white]">{currentWinConfig.text}</span>
                         </motion.div>
                     )}
 
-                    {(winAnimationType === 'fire') && (
+                    {(currentWinConfig.animation === 'fire') && (
                          <motion.div 
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 1.5, opacity: 0 }}
                             className="text-white font-black text-7xl text-center z-50 relative"
                         >
-                            <span className="block text-orange-500 drop-shadow-[0_0_15px_orange] animate-pulse">{winText}</span>
+                            <span className="block text-orange-500 drop-shadow-[0_0_15px_orange] animate-pulse">{currentWinConfig.text}</span>
                             <span className="block text-2xl text-yellow-500 font-bold uppercase tracking-[0.5em] mt-2">Hot Streak!</span>
                         </motion.div>
                     )}
 
-                    {(winAnimationType === 'snowfall') && (
+                    {(currentWinConfig.animation === 'snowfall') && (
                          <motion.div 
                             initial={{ y: -100, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="bg-white/10 text-white font-black text-6xl px-10 py-6 rounded-lg border border-white/50 backdrop-blur-md shadow-[0_0_30px_rgba(255,255,255,0.3)] text-center z-50 relative"
                         >
-                            <span className="block text-cyan-100 drop-shadow-md">{winText}</span>
+                            <span className="block text-cyan-100 drop-shadow-md">{currentWinConfig.text}</span>
                             <span className="block text-xl text-white/80 font-light tracking-widest mt-2 uppercase">Cool Win</span>
                         </motion.div>
                     )}
                     
-                    {(winAnimationType === 'starfall' || winAnimationType === 'magic') && (
+                    {(currentWinConfig.animation === 'starfall' || currentWinConfig.animation === 'magic') && (
                          <motion.div 
                             initial={{ scale: 0, rotate: 180 }}
                             animate={{ scale: 1, rotate: 0 }}
                             exit={{ scale: 0, opacity: 0 }}
                             className="bg-indigo-900/90 text-white font-serif font-bold text-6xl px-12 py-8 rounded-[3rem] border-4 border-indigo-400 shadow-[0_0_60px_indigo] text-center z-50 relative"
                         >
-                            <span className="block text-yellow-200 drop-shadow-lg mb-1">✨ {winText} ✨</span>
+                            <span className="block text-yellow-200 drop-shadow-lg mb-1">✨ {currentWinConfig.text} ✨</span>
                         </motion.div>
                     )}
                     
-                    {(winAnimationType === 'bubbles') && (
+                    {(currentWinConfig.animation === 'bubbles') && (
                          <motion.div 
                             initial={{ scale: 0 }}
                             animate={{ scale: 1.1 }}
@@ -2149,11 +2103,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                             exit={{ scale: 0, opacity: 0 }}
                             className="bg-blue-400/30 text-white font-black text-6xl h-64 w-64 rounded-full border-4 border-white/40 shadow-[0_0_40px_rgba(59,130,246,0.4)] backdrop-blur-sm flex flex-col items-center justify-center z-50 relative"
                         >
-                            <span className="block text-white drop-shadow-lg">{winText}</span>
+                            <span className="block text-white drop-shadow-lg">{currentWinConfig.text}</span>
                         </motion.div>
                     )}
                     
-                    {(winAnimationType === 'ribbon') && (
+                    {(currentWinConfig.animation === 'ribbon') && (
                          <motion.div 
                             initial={{ scaleX: 0 }}
                             animate={{ scaleX: 1 }}
@@ -2161,7 +2115,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                             className="bg-red-600 text-white font-serif font-bold text-5xl px-20 py-4 shadow-xl text-center z-50 relative"
                             style={{ clipPath: 'polygon(0% 0%, 100% 0%, 95% 50%, 100% 100%, 0% 100%, 5% 50%)' }}
                         >
-                            <span className="block text-yellow-300 drop-shadow-md tracking-widest">{winText}</span>
+                            <span className="block text-yellow-300 drop-shadow-md tracking-widest">{currentWinConfig.text}</span>
                         </motion.div>
                     )}
                 </div>
