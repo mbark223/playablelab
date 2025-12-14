@@ -9,7 +9,7 @@ export interface Folder {
 
 export interface MarketingAsset {
   id: string;
-  type: 'logo' | 'background' | 'symbol' | 'character' | 'product';
+  type: 'logo' | 'background' | 'symbol' | 'character' | 'product' | 'music';
   file: File;
   previewUrl: string;
   name: string;
@@ -54,7 +54,8 @@ export function AssetProvider({ children }: { children: ReactNode }) {
     const newAssets = files.map(file => {
       // Auto-categorize based on name or simple heuristics for demo
       let type: MarketingAsset['type'] = 'symbol';
-      if (file.name.toLowerCase().includes('logo')) type = 'logo';
+      if (file.type.startsWith('audio/')) type = 'music';
+      else if (file.name.toLowerCase().includes('logo')) type = 'logo';
       else if (file.name.toLowerCase().includes('bg') || file.name.toLowerCase().includes('background')) type = 'background';
       else if (file.name.toLowerCase().includes('char')) type = 'character';
       

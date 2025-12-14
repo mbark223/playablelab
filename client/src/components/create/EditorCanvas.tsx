@@ -69,11 +69,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [activeCell, setActiveCell] = useState<{row: number, col: number} | null>(null);
 
   const [activeSymbolIndex, setActiveSymbolIndex] = useState<number | null>(null);
-  const [uploadTarget, setUploadTarget] = useState<{ type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder', index?: number } | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<{ type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder' | 'music', index?: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [background, setBackground] = useState(slotsBg);
+  const [backgroundMusic, setBackgroundMusic] = useState<string | null>(null);
   
   // Game Settings
   const [jackpots, setJackpots] = useState<{label: string, value: string, border?: string}[]>([
@@ -173,6 +174,8 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
         const newJackpots = [...jackpots];
         newJackpots[uploadTarget.index].border = previewUrl;
         setJackpots(newJackpots);
+      } else if (uploadTarget?.type === 'music') {
+        setBackgroundMusic(previewUrl);
       }
       
       // Reset target
@@ -180,7 +183,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     }
   };
 
-  const triggerUpload = (target: { type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder', index?: number }) => {
+  const triggerUpload = (target: { type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder' | 'music', index?: number }) => {
     setUploadTarget(target);
     fileInputRef.current?.click();
   };
@@ -257,10 +260,29 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
         type="file" 
         ref={fileInputRef}
         className="hidden" 
-        accept="image/*"
+        accept={uploadTarget?.type === 'music' ? "audio/*" : "image/*"}
         onChange={handleFileUpload}
       />
       
+      {/* Background Music Player */}
+      {backgroundMusic && (
+        <audio 
+          ref={(audio) => {
+            if (audio) {
+              audio.volume = 0.5;
+              if (isPlaying) {
+                audio.play().catch(e => console.log("Audio play failed:", e));
+              } else {
+                audio.pause();
+                audio.currentTime = 0;
+              }
+            }
+          }}
+          src={backgroundMusic} 
+          loop 
+        />
+      )}
+
       {/* Left Sidebar - Controls */}
       <div className="w-80 border-r border-border bg-card flex flex-col">
         <div className="p-4 border-b border-border">
@@ -440,6 +462,72 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium flex items-center justify-between">
+                  Background Music
+                  {backgroundMusic && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-xs text-destructive hover:text-destructive"
+                      onClick={() => setBackgroundMusic(null)}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </label>
+                
+                {!backgroundMusic ? (
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-dashed"
+                    onClick={() => triggerUpload({ type: 'music' })}
+                  >
+                    <Music className="h-4 w-4 mr-2" /> Upload Audio
+                  </Button>
+                ) : (
+                  <div className="flex items-center gap-2 p-2 rounded-md border bg-muted/30">
+                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                       <Music className="h-4 w-4 text-primary" />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <p className="text-xs font-medium truncate">Music Track</p>
+                       <p className="text-[10px] text-muted-foreground">Ready to play</p>
+                     </div>
+                     <Button 
+                       variant="ghost" 
+                       size="icon" 
+                       className="h-8 w-8"
+                       onClick={() => triggerUpload({ type: 'music' })}
+                     >
+                       <RotateCcw className="h-4 w-4" />
+                     </Button>
+                  </div>
+                )}
+                
+                {getAssetsByType('music').length > 0 && (
+                  <div className="space-y-2 mt-2">
+                    <label className="text-xs text-muted-foreground">Library</label>
+                    <div className="flex flex-col gap-2">
+                      {getAssetsByType('music').map(asset => (
+                        <div 
+                          key={asset.id} 
+                          className={cn(
+                            "flex items-center gap-2 p-2 rounded border cursor-pointer hover:bg-muted/50 transition-colors",
+                            backgroundMusic === asset.previewUrl ? "border-primary bg-primary/5" : "border-border"
+                          )}
+                          onClick={() => setBackgroundMusic(asset.previewUrl)}
+                        >
+                          <Music className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs truncate flex-1">{asset.name}</span>
+                          {backgroundMusic === asset.previewUrl && <Check className="h-3 w-3 text-primary" />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
             
