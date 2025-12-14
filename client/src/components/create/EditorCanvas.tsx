@@ -1702,11 +1702,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                            {/* Secondary Jackpots Grid */}
                            {jackpotCount > 1 && (
-                             <div className="grid grid-cols-2 gap-2 w-full">
+                             <div className="flex flex-wrap justify-center gap-2 w-full">
                                {jackpots.slice(1, jackpotCount).map((jackpot, idx) => (
                                  <div 
                                    key={idx + 1}
-                                   className={cn("relative bg-black/80 backdrop-blur-md border-2 border-yellow-500/50 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.4)] flex flex-col items-center justify-center animate-in zoom-in duration-500 h-16 overflow-visible", jackpot.border ? "bg-transparent border-none shadow-none" : "")}
+                                   className={cn("relative bg-black/80 backdrop-blur-md border-2 border-yellow-500/50 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.4)] flex flex-col items-center justify-center animate-in zoom-in duration-500 h-16 overflow-visible flex-1 min-w-[40%]", jackpot.border ? "bg-transparent border-none shadow-none" : "")}
                                    style={{ animationDelay: `${(idx + 1) * 100}ms` }}
                                  >
                                     {jackpot.border && (
