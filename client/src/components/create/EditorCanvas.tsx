@@ -302,7 +302,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-40 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
             <TabsContent value="assets" className="mt-0 space-y-6">
               <div className="space-y-3">
                 <label className="text-sm font-medium">Brand Logo</label>
