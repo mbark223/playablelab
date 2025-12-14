@@ -99,6 +99,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [winText, setWinText] = useState('BIG WIN!');
   const [showWinMessage, setShowWinMessage] = useState(false);
   const [winAnimationType, setWinAnimationType] = useState<'coins' | 'confetti' | 'pulse' | 'flash' | 'balloons' | 'money-rain' | 'lightning' | 'heart-burst' | 'starfall' | 'glitch' | 'neon-glow' | 'spotlight' | 'disco-ball' | 'snowfall' | 'fire' | 'bubbles' | 'laser-beams' | 'ribbon' | 'shockwave' | 'magic'>('coins');
+  const [winBorder, setWinBorder] = useState<string | null>(null);
 
   // End Card Settings
   const [endCardHeadline, setEndCardHeadline] = useState("YOU WON!");
@@ -509,6 +510,34 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     </div>
                 </div>
 
+                <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border mt-3">
+                    <label className="text-xs font-medium text-muted-foreground">Win Frame (Big Win)</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                            variant={winBorder === null ? 'default' : 'outline'} 
+                            size="sm" 
+                            className="text-xs justify-start h-8" 
+                            onClick={() => setWinBorder(null)}
+                        >
+                            <X className="h-3 w-3 mr-2" /> None
+                        </Button>
+                        {jackpots.filter(j => j.border).map((j, i) => (
+                             <Button 
+                                key={i}
+                                variant={winBorder === j.border ? 'default' : 'outline'} 
+                                size="sm" 
+                                className="text-xs justify-start h-8 relative overflow-hidden" 
+                                onClick={() => setWinBorder(j.border || null)}
+                            >
+                                <div className="absolute inset-0 opacity-20">
+                                    <img src={j.border} className="w-full h-full object-cover" />
+                                </div>
+                                <span className="relative z-10 truncate pl-1">{j.label} Border</span>
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+
                 {editorMode === 'slots' && (
                   <>
                     <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border mt-4">
@@ -631,7 +660,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                             {/* Upload Button */}
                             <div 
-                              onClick={() => triggerUpload('gridCell')}
+                              onClick={() => triggerUpload({ type: 'gridCell' })}
                               className="aspect-square rounded border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
                             >
                               <Plus className="h-4 w-4" />
@@ -715,7 +744,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                           {/* Upload Button */}
                           <div 
-                            onClick={() => triggerUpload('symbol')}
+                            onClick={() => triggerUpload({ type: 'symbol' })}
                             className="aspect-square rounded border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
                           >
                             <Plus className="h-4 w-4" />
@@ -895,7 +924,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                       
                       {/* Upload for End Card Bg */}
                       <div 
-                        onClick={() => triggerUpload('endCardBg')}
+                        onClick={() => triggerUpload({ type: 'endCardBg' })}
                         className="aspect-video rounded border border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
                       >
                         <Plus className="h-4 w-4" />
@@ -930,7 +959,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        
                        {/* Upload for End Card Image */}
                        <div 
-                         onClick={() => triggerUpload('endCardImage')}
+                         onClick={() => triggerUpload({ type: 'endCardImage' })}
                          className="h-12 w-12 rounded border border-dashed border-border flex items-center justify-center cursor-pointer shrink-0 hover:bg-background hover:border-primary text-muted-foreground hover:text-primary transition-colors"
                        >
                          <Plus className="h-4 w-4" />
@@ -1697,6 +1726,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                       "w-[98%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
                       slotRows >= 3 ? "aspect-[3/4]" : "aspect-[4/3]"
                     )}>
+                      {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
                       
                       {/* Reels Container */}
@@ -1769,6 +1804,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   {/* === MODE: WHEEL === */}
                   {editorMode === 'wheel' && (
                     <div className="w-[98%] aspect-square relative flex items-center justify-center">
+                      {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
                       <div className={cn(
                         "w-full h-full rounded-full border-8 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.5)] overflow-hidden bg-black/50 relative transition-transform duration-[3000ms] cubic-bezier(0.2, 0.8, 0.2, 1)",
                         isReelSpinning ? "rotate-[1080deg]" : "rotate-0"
@@ -1788,6 +1829,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   {/* === MODE: SCRATCH === */}
                   {editorMode === 'scratch' && (
                     <div className="w-[98%] aspect-[3/4] bg-white rounded-xl shadow-2xl p-1 relative overflow-hidden">
+                      {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-10" />
                       <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg p-4 grid grid-cols-2 gap-4">
                         {[1, 2, 3, 4].map((i) => (
