@@ -74,6 +74,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   // Game Settings
   const [jackpotValue, setJackpotValue] = useState('$1,240,500');
   const [jackpotCount, setJackpotCount] = useState(1);
+  const [spins, setSpins] = useState(5);
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
   
