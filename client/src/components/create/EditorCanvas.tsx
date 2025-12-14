@@ -76,7 +76,8 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     { label: "GRAND", value: "$1,240,500" },
     { label: "MAJOR", value: "$50,000" },
     { label: "MINOR", value: "$2,500" },
-    { label: "MINI", value: "$500" }
+    { label: "MINI", value: "$500" },
+    { label: "TINY", value: "$100" }
   ]);
   const [jackpotCount, setJackpotCount] = useState(1);
   const [jackpotFontSize, setJackpotFontSize] = useState(18); // Default font size in px
@@ -314,7 +315,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        </div>
                        <input 
                          type="range" 
-                         min="1" max="4" 
+                         min="1" max="5" 
                          value={jackpotCount}
                          onChange={(e) => setJackpotCount(parseInt(e.target.value))}
                          className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
