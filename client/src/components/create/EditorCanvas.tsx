@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
@@ -71,6 +71,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [activeSymbolIndex, setActiveSymbolIndex] = useState<number | null>(null);
   const [uploadTarget, setUploadTarget] = useState<{ type: 'symbol' | 'endCardBg' | 'endCardImage' | 'gridCell' | 'jackpotBorder', index?: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [background, setBackground] = useState(slotsBg);
   
@@ -282,7 +283,26 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             </TabsList>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
+            {/* Scroll to Bottom Button */}
+            <div className="absolute bottom-20 right-6 z-20">
+              <Button 
+                size="icon" 
+                variant="secondary" 
+                className="h-8 w-8 rounded-full shadow-lg opacity-50 hover:opacity-100 transition-opacity"
+                onClick={() => {
+                  if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollTo({
+                      top: scrollContainerRef.current.scrollHeight,
+                      behavior: 'smooth'
+                    });
+                  }
+                }}
+              >
+                <ArrowDown className="h-4 w-4" />
+              </Button>
+            </div>
+
             <TabsContent value="assets" className="mt-0 space-y-6">
               <div className="space-y-3">
                 <label className="text-sm font-medium">Brand Logo</label>
