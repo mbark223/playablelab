@@ -81,6 +81,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   ]);
   const [jackpotCount, setJackpotCount] = useState(1);
   const [jackpotFontSize, setJackpotFontSize] = useState(18); // Default font size in px
+  const [jackpotLayout, setJackpotLayout] = useState<'row' | 'distributed'>('row');
   const [spins, setSpins] = useState(5);
   const [currentSpins, setCurrentSpins] = useState(5);
   const [isReelSpinning, setIsReelSpinning] = useState(false);
@@ -334,6 +335,28 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                          onChange={(e) => setJackpotFontSize(parseInt(e.target.value))}
                          className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
                        />
+                   </div>
+
+                   <div className="space-y-1 pt-2">
+                       <label className="text-xs font-medium text-muted-foreground">Layout Style</label>
+                       <div className="grid grid-cols-2 gap-2 mt-1">
+                          <Button 
+                            variant={jackpotLayout === 'row' ? 'default' : 'outline'} 
+                            size="sm" 
+                            className="text-xs h-8" 
+                            onClick={() => setJackpotLayout('row')}
+                          >
+                            <Layers className="h-3 w-3 mr-1" /> Row
+                          </Button>
+                          <Button 
+                            variant={jackpotLayout === 'distributed' ? 'default' : 'outline'} 
+                            size="sm" 
+                            className="text-xs h-8" 
+                            onClick={() => setJackpotLayout('distributed')}
+                          >
+                            <LayoutTemplate className="h-3 w-3 mr-1" /> Distributed
+                          </Button>
+                       </div>
                    </div>
                 </div>
               </div>
@@ -1565,18 +1588,72 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                   {/* Jackpot Counter */}
                   {visibleElements.jackpot && (
-                    <div className="flex flex-row gap-2 justify-center w-full px-4 flex-wrap z-20">
-                       {jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
-                           <div key={idx} className="flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center" style={{ animationDelay: `${idx * 100}ms` }}>
-                              <span className="text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80">{jackpot.label}</span>
-                              <span 
-                                className="text-yellow-400 font-display font-black tracking-widest drop-shadow-md leading-none whitespace-nowrap"
-                                style={{ fontSize: `${jackpotFontSize}px` }}
-                              >
-                                {jackpot.value}
-                              </span>
-                            </div>
-                       ))}
+                    <div className={cn("w-full px-4 z-20 transition-all duration-300", 
+                      jackpotLayout === 'distributed' ? "absolute inset-0 pointer-events-none p-4" : "flex flex-row gap-2 justify-center flex-wrap"
+                    )}>
+                       {jackpotLayout === 'row' ? (
+                         // Row Layout (Original)
+                         jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
+                             <div key={idx} className="flex-1 min-w-[80px] bg-black/60 backdrop-blur-sm border border-yellow-500/30 px-2 py-2 rounded-lg shadow-[0_0_20px_rgba(255,165,0,0.3)] animate-in fade-in slide-in-from-top-4 duration-500 flex flex-col items-center justify-center" style={{ animationDelay: `${idx * 100}ms` }}>
+                                <span className="text-yellow-200 font-display font-bold text-[10px] uppercase tracking-wider mb-0.5 opacity-80">{jackpot.label}</span>
+                                <span 
+                                  className="text-yellow-400 font-display font-black tracking-widest drop-shadow-md leading-none whitespace-nowrap"
+                                  style={{ fontSize: `${jackpotFontSize}px` }}
+                                >
+                                  {jackpot.value}
+                                </span>
+                              </div>
+                         ))
+                       ) : (
+                         // Distributed Layout (New)
+                         <div className="w-full h-full relative">
+                           {jackpots.slice(0, jackpotCount).map((jackpot, idx) => {
+                             // Position logic
+                             let positionClass = "";
+                             if (idx === 0) positionClass = "top-0 left-1/2 -translate-x-1/2 w-3/4 h-24"; // Top Center (Grand)
+                             else if (idx === 1) positionClass = "top-32 left-0 w-40 h-16"; // Left Top
+                             else if (idx === 2) positionClass = "top-32 right-0 w-40 h-16"; // Right Top
+                             else if (idx === 3) positionClass = "bottom-32 left-0 w-32 h-14"; // Left Bottom
+                             else if (idx === 4) positionClass = "bottom-32 right-0 w-32 h-14"; // Right Bottom
+                             
+                             return (
+                               <div 
+                                 key={idx} 
+                                 className={cn(
+                                   "absolute bg-black/80 backdrop-blur-md border-2 border-yellow-500/50 rounded-xl shadow-[0_0_30px_rgba(255,165,0,0.4)] flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in duration-500",
+                                   idx === 0 ? "border-4 border-yellow-400 shadow-[0_0_50px_rgba(255,215,0,0.6)]" : "",
+                                   positionClass
+                                 )}
+                                 style={{ animationDelay: `${idx * 100}ms` }}
+                               >
+                                  {/* Industrial Stripes Decoration for top jackpot */}
+                                  {idx === 0 && (
+                                    <>
+                                      <div className="absolute left-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-r border-yellow-500/30" />
+                                      <div className="absolute right-0 top-0 bottom-0 w-8 bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,#000_10px,#000_20px)] opacity-50 border-l border-yellow-500/30" />
+                                    </>
+                                  )}
+
+                                  <span className={cn(
+                                    "font-display font-black uppercase tracking-widest opacity-90 z-10",
+                                    idx === 0 ? "text-red-500 text-lg drop-shadow-[0_2px_0_rgba(0,0,0,1)] stroke-black" : "text-yellow-200 text-[10px]"
+                                  )}>
+                                    {jackpot.label}
+                                  </span>
+                                  <span 
+                                    className={cn(
+                                      "font-display font-black tracking-widest drop-shadow-lg leading-none whitespace-nowrap z-10 text-gradient bg-clip-text text-transparent bg-gradient-to-b from-yellow-300 via-yellow-100 to-yellow-500",
+                                      idx === 0 ? "text-5xl drop-shadow-[0_4px_0_rgba(0,0,0,0.8)]" : ""
+                                    )}
+                                    style={{ fontSize: idx === 0 ? undefined : `${jackpotFontSize}px` }}
+                                  >
+                                    {jackpot.value}
+                                  </span>
+                                </div>
+                             );
+                           })}
+                         </div>
+                       )}
                     </div>
                   )}
 
