@@ -1559,7 +1559,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                 )}
 
                 {/* GAME CONTENT AREA */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-6 p-4 relative">
+                <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2 relative w-full">
                   {/* (Old Win Message Overlay removed - now handled by global AnimatePresence above) */}
 
                   {/* Jackpot Counter */}
@@ -1582,7 +1582,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   {/* === MODE: SLOTS === */}
                   {editorMode === 'slots' && (
                     <div className={cn(
-                      "w-[90%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
+                      "w-[98%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
                       slotRows >= 3 ? "aspect-[3/4]" : "aspect-[4/3]"
                     )}>
                       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
@@ -1656,7 +1656,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                   {/* === MODE: WHEEL === */}
                   {editorMode === 'wheel' && (
-                    <div className="w-[90%] aspect-square relative flex items-center justify-center">
+                    <div className="w-[98%] aspect-square relative flex items-center justify-center">
                       <div className={cn(
                         "w-full h-full rounded-full border-8 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.5)] overflow-hidden bg-black/50 relative transition-transform duration-[3000ms] cubic-bezier(0.2, 0.8, 0.2, 1)",
                         isReelSpinning ? "rotate-[1080deg]" : "rotate-0"
@@ -1675,7 +1675,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                   {/* === MODE: SCRATCH === */}
                   {editorMode === 'scratch' && (
-                    <div className="w-[90%] aspect-[3/4] bg-white rounded-xl shadow-2xl p-1 relative overflow-hidden">
+                    <div className="w-[98%] aspect-[3/4] bg-white rounded-xl shadow-2xl p-1 relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 opacity-10" />
                       <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg p-4 grid grid-cols-2 gap-4">
                         {[1, 2, 3, 4].map((i) => (
