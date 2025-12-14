@@ -39,8 +39,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [viewMode, setViewMode] = useState<'game' | 'endcard'>('game');
   
   // Determine Editor Mode based on templateId
-  const editorMode = templateId?.includes('wheel') ? 'wheel' : 
-                     templateId?.includes('scratch') ? 'scratch' : 'slots';
+  const [editorMode, setEditorMode] = useState<'slots' | 'wheel' | 'scratch' | 'pick' | 'match' | 'fall'>(
+    templateId?.includes('wheel') ? 'wheel' : 
+    templateId?.includes('scratch') ? 'scratch' : 'slots'
+  );
 
   // Helper for template configuration
   const getTemplateConfig = (id: string | null) => {
@@ -269,7 +271,6 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   
   const applyMechanic = (template: MechanicTemplate) => {
     // Logic to apply mechanic settings
-    // For now, we simulate config changes
     if (template.config?.rows) setSlotRows(template.config.rows);
     if (template.config?.cols) setSlotCols(template.config.cols);
     if (template.config?.spins) setSpins(template.config.spins);
@@ -277,7 +278,25 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     // Set headline based on mechanic for feedback
     setSubheadline(template.name.toUpperCase());
     
-    // In a real app, this would switch the entire engine logic
+    // Switch mode based on category
+    const categoryId = mechanicCategories.find(c => c.templates.some(t => t.id === template.id))?.id;
+    
+    if (categoryId === 'spin-based') {
+      setEditorMode('slots');
+      setCtaText("SPIN NOW");
+    } else if (categoryId === 'bonus-round') {
+      setEditorMode('pick');
+      setCtaText("PICK A CHEST");
+    } else if (categoryId === 'match-mechanics') {
+      setEditorMode('match');
+      setCtaText("PLAY MATCH");
+    } else if (categoryId === 'tap-collect') {
+      setEditorMode('fall');
+      setCtaText("CATCH 'EM!");
+    } else if (categoryId === 'hybrid') {
+      setEditorMode('slots'); // Default to slots for hybrid
+      setCtaText("SPIN & WIN");
+    }
   };
 
   const applyTheme = (theme: ThemeTemplate) => {
@@ -538,6 +557,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
               <TabsTrigger value="game" className="px-1">
                 {editorMode === 'wheel' ? <Disc className="h-4 w-4" /> : 
                  editorMode === 'scratch' ? <Sparkles className="h-4 w-4" /> : 
+                 editorMode === 'pick' ? <Gift className="h-4 w-4" /> :
+                 editorMode === 'match' ? <Grid3X3 className="h-4 w-4" /> :
+                 editorMode === 'fall' ? <ArrowDown className="h-4 w-4" /> :
                  <Dices className="h-4 w-4" />}
               </TabsTrigger>
               <TabsTrigger value="text" className="px-1"><Type className="h-4 w-4" /></TabsTrigger>
@@ -1867,6 +1889,101 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                            </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {/* === MODE: PICK === */}
+                  {editorMode === 'pick' && (
+                    <div className="w-[98%] aspect-[3/4] bg-gradient-to-b from-indigo-900 to-purple-900 rounded-xl shadow-2xl p-4 relative overflow-hidden flex flex-col items-center justify-center gap-4">
+                       {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
+                      <div className="text-center mb-4">
+                        <h3 className="text-xl font-bold text-white drop-shadow-md">PICK A CHEST</h3>
+                        <p className="text-xs text-white/70">Find the hidden treasure!</p>
+                      </div>
+                      <div className="grid grid-cols-1 gap-6 w-full max-w-[200px]">
+                         {[1, 2, 3].map((i) => (
+                           <motion.div 
+                             key={i}
+                             whileHover={{ scale: 1.05 }}
+                             whileTap={{ scale: 0.95 }}
+                             onClick={() => !isReelSpinning && handleInteraction()}
+                             className="bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg p-1 shadow-lg cursor-pointer aspect-video flex items-center justify-center relative overflow-hidden group border-2 border-yellow-200"
+                           >
+                             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-30" />
+                             <PackageOpen className="text-yellow-900 w-12 h-12 relative z-10 drop-shadow-md group-hover:animate-bounce" />
+                             <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                           </motion.div>
+                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* === MODE: MATCH === */}
+                  {editorMode === 'match' && (
+                    <div className="w-[98%] aspect-[3/4] bg-slate-900 rounded-xl shadow-2xl p-2 relative overflow-hidden flex flex-col items-center justify-center">
+                       {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
+                      <div className="grid grid-cols-5 gap-1 w-full p-2 bg-black/30 rounded-lg">
+                        {Array.from({ length: 25 }).map((_, i) => (
+                          <motion.div
+                            key={i}
+                            whileTap={{ scale: 0.8 }}
+                            onClick={() => !isReelSpinning && handleInteraction()}
+                            className={cn(
+                              "aspect-square rounded-sm flex items-center justify-center shadow-sm cursor-pointer border border-white/10",
+                              ["bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-purple-500"][Math.floor(Math.random() * 5)]
+                            )}
+                          >
+                            <div className="w-full h-full bg-gradient-to-br from-white/30 to-transparent rounded-sm" />
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* === MODE: FALL === */}
+                  {editorMode === 'fall' && (
+                    <div className="w-[98%] aspect-[3/4] bg-sky-900 rounded-xl shadow-2xl relative overflow-hidden flex flex-col items-center justify-end pb-10">
+                       {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 pointer-events-none">
+                         {[...Array(15)].map((_, i) => (
+                           <motion.div
+                             key={i}
+                             initial={{ y: -50, x: Math.random() * 300 }}
+                             animate={{ y: 800 }}
+                             transition={{ 
+                               duration: 2 + Math.random() * 2, 
+                               repeat: Infinity, 
+                               ease: "linear",
+                               delay: Math.random() * 2
+                             }}
+                             className="absolute"
+                             onClick={() => !isReelSpinning && handleInteraction()} 
+                           >
+                              <div className="w-8 h-8 rounded-full bg-yellow-400 border-2 border-yellow-200 shadow-md flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-yellow-800">$</span>
+                              </div>
+                           </motion.div>
+                         ))}
+                      </div>
+                      <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full border-4 border-white/50 flex items-center justify-center z-10 cursor-pointer active:scale-95 transition-transform" onClick={handleInteraction}>
+                         <ArrowDown className="w-10 h-10 text-white animate-bounce" />
+                      </div>
+                      <p className="text-white font-bold mt-4 z-10">TAP TO CATCH!</p>
                     </div>
                   )}
 
