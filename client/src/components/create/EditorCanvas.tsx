@@ -670,7 +670,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             </Button>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-40 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-96 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
             <TabsContent value="playables" className="mt-0 space-y-6">
               
               {/* Mechanics Section */}
