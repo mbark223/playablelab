@@ -359,6 +359,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [slotRows, setSlotRows] = useState(templateConfig.rows || 1); // 1 = 3x1 (classic), 3 = 3x3 (video slot)
   const [slotCols, setSlotCols] = useState(templateConfig.cols || 3); // Default 3 columns
   const [isCustomGrid, setIsCustomGrid] = useState(false);
+  
+  // Board Dimensions
+  const [boardScale, setBoardScale] = useState(98);
+  const [boardAspectRatio, setBoardAspectRatio] = useState<'auto' | 'portrait' | 'landscape' | 'square'>('auto');
+
   const [textColor, setTextColor] = useState(templateConfig.color || '#ffffff');
   const [subheadline, setSubheadline] = useState('');
   const [disclaimerText, setDisclaimerText] = useState('No purchase necessary. 18+ only. T&Cs apply.');
@@ -1297,6 +1302,43 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        )}
                     </div>
 
+                    <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border mt-4">
+                       <label className="text-xs font-medium text-muted-foreground">Board Dimensions</label>
+                       
+                       {/* Scale Slider */}
+                       <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <label className="text-[10px] text-muted-foreground">Board Scale</label>
+                            <span className="text-[10px] font-mono">{boardScale}%</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="50" max="100" 
+                            value={boardScale}
+                            onChange={(e) => setBoardScale(parseInt(e.target.value))}
+                            className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                          />
+                       </div>
+
+                       {/* Aspect Ratio Select */}
+                       <div className="space-y-1">
+                          <label className="text-[10px] text-muted-foreground">Aspect Ratio</label>
+                          <div className="grid grid-cols-4 gap-1">
+                             {['auto', 'portrait', 'square', 'landscape'].map((ratio) => (
+                               <Button
+                                 key={ratio}
+                                 variant={boardAspectRatio === ratio ? 'default' : 'outline'}
+                                 size="sm"
+                                 className="text-[10px] h-7 px-1 capitalize"
+                                 onClick={() => setBoardAspectRatio(ratio as any)}
+                               >
+                                 {ratio === 'auto' ? 'Auto' : ratio.charAt(0).toUpperCase() + ratio.slice(1)}
+                               </Button>
+                             ))}
+                          </div>
+                       </div>
+                    </div>
+
                     <div className="mt-6 border-t border-border pt-4">
                       <label className="text-sm font-medium flex items-center gap-2 mb-2">
                         <LayoutTemplate className="h-4 w-4 text-primary" />
@@ -2147,10 +2189,16 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                   {/* === MODE: SLOTS === */}
                   {editorMode === 'slots' && (
-                    <div className={cn(
-                      "w-[98%] bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
-                      slotRows >= 3 ? "aspect-[3/4]" : "aspect-[4/3]"
-                    )}>
+                    <div 
+                      className={cn(
+                        "bg-gradient-to-b from-purple-900 to-black rounded-lg border-4 border-yellow-600/50 relative shadow-2xl overflow-hidden p-1 transition-all duration-300",
+                        boardAspectRatio === 'auto' ? (slotRows >= 3 ? "aspect-[3/4]" : "aspect-[4/3]") : "",
+                        boardAspectRatio === 'portrait' ? "aspect-[3/4]" : "",
+                        boardAspectRatio === 'landscape' ? "aspect-[4/3]" : "",
+                        boardAspectRatio === 'square' ? "aspect-square" : ""
+                      )}
+                      style={{ width: `${boardScale}%` }}
+                    >
                       {/* Win Border Filter */}
                       {showWinMessage && winBorder && (
                         <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
