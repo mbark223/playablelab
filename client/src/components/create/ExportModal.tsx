@@ -48,14 +48,40 @@ const platforms: { id: Platform; name: string; icon: any; color: string; specs: 
 export default function ExportModal({ open, onOpenChange }: ExportModalProps) {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>('meta');
   const [isExporting, setIsExporting] = useState(false);
+  const [exportStep, setExportStep] = useState(0);
+  const [exportLog, setExportLog] = useState<string[]>([]);
 
   const handleExport = () => {
     setIsExporting(true);
-    // Simulate export process
-    setTimeout(() => {
-      setIsExporting(false);
-      onOpenChange(false);
-    }, 2000);
+    setExportLog([]);
+    setExportStep(0);
+
+    const steps = [
+        "Initializing build environment...",
+        "Optimizing assets (Images & Audio)...",
+        "Compiling game logic...",
+        `Generating ${platforms.find(p => p.id === selectedPlatform)?.name} manifest...`,
+        "Packaging final bundle...",
+        "Verifying file size constraints...",
+        "Build complete!"
+    ];
+
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+        if (currentStep >= steps.length) {
+            clearInterval(interval);
+            setTimeout(() => {
+                setIsExporting(false);
+                onOpenChange(false);
+            }, 1000);
+            return;
+        }
+
+        setExportLog(prev => [...prev, steps[currentStep]]);
+        setExportStep(prev => prev + 1);
+        currentStep++;
+    }, 800);
   };
 
   return (
@@ -158,16 +184,33 @@ export default function ExportModal({ open, onOpenChange }: ExportModalProps) {
             </div>
 
             <DialogFooter className="p-4 border-t border-border bg-muted/10">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button onClick={handleExport} disabled={isExporting} className="gap-2 min-w-[140px]">
-                {isExporting ? (
-                  <>Building...</>
-                ) : (
-                  <>
+              {isExporting ? (
+                <div className="w-full space-y-3">
+                    <div className="flex items-center justify-between text-xs font-medium">
+                        <span>Building Package...</span>
+                        <span>{Math.round((exportStep / 7) * 100)}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-primary transition-all duration-300"
+                            style={{ width: `${(exportStep / 7) * 100}%` }} 
+                        />
+                    </div>
+                    <div className="h-24 p-2 bg-black/80 rounded font-mono text-[10px] text-green-400 overflow-y-auto">
+                        {exportLog.map((log, i) => (
+                            <div key={i} className="mb-1">&gt; {log}</div>
+                        ))}
+                        <div className="animate-pulse">&gt; _</div>
+                    </div>
+                </div>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                  <Button onClick={handleExport} className="gap-2 min-w-[140px]">
                     <Download className="h-4 w-4" /> Export Package
-                  </>
-                )}
-              </Button>
+                  </Button>
+                </>
+              )}
             </DialogFooter>
           </div>
         </div>

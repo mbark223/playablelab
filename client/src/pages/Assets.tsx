@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Folder as FolderIcon, Upload, Search, Plus, MoreVertical, FileImage, FolderPlus, ArrowLeft, Trash2, Grid, List } from "lucide-react";
+import { Folder as FolderIcon, Upload, Search, Plus, MoreVertical, FileImage, FolderPlus, ArrowLeft, Trash2, Grid, List, FolderInput } from "lucide-react";
 import { useAssets } from "@/lib/AssetContext";
 import { cn } from "@/lib/utils";
 import {
@@ -10,6 +10,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -21,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Assets() {
-  const { assets, folders, createFolder, deleteFolder, addAsset, removeAsset } = useAssets();
+  const { assets, folders, createFolder, deleteFolder, addAsset, removeAsset, moveAssetToFolder } = useAssets();
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -232,6 +237,33 @@ export default function Assets() {
                          </Button>
                        </DropdownMenuTrigger>
                        <DropdownMenuContent>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <FolderInput className="h-4 w-4 mr-2" /> Move to...
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem 
+                                disabled={currentFolderId === null}
+                                onClick={() => moveAssetToFolder(asset.id, null)}
+                              >
+                                <FolderIcon className="h-4 w-4 mr-2" /> Assets Root
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {folders
+                                .filter(f => f.id !== currentFolderId) // Don't show current folder
+                                .map(folder => (
+                                <DropdownMenuItem 
+                                  key={folder.id}
+                                  onClick={() => moveAssetToFolder(asset.id, folder.id)}
+                                >
+                                  <FolderIcon className="h-4 w-4 mr-2" /> {folder.name}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
+                        <DropdownMenuSeparator />
                          <DropdownMenuItem className="text-destructive" onClick={() => removeAsset(asset.id)}>
                            <Trash2 className="h-4 w-4 mr-2" /> Delete
                          </DropdownMenuItem>

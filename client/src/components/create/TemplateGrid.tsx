@@ -134,6 +134,42 @@ const templates = [
     category: 'Table Game',
     compatibility: ['logo', 'background'],
     requiredAssets: ['logo']
+  },
+  {
+    id: 'cyber-runner',
+    title: 'Neon Runner',
+    description: 'Endless runner where player collects brand tokens. High engagement.',
+    image: runnerImg,
+    category: 'Arcade',
+    compatibility: ['logo', 'character', 'product'],
+    requiredAssets: ['character']
+  },
+  {
+    id: 'sweet-match',
+    title: 'Sugar Rush Match',
+    description: 'Classic match-3 puzzle with explosive power-ups.',
+    image: puzzleImg,
+    category: 'Puzzle',
+    compatibility: ['logo', 'symbol', 'product'],
+    requiredAssets: ['symbol']
+  },
+  {
+    id: 'quiz-master',
+    title: 'Brand Trivia',
+    description: 'Interactive quiz to educate users about your product.',
+    image: quizImg,
+    category: 'Quiz',
+    compatibility: ['logo', 'background'],
+    requiredAssets: ['logo']
+  },
+  {
+    id: 'speed-racer',
+    title: 'Speedway Racer',
+    description: 'Avoid obstacles and collect coins in this fast-paced racer.',
+    image: racingImg,
+    category: 'Arcade',
+    compatibility: ['logo', 'product'],
+    requiredAssets: ['product']
   }
 ];
 
@@ -141,6 +177,7 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
   const { assets } = useAssets();
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const [activeWinEffect, setActiveWinEffect] = useState<'coins' | 'confetti' | 'pulse' | 'flash' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
   // Reset effect when dialog closes
   useEffect(() => {
@@ -151,6 +188,9 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
 
   // Filter templates based on required assets
   const matchingTemplates = templates.filter(template => {
+    // Category filter
+    if (selectedCategory !== 'All' && template.category !== selectedCategory) return false;
+
     // If no required assets are defined, it's always compatible (or fallback to logo)
     if (!template.requiredAssets || template.requiredAssets.length === 0) return true;
     
@@ -161,19 +201,35 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
     return template.requiredAssets.some(type => uploadedTypes.has(type as any));
   });
 
+  const categories = ['All', ...Array.from(new Set(templates.map(t => t.category)))];
+
   return (
     <div className="w-full max-w-6xl mx-auto py-12 px-6">
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-3xl font-display font-bold mb-2">Recommended Templates</h2>
           <p className="text-muted-foreground text-lg">
-            Showing {matchingTemplates.length} templates compatible with your uploaded assets.
+            Select a template to start your campaign.
           </p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" onClick={onBack}>Back to Upload</Button>
           <Button disabled={!selectedId} onClick={onNext}>Customize Design</Button>
         </div>
+      </div>
+
+      {/* Category Filters */}
+      <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        {categories.map(category => (
+          <Button
+            key={category}
+            variant={selectedCategory === category ? "default" : "outline"}
+            onClick={() => setSelectedCategory(category)}
+            className="rounded-full px-4 h-8 text-sm"
+          >
+            {category}
+          </Button>
+        ))}
       </div>
       
       {matchingTemplates.length === 0 ? (

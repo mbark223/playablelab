@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown, Layout, Gamepad2, Gift, MousePointerClick, Combine, Brush, AlertCircle, PackageOpen, Timer, Grid3X3, BarChart3, MousePointer2, LockOpen, Shuffle, RefreshCw, Diamond, Sword, Hammer, Scroll } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown, Layout, Gamepad2, Gift, MousePointerClick, Combine, Brush, AlertCircle, PackageOpen, Timer, Grid3X3, BarChart3, MousePointer2, LockOpen, Shuffle, RefreshCw, Diamond, Sword, Hammer, Scroll, HelpCircle, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ExportModal from './ExportModal';
@@ -25,6 +25,7 @@ import scratchImg from '@assets/generated_images/scratch_card_game.png';
 import borderBrick from '@assets/Huff_N_Even_More_Puff_Sym_Brick_House_border_1765722611336.png';
 import borderStraw from '@assets/Huff_N_Even_More_Puff_Sym_Staw_House_border_1765722616572.png';
 import borderWood from '@assets/Huff_N_Even_More_Puff_sym_Wood_House_border_1765722627179.png';
+import quizImg from '@assets/generated_images/interactive_quiz_interface.png';
 
 interface EditorCanvasProps {
   templateId?: string | null;
@@ -39,9 +40,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [viewMode, setViewMode] = useState<'game' | 'endcard'>('game');
   
   // Determine Editor Mode based on templateId
-  const [editorMode, setEditorMode] = useState<'slots' | 'wheel' | 'scratch' | 'pick' | 'match' | 'fall'>(
+  const [editorMode, setEditorMode] = useState<'slots' | 'wheel' | 'scratch' | 'pick' | 'match' | 'fall' | 'quiz'>(
     templateId?.includes('wheel') ? 'wheel' : 
-    templateId?.includes('scratch') ? 'scratch' : 'slots'
+    templateId?.includes('scratch') ? 'scratch' : 
+    templateId?.includes('quiz') ? 'quiz' :
+    'slots'
   );
 
   // Helper for template configuration
@@ -94,6 +97,17 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [jackpotFontSize, setJackpotFontSize] = useState(18); // Default font size in px
   const [jackpotLayout, setJackpotLayout] = useState<'row' | 'distributed'>('distributed');
   const [spins, setSpins] = useState(5);
+
+  // Quiz State
+  const [quizQuestions, setQuizQuestions] = useState([
+    { id: 1, question: "What makes our product unique?", options: ["All Natural", "Zero Sugar", "Double Caffeinated", "Blue Color"], correct: 0 },
+    { id: 2, question: "Which flavor is our newest?", options: ["Vanilla", "Chocolate", "Strawberry", "Mango"], correct: 3 },
+    { id: 3, question: "Our brand was founded in?", options: ["1995", "2005", "2015", "2025"], correct: 2 }
+  ]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [quizScore, setQuizScore] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [answerState, setAnswerState] = useState<'idle' | 'correct' | 'wrong'>('idle');
 
   // --- PLAYABLE TEMPLATE DEFINITIONS ---
   
@@ -255,6 +269,22 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           features: ['Classic combo', 'Variety', 'Extended play']
         },
       ]
+    },
+    {
+      id: 'quiz',
+      name: 'Interactive Quiz',
+      description: 'Educate users while they play',
+      icon: HelpCircle,
+      templates: [
+        {
+          id: 'quiz-master',
+          name: 'Brand Trivia',
+          description: 'Answer questions to win',
+          icon: HelpCircle,
+          image: quizImg,
+          features: ['Educational', 'Brand awareness', 'Low friction']
+        }
+      ]
     }
   ];
 
@@ -309,6 +339,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     } else if (categoryId === 'hybrid') {
       setEditorMode('slots'); // Default to slots for hybrid
       setCtaText("SPIN & WIN");
+    } else if (categoryId === 'quiz') {
+      setEditorMode('quiz');
+      setCtaText("START QUIZ");
+      setSubheadline("TEST YOUR KNOWLEDGE");
     }
   };
 
@@ -502,6 +536,37 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
         }, 2500); // Wait for win animation
       }
     }, totalTime);
+  };
+
+  const handleQuizAnswer = (optionIndex: number) => {
+    if (answerState !== 'idle') return;
+    
+    setSelectedAnswer(optionIndex);
+    const isCorrect = optionIndex === quizQuestions[currentQuestionIndex].correct;
+    setAnswerState(isCorrect ? 'correct' : 'wrong');
+    
+    if (isCorrect) {
+      setQuizScore(prev => prev + 1);
+      // Play Win Sound for correct answer
+      if (winSound && winAudioRef.current) {
+         winAudioRef.current.currentTime = 0;
+         winAudioRef.current.play().catch(console.error);
+      }
+    }
+
+    // Move to next question or end
+    setTimeout(() => {
+      if (currentQuestionIndex < quizQuestions.length - 1) {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedAnswer(null);
+        setAnswerState('idle');
+      } else {
+        // Quiz finished
+        setShowEndCard(true);
+        setEndCardHeadline(isCorrect ? "PERFECT SCORE!" : "GREAT EFFORT!");
+        setEndCardSubtext(`You got ${quizScore + (isCorrect ? 1 : 0)}/${quizQuestions.length} correct!`);
+      }
+    }, 1500);
   };
 
   const toggleElement = (key: keyof typeof visibleElements) => {
@@ -1378,8 +1443,177 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                 )}
 
                 {editorMode === 'wheel' && (
-                  <div className="mt-4 p-4 border border-dashed rounded-lg text-center">
-                    <p className="text-sm text-muted-foreground">Wheel segments are automatically generated from your Prize List.</p>
+                  <div className="mt-4 space-y-4">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      <Disc className="h-4 w-4" /> Wheel Segments
+                    </label>
+                    <p className="text-xs text-muted-foreground">Customize colors and labels for your wheel.</p>
+                    
+                    <div className="space-y-2">
+                      {jackpots.map((jackpot, index) => (
+                        <div key={index} className="flex items-center gap-2 p-2 rounded-lg border bg-card">
+                          <div 
+                            className="h-8 w-8 rounded-full border-2 border-white shadow-sm shrink-0"
+                            style={{ backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'][index % 6] }}
+                          />
+                          <div className="flex-1 space-y-1">
+                            <input
+                              type="text"
+                              value={jackpot.label}
+                              onChange={(e) => {
+                                const newJackpots = [...jackpots];
+                                newJackpots[index].label = e.target.value;
+                                setJackpots(newJackpots);
+                              }}
+                              className="w-full h-7 px-2 text-xs rounded border border-input bg-background font-bold"
+                              placeholder="Label (e.g. WIN)"
+                            />
+                            <input
+                              type="text"
+                              value={jackpot.value}
+                              onChange={(e) => {
+                                const newJackpots = [...jackpots];
+                                newJackpots[index].value = e.target.value;
+                                setJackpots(newJackpots);
+                              }}
+                              className="w-full h-7 px-2 text-xs rounded border border-input bg-background"
+                              placeholder="Value (e.g. $500)"
+                            />
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => {
+                              const newJackpots = jackpots.filter((_, i) => i !== index);
+                              setJackpots(newJackpots);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-dashed"
+                        onClick={() => setJackpots([...jackpots, { label: "NEW PRIZE", value: "$100" }])}
+                      >
+                        <Plus className="h-3 w-3 mr-2" /> Add Segment
+                      </Button>
+                    </div>
+
+                    <div className="p-4 bg-muted/30 rounded-lg flex justify-center">
+                        <div className="relative h-32 w-32 rounded-full border-4 border-white shadow-xl overflow-hidden animate-in zoom-in duration-500">
+                          {/* Simplified CSS Conic Gradient approximation for preview */}
+                           <div 
+                             className="absolute inset-0"
+                             style={{
+                               background: `conic-gradient(${
+                                 jackpots.map((_, i) => {
+                                   const color = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'][i % 6];
+                                   const start = (i / jackpots.length) * 100;
+                                   const end = ((i + 1) / jackpots.length) * 100;
+                                   return `${color} ${start}% ${end}%`;
+                                 }).join(', ')
+                               })`
+                             }}
+                           />
+                           <div className="absolute inset-0 flex items-center justify-center">
+                             <div className="h-8 w-8 bg-white rounded-full shadow-lg z-10" />
+                           </div>
+                        </div>
+                    </div>
+                  </div>
+                )}
+
+                {editorMode === 'quiz' && (
+                  <div className="mt-4 space-y-4">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      <HelpCircle className="h-4 w-4" /> Quiz Questions
+                    </label>
+                    <p className="text-xs text-muted-foreground">Configure your questions and answers.</p>
+
+                    <div className="space-y-4">
+                      {quizQuestions.map((q, qIdx) => (
+                        <div key={q.id} className="p-3 border rounded-lg bg-card space-y-3">
+                           <div className="flex justify-between items-center">
+                             <span className="text-xs font-bold text-muted-foreground">Question {qIdx + 1}</span>
+                             {quizQuestions.length > 1 && (
+                               <Button 
+                                 variant="ghost" 
+                                 size="icon" 
+                                 className="h-5 w-5 text-destructive"
+                                 onClick={() => {
+                                   const newQ = [...quizQuestions];
+                                   newQ.splice(qIdx, 1);
+                                   setQuizQuestions(newQ);
+                                 }}
+                               >
+                                 <X className="h-3 w-3" />
+                               </Button>
+                             )}
+                           </div>
+                           <input 
+                             type="text"
+                             value={q.question}
+                             onChange={(e) => {
+                               const newQ = [...quizQuestions];
+                               newQ[qIdx].question = e.target.value;
+                               setQuizQuestions(newQ);
+                             }}
+                             className="w-full h-8 px-2 text-xs rounded border border-input bg-background font-medium"
+                             placeholder="Enter question..."
+                           />
+                           
+                           <div className="space-y-2 pl-2 border-l-2 border-border/50">
+                             {q.options.map((opt, optIdx) => (
+                               <div key={optIdx} className="flex items-center gap-2">
+                                  <div 
+                                    className={cn(
+                                      "w-4 h-4 rounded-full border cursor-pointer flex items-center justify-center",
+                                      q.correct === optIdx ? "bg-green-500 border-green-600" : "bg-muted border-input"
+                                    )}
+                                    onClick={() => {
+                                      const newQ = [...quizQuestions];
+                                      newQ[qIdx].correct = optIdx;
+                                      setQuizQuestions(newQ);
+                                    }}
+                                  >
+                                    {q.correct === optIdx && <Check className="h-2 w-2 text-white" />}
+                                  </div>
+                                  <input 
+                                    type="text"
+                                    value={opt}
+                                    onChange={(e) => {
+                                      const newQ = [...quizQuestions];
+                                      newQ[qIdx].options[optIdx] = e.target.value;
+                                      setQuizQuestions(newQ);
+                                    }}
+                                    className="flex-1 h-7 px-2 text-xs rounded border border-input bg-background"
+                                    placeholder={`Option ${optIdx + 1}`}
+                                  />
+                               </div>
+                             ))}
+                           </div>
+                        </div>
+                      ))}
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full border-dashed"
+                        onClick={() => setQuizQuestions([...quizQuestions, { 
+                          id: Date.now(), 
+                          question: "New Question?", 
+                          options: ["Option A", "Option B", "Option C", "Option D"], 
+                          correct: 0 
+                        }])}
+                      >
+                        <Plus className="h-3 w-3 mr-1" /> Add Question
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -2141,6 +2375,67 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                          <ArrowDown className="w-10 h-10 text-white animate-bounce" />
                       </div>
                       <p className="text-white font-bold mt-4 z-10">TAP TO CATCH!</p>
+                    </div>
+                  )}
+
+                  {/* === MODE: QUIZ === */}
+                  {editorMode === 'quiz' && (
+                    <div className="w-[98%] aspect-[3/4] bg-white rounded-xl shadow-2xl relative overflow-hidden flex flex-col p-6">
+                      {/* Win Border Filter */}
+                      {showWinMessage && winBorder && (
+                        <div className="absolute inset-0 z-50 pointer-events-none animate-pulse">
+                          <img src={winBorder} className="w-full h-full object-fill" />
+                        </div>
+                      )}
+                      
+                      {/* Progress Bar */}
+                      <div className="w-full h-2 bg-gray-100 rounded-full mb-6 overflow-hidden">
+                        <div 
+                          className="h-full bg-primary transition-all duration-500 ease-out"
+                          style={{ width: `${((currentQuestionIndex) / quizQuestions.length) * 100}%` }}
+                        />
+                      </div>
+
+                      <div className="flex-1 flex flex-col items-center justify-center space-y-6">
+                        <div className="space-y-2 text-center">
+                           <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                             Question {currentQuestionIndex + 1} of {quizQuestions.length}
+                           </span>
+                           <h3 className="text-xl font-bold text-slate-800 leading-tight">
+                             {quizQuestions[currentQuestionIndex].question}
+                           </h3>
+                        </div>
+
+                        <div className="w-full space-y-3">
+                          {quizQuestions[currentQuestionIndex].options.map((option, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => handleQuizAnswer(idx)}
+                              disabled={answerState !== 'idle'}
+                              className={cn(
+                                "w-full p-4 text-left rounded-xl border-2 transition-all duration-200 relative overflow-hidden group",
+                                answerState === 'idle' 
+                                  ? "border-slate-100 bg-slate-50 hover:border-primary/50 hover:bg-white hover:shadow-md" 
+                                  : answerState === 'correct' && idx === quizQuestions[currentQuestionIndex].correct
+                                    ? "border-green-500 bg-green-50 text-green-700"
+                                    : answerState === 'wrong' && selectedAnswer === idx
+                                      ? "border-red-500 bg-red-50 text-red-700"
+                                      : "border-slate-100 bg-slate-50 opacity-50"
+                              )}
+                            >
+                              <div className="flex items-center justify-between relative z-10">
+                                <span className="font-semibold">{option}</span>
+                                {answerState !== 'idle' && idx === quizQuestions[currentQuestionIndex].correct && (
+                                  <CheckCircle2 className="h-5 w-5 text-green-600 animate-in zoom-in" />
+                                )}
+                                {answerState === 'wrong' && selectedAnswer === idx && (
+                                  <XCircle className="h-5 w-5 text-red-600 animate-in zoom-in" />
+                                )}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
 
