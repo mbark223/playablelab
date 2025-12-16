@@ -90,9 +90,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     { label: "MINI", value: "$500" },
     { label: "TINY", value: "$100" }
   ]);
-  const [jackpotCount, setJackpotCount] = useState(1);
+  const [jackpotCount, setJackpotCount] = useState(4);
   const [jackpotFontSize, setJackpotFontSize] = useState(18); // Default font size in px
-  const [jackpotLayout, setJackpotLayout] = useState<'row' | 'distributed'>('row');
+  const [jackpotLayout, setJackpotLayout] = useState<'row' | 'distributed'>('distributed');
   const [spins, setSpins] = useState(5);
 
   // --- PLAYABLE TEMPLATE DEFINITIONS ---
@@ -102,6 +102,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
     name: string;
     description: string;
     icon: React.ElementType;
+    image?: string;
     features: string[];
     config?: { rows?: number; cols?: number; spins?: number; color?: string };
   }
@@ -126,6 +127,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: '2 Spins → Win', 
           description: 'Guaranteed small win on 2nd spin', 
           icon: Zap,
+          image: background, // Dynamic: Uses current background
           features: ['Quick gratification', 'High conversion', 'Simple loop'],
           config: { spins: 2 }
         },
@@ -134,6 +136,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: '3 Spins → Near Miss', 
           description: 'Near miss on 2nd, bonus tease on 3rd', 
           icon: AlertCircle,
+          image: background,
           features: ['Engagement building', 'Retention focus', 'Emotional hook'],
           config: { spins: 3 }
         },
@@ -142,6 +145,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Spin → Collect → Mega', 
           description: 'Collect symbols to trigger final mega spin', 
           icon: Crown,
+          image: background,
           features: ['Progressive', 'High stakes finale', 'Collection mechanic'],
           config: { spins: 5 }
         },
@@ -158,6 +162,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Pick 1 of 3', 
           description: 'Player chooses 1 of 3 mystery chests', 
           icon: PackageOpen,
+          image: 'https://www.transparenttextures.com/patterns/wood-pattern.png', // Placeholder for chest bg
           features: ['Player agency', 'Mystery', 'Instant reward']
         },
         { 
@@ -165,6 +170,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Tap-to-Reveal', 
           description: 'Tap multiple items to find multipliers', 
           icon: MousePointerClick,
+          image: scratchImg,
           features: ['High interaction', 'Variable reward', 'Speed']
         },
         { 
@@ -172,6 +178,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Timed Countdown', 
           description: 'Complete task before timer expires', 
           icon: Timer,
+          image: slotsBg,
           features: ['Urgency', 'Skill element', 'Excitement']
         },
       ]
@@ -187,6 +194,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Match 3 Colors', 
           description: 'Connect 3 same-colored items to win', 
           icon: Grid3X3,
+          image: 'https://www.transparenttextures.com/patterns/cubes.png',
           features: ['Puzzle element', 'Casual appeal', 'Visual feedback'],
           config: { rows: 5, cols: 5 }
         },
@@ -195,6 +203,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Progressive Match', 
           description: 'Fills meter to trigger bonus', 
           icon: BarChart3,
+          image: 'https://www.transparenttextures.com/patterns/cubes.png',
           features: ['Goal oriented', 'Visual progress', 'Reward loop']
         },
       ]
@@ -210,6 +219,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Tap Falling Coins', 
           description: 'Catch items falling from top', 
           icon: ArrowDown,
+          image: runnerImg,
           features: ['Reflex based', 'High activity', 'Fun chaos']
         },
         { 
@@ -217,6 +227,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Collect to Unlock', 
           description: 'Gather specific symbols to spin', 
           icon: LockOpen,
+          image: runnerImg,
           features: ['Collection', 'Anticipation', 'Reward gate']
         },
       ]
@@ -232,6 +243,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Match → Spin', 
           description: 'Match items to earn spins', 
           icon: RefreshCw,
+          image: wheelImg,
           features: ['Multi-stage', 'Genre blend', 'Deep engagement']
         },
         { 
@@ -239,6 +251,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
           name: 'Spin → Pick', 
           description: 'Spin results trigger pick bonus', 
           icon: Gift,
+          image: wheelImg,
           features: ['Classic combo', 'Variety', 'Extended play']
         },
       ]
@@ -610,20 +623,164 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                            <div 
                              key={template.id}
                              onClick={() => applyMechanic(template)}
-                             className="p-3 rounded-lg border border-border bg-card hover:border-primary hover:bg-muted/50 cursor-pointer transition-all group flex gap-3 items-start"
+                             className="p-3 rounded-lg border border-border bg-card hover:border-primary hover:bg-muted/50 cursor-pointer transition-all group"
                            >
-                             <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
-                               <template.icon className="h-4 w-4" />
+                             {/* Mini Preview showing mechanic over current background */}
+                             <div className="relative w-full h-24 rounded-md overflow-hidden mb-3 border border-border/50 shadow-sm group-hover:shadow-md transition-shadow">
+                               {/* Background Layer - Uses current uploaded background */}
+                               <img 
+                                 src={background} 
+                                 alt="preview" 
+                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                               />
+                               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                               
+                               {/* Mechanic Overlay Visuals */}
+                               <div className="absolute inset-0 flex items-center justify-center">
+                                  {/* Different visuals based on category & template */}
+                                  {category.id === 'spin-based' && (
+                                    <div className="flex flex-col items-center gap-1">
+                                      <div className="flex gap-1">
+                                        {[1, 2, 3].map(i => (
+                                          <div key={i} className="w-5 h-8 bg-white/90 rounded-sm border border-gray-300 flex items-center justify-center text-[10px] overflow-hidden p-0.5 shadow-sm">
+                                            {template.id === 'spin-3-tease' && i === 3 ? (
+                                              <span className="text-muted-foreground opacity-50 text-[8px]">❌</span>
+                                            ) : (
+                                              <img src={customSymbols[0]} className="w-full h-full object-contain" alt="sym" />
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      {template.id === 'spin-mega' && (
+                                        <div className="w-16 h-1 bg-black/50 rounded-full overflow-hidden mt-1">
+                                          <div className="h-full w-2/3 bg-yellow-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {category.id === 'bonus-round' && (
+                                    <>
+                                      {template.id === 'pick-chest' && (
+                                        <div className="flex gap-2">
+                                          {[1, 2, 3].map(i => (
+                                            <div key={i} className={cn(
+                                              "w-6 h-5 rounded-sm border shadow-sm flex items-center justify-center overflow-hidden transition-all duration-500",
+                                              i === 2 ? "bg-white border-yellow-400 scale-110" : "bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-200"
+                                            )}>
+                                              {i === 2 ? (
+                                                <img src={customSymbols[1] || customSymbols[0]} className="w-4 h-4 object-contain animate-bounce" />
+                                              ) : (
+                                                <span className="text-[8px] font-bold text-yellow-900">?</span>
+                                              )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {template.id === 'tap-reveal' && (
+                                        <div className="grid grid-cols-2 gap-1">
+                                          {[1, 2, 3, 4].map(i => (
+                                            <div key={i} className="w-6 h-6 bg-gray-300 rounded-sm border-dashed border border-gray-400 relative overflow-hidden flex items-center justify-center">
+                                               {i === 1 ? (
+                                                 <img src={customSymbols[2] || customSymbols[0]} className="w-4 h-4 object-contain drop-shadow-sm" />
+                                               ) : (
+                                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/foil.png')] opacity-30" />
+                                               )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {template.id === 'timed-bonus' && (
+                                        <div className="relative">
+                                          <div className="w-12 h-12 rounded-full border-2 border-red-500 flex items-center justify-center bg-black/50 backdrop-blur-sm overflow-hidden">
+                                            <img src={customSymbols[0]} className="absolute opacity-20 w-full h-full object-cover" />
+                                            <span className="text-white font-mono font-bold text-xs animate-pulse relative z-10">0:10</span>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {category.id === 'match-mechanics' && (
+                                    <div className="flex flex-col gap-1 items-center">
+                                      <div className="grid grid-cols-3 gap-0.5 opacity-90 bg-black/20 p-0.5 rounded-sm">
+                                        {[...Array(9)].map((_, i) => (
+                                          <div 
+                                            key={i} 
+                                            className={cn("w-2.5 h-2.5 rounded-[1px] shadow-sm flex items-center justify-center overflow-hidden bg-white/10", 
+                                              template.id === 'match-3' && [0, 1, 2].includes(i) ? "ring-1 ring-yellow-400 animate-pulse" : ""
+                                            )} 
+                                          >
+                                            <img 
+                                              src={customSymbols[i % Math.min(3, customSymbols.length)]} 
+                                              className="w-full h-full object-contain" 
+                                              alt="match"
+                                            />
+                                          </div>
+                                        ))}
+                                      </div>
+                                      {template.id === 'match-progressive' && (
+                                         <div className="w-10 h-1 bg-green-900 rounded-full overflow-hidden">
+                                           <div className="h-full w-1/2 bg-green-400" />
+                                         </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {category.id === 'tap-collect' && (
+                                    <>
+                                      {template.id === 'tap-falling' ? (
+                                        <div className="relative w-full h-full overflow-hidden">
+                                           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-4 h-4 animate-bounce">
+                                              <img src={customSymbols[0]} className="w-full h-full object-contain drop-shadow-md" />
+                                           </div>
+                                           <div className="w-8 h-8 rounded-full border-2 border-white absolute bottom-1 left-1/2 -translate-x-1/2 bg-white/20" />
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full border border-white/20">
+                                           <img src={customSymbols[1] || customSymbols[0]} className="w-3 h-3 object-contain" />
+                                           <span className="text-[8px] text-white font-bold">2/5</span>
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {category.id === 'hybrid' && (
+                                    <div className="flex items-center gap-1 bg-black/40 p-1 rounded-md">
+                                       {template.id === 'match-spin' ? (
+                                         <>
+                                            <Grid3X3 className="w-3 h-3 text-white" />
+                                            <span className="text-white text-[8px]">→</span>
+                                            <Disc className="w-3 h-3 text-white" />
+                                         </>
+                                       ) : (
+                                         <>
+                                            <Disc className="w-3 h-3 text-white" />
+                                            <span className="text-white text-[8px]">→</span>
+                                            <Gift className="w-3 h-3 text-white" />
+                                         </>
+                                       )}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Icon Overlay as Fallback/Accent */}
+                                  <div className="absolute bottom-1 right-1 bg-black/60 p-1 rounded-full backdrop-blur-sm">
+                                    <template.icon className="h-3 w-3 text-white" />
+                                  </div>
+                               </div>
                              </div>
-                             <div>
-                               <h4 className="text-sm font-bold leading-none mb-1 group-hover:text-primary transition-colors">{template.name}</h4>
-                               <p className="text-[10px] text-muted-foreground mb-2">{template.description}</p>
-                               <div className="flex flex-wrap gap-1">
-                                 {template.features.map((feature, i) => (
-                                   <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium">
-                                     {feature}
-                                   </span>
-                                 ))}
+
+                             <div className="flex gap-3 items-start">
+                               <div>
+                                 <h4 className="text-sm font-bold leading-none mb-1 group-hover:text-primary transition-colors">{template.name}</h4>
+                                 <p className="text-[10px] text-muted-foreground mb-2 leading-snug">{template.description}</p>
+                                 <div className="flex flex-wrap gap-1">
+                                   {template.features.slice(0, 2).map((feature, i) => (
+                                     <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-full bg-muted/50 text-muted-foreground font-medium border border-border">
+                                       {feature}
+                                     </span>
+                                   ))}
+                                 </div>
                                </div>
                              </div>
                            </div>
@@ -1694,7 +1851,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                          ))
                        ) : (
                          // Distributed Layout (Refactored to sit ABOVE gameplay)
-                         <div className="w-full flex flex-col gap-2">
+                         <div className="w-full flex flex-col gap-6">
                            {/* Grand Jackpot (Always Top) */}
                            {jackpots.length > 0 && jackpotCount >= 1 && (
                              <div className={cn("w-full h-20 relative bg-black/80 backdrop-blur-md border-4 border-yellow-400 rounded-xl shadow-[0_0_50px_rgba(255,215,0,0.6)] flex flex-col items-center justify-center animate-in zoom-in duration-500 overflow-visible", jackpots[0].border ? "bg-transparent border-none shadow-none" : "")}>
@@ -1724,7 +1881,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                            {/* Secondary Jackpots Grid */}
                            {jackpotCount > 1 && (
-                             <div className="flex flex-wrap justify-center gap-2 w-full">
+                             <div className="flex flex-wrap justify-between gap-3 w-full">
                                {jackpots.slice(1, jackpotCount).map((jackpot, idx) => (
                                  <div 
                                    key={idx + 1}
