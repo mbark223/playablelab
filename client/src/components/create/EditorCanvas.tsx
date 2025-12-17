@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown, Layout, Gamepad2, Gift, MousePointerClick, Combine, Brush, AlertCircle, PackageOpen, Timer, Grid3X3, BarChart3, MousePointer2, LockOpen, Shuffle, RefreshCw, Diamond, Sword, Hammer, Scroll, HelpCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { Play, RotateCcw, Monitor, Smartphone, Tablet, Download, Share2, Layers, Type, Palette, Coins, Dices, Crown, Check, Trophy, LayoutTemplate, Eye, EyeOff, Sparkles, Disc, Hexagon, Plus, Image as ImageIcon, X, PartyPopper, Zap, CloudRain, Heart, Star, Sun, Snowflake, Flame, Droplets, Ribbon, Wand2, Waves, Lightbulb, Music, ZapOff, Aperture, Activity, ArrowDown, Layout, Gamepad2, Gift, MousePointerClick, Combine, Brush, AlertCircle, PackageOpen, Timer, Grid3X3, BarChart3, MousePointer2, LockOpen, Shuffle, RefreshCw, Diamond, Sword, Hammer, Scroll, HelpCircle, CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import ExportModal from './ExportModal';
 import { useAssets } from '@/lib/AssetContext';
 import { Switch } from '@/components/ui/switch';
@@ -26,6 +27,29 @@ import borderBrick from '@assets/Huff_N_Even_More_Puff_Sym_Brick_House_border_17
 import borderStraw from '@assets/Huff_N_Even_More_Puff_Sym_Staw_House_border_1765722616572.png';
 import borderWood from '@assets/Huff_N_Even_More_Puff_sym_Wood_House_border_1765722627179.png';
 import quizImg from '@assets/generated_images/interactive_quiz_interface.png';
+
+function Section({ title, icon: Icon, children, defaultOpen = true }: { title: string, icon?: React.ElementType, children: React.ReactNode, defaultOpen?: boolean }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
+      <div className="flex items-center justify-between group cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
+        <label className="text-sm font-medium flex items-center gap-2 cursor-pointer group-hover:text-primary transition-colors">
+          {Icon && <Icon className="h-4 w-4 text-primary" />}
+          {title}
+        </label>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
+            <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen ? "rotate-180" : "")} />
+            <span className="sr-only">Toggle</span>
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+      <CollapsibleContent className="space-y-4 animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
 
 interface EditorCanvasProps {
   templateId?: string | null;
@@ -672,13 +696,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
           <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-96 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
             <TabsContent value="playables" className="mt-0 space-y-6">
-              
+              <Section title="Game Mechanics" icon={Gamepad2}>
               {/* Mechanics Section */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-border">
-                  <Gamepad2 className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-bold uppercase tracking-wider">Game Mechanics</h3>
-                </div>
                 
                 <div className="space-y-6">
                   {mechanicCategories.map((category) => (
@@ -860,13 +880,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   ))}
                 </div>
               </div>
+              </Section>
 
+              <Section title="Visual Themes" icon={Palette}>
               {/* Themes Section */}
-              <div className="space-y-4 pt-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-border">
-                  <Palette className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-bold uppercase tracking-wider">Visual Themes</h3>
-                </div>
+              <div className="space-y-4">
                 
                 <div className="grid grid-cols-2 gap-3">
                   {themes.map((theme) => (
@@ -886,10 +904,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   ))}
                 </div>
               </div>
-
+              </Section>
             </TabsContent>
 
             <TabsContent value="assets" className="mt-0 space-y-6">
+              <Section title="Brand Identity" icon={ImageIcon}>
               <div className="space-y-3">
                 <label className="text-sm font-medium">Brand Logo</label>
                 <div className="aspect-video rounded-lg border border-dashed border-border flex flex-col items-center justify-center bg-background/50 hover:bg-background transition-colors cursor-pointer group relative overflow-hidden">
@@ -908,7 +927,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   </div>
                 )}
               </div>
+              </Section>
 
+              <Section title="Jackpot Configuration" icon={Coins}>
               <div className="space-y-3">
                 <label className="text-sm font-medium">Jackpot Settings</label>
                 <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
@@ -1006,7 +1027,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                    </div>
                 </div>
               </div>
+              </Section>
 
+              <Section title="Visual Theme" icon={Palette}>
               <div className="space-y-3">
                 <label className="text-sm font-medium">Background Theme</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -1027,7 +1050,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   ))}
                 </div>
               </div>
+              </Section>
 
+              <Section title="Audio Settings" icon={Music}>
               <div className="space-y-3">
                 <label className="text-sm font-medium flex items-center justify-between">
                   Background Music
@@ -1161,14 +1186,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   </div>
                 </div>
               </div>
+              </Section>
             </TabsContent>
             
             <TabsContent value="game" className="mt-0 space-y-6">
-              <div className="space-y-4">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Dices className="h-4 w-4 text-primary" />
-                  Game Settings
-                </label>
+              <Section title="Game Config" icon={Dices}>
                 <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
                    <div className="flex justify-between items-center">
                      <label className="text-xs font-medium text-muted-foreground">
@@ -1229,9 +1251,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                         ))}
                     </div>
                 </div>
+              </Section>
 
                 {editorMode === 'slots' && (
                   <>
+                    <Section title="Board Layout" icon={LayoutTemplate}>
                     <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border mt-4">
                        <div className="flex justify-between items-center">
                          <label className="text-xs font-medium text-muted-foreground">Grid Layout</label>
@@ -1338,7 +1362,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                           </div>
                        </div>
                     </div>
+                    </Section>
 
+                    <Section title="Symbol Customization" icon={Crown}>
                     <div className="mt-6 border-t border-border pt-4">
                       <label className="text-sm font-medium flex items-center gap-2 mb-2">
                         <LayoutTemplate className="h-4 w-4 text-primary" />
@@ -1481,14 +1507,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                         </div>
                       </div>
                     )}
+                    </Section>
                   </>
                 )}
 
                 {editorMode === 'wheel' && (
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm font-medium flex items-center gap-2">
-                      <Disc className="h-4 w-4" /> Wheel Segments
-                    </label>
+                  <Section title="Wheel Configuration" icon={Disc}>
                     <p className="text-xs text-muted-foreground">Customize colors and labels for your wheel.</p>
                     
                     <div className="space-y-2">
@@ -1567,14 +1591,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                            </div>
                         </div>
                     </div>
-                  </div>
+                  </Section>
                 )}
 
                 {editorMode === 'quiz' && (
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm font-medium flex items-center gap-2">
-                      <HelpCircle className="h-4 w-4" /> Quiz Questions
-                    </label>
+                  <Section title="Quiz Questions" icon={HelpCircle}>
                     <p className="text-xs text-muted-foreground">Configure your questions and answers.</p>
 
                     <div className="space-y-4">
@@ -1656,12 +1677,12 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                         <Plus className="h-3 w-3 mr-1" /> Add Question
                       </Button>
                     </div>
-                  </div>
+                  </Section>
                 )}
-              </div>
             </TabsContent>
 
             <TabsContent value="text" className="mt-0 space-y-6">
+              <Section title="Text Content" icon={Type}>
               <div className="space-y-3">
                 <label className="text-sm font-medium">Main Headline</label>
                 <input 
@@ -1692,9 +1713,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-bold uppercase"
                 />
               </div>
+              </Section>
 
+              <Section title="Win Celebration" icon={Sparkles}>
               {/* Win Configuration Selector */}
-              <div className="space-y-3 pt-4 border-t border-border">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                     <label className="text-sm font-medium">Win Configuration</label>
                     <div className="flex bg-muted rounded-md p-1 gap-1">
@@ -1778,8 +1801,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     ))}
                 </div>
               </div>
+              </Section>
 
-              <div className="space-y-3 pt-2 border-t border-border">
+              <Section title="Legal & Footer" icon={Scroll}>
+              <div className="space-y-3">
                 <label className="text-sm font-medium">Disclaimer Text</label>
                 <textarea 
                   value={disclaimerText}
@@ -1787,7 +1812,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   className="w-full h-20 px-3 py-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary text-xs resize-none"
                 />
               </div>
+              </Section>
 
+              <Section title="Typography Styles" icon={Palette}>
               <div className="space-y-3">
                  <label className="text-sm font-medium flex items-center gap-2">
                    <Palette className="h-4 w-4" /> Text Color
@@ -1806,9 +1833,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                    ))}
                  </div>
               </div>
+              </Section>
             </TabsContent>
 
             <TabsContent value="elements" className="mt-0 space-y-6">
+              <Section title="Visibility Controls" icon={Eye}>
               <div className="space-y-4">
                 <h4 className="text-sm font-medium mb-4">Element Visibility</h4>
                 
@@ -1848,9 +1877,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   />
                 </div>
               </div>
+              </Section>
             </TabsContent>
 
             <TabsContent value="endcard" className="mt-0 space-y-6">
+              <Section title="Card Visuals" icon={ImageIcon}>
               <div className="space-y-4">
                 <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 mb-4">
                   <p className="text-xs text-primary font-medium flex items-center gap-2">
@@ -1941,7 +1972,11 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                     </div>
                   </div>
                 </div>
+              </div>
+              </Section>
 
+              <Section title="Card Message" icon={Type}>
+              <div className="space-y-4">
                 <div className="space-y-3">
                   <label className="text-sm font-medium">End Headline</label>
                   <input 
@@ -1970,6 +2005,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   />
                 </div>
               </div>
+              </Section>
             </TabsContent>
           </div>
         </Tabs>
