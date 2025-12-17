@@ -609,7 +609,32 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
-      <ExportModal open={showExport} onOpenChange={setShowExport} />
+      <ExportModal 
+        open={showExport} 
+        onOpenChange={setShowExport} 
+        config={{
+          templateId,
+          headline,
+          subheadline,
+          ctaText,
+          logo,
+          background,
+          colors: {
+            text: textColor,
+            primary: '#fbbf24' // Assuming gold for now, could be dynamic
+          },
+          assets: {
+            customSymbols,
+            jackpots,
+            endCardImage
+          },
+          gameSettings: {
+            spins,
+            slotRows,
+            slotCols
+          }
+        }}
+      />
       
       {/* Hidden File Input (Shared) */}
       <input 
