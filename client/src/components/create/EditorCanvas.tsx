@@ -119,6 +119,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   ]);
   const [jackpotCount, setJackpotCount] = useState(4);
   const [jackpotFontSize, setJackpotFontSize] = useState(18); // Default font size in px
+  const [jackpotScale, setJackpotScale] = useState(100);
   const [jackpotLayout, setJackpotLayout] = useState<'row' | 'distributed'>('distributed');
   const [spins, setSpins] = useState(5);
 
@@ -389,6 +390,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [boardAspectRatio, setBoardAspectRatio] = useState<'auto' | 'portrait' | 'landscape' | 'square'>('auto');
 
   const [textColor, setTextColor] = useState(templateConfig.color || '#ffffff');
+  const [textScale, setTextScale] = useState(100);
   const [subheadline, setSubheadline] = useState('');
   const [disclaimerText, setDisclaimerText] = useState('No purchase necessary. 18+ only. T&Cs apply.');
   
@@ -1000,6 +1002,20 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                          min="10" max="32" 
                          value={jackpotFontSize}
                          onChange={(e) => setJackpotFontSize(parseInt(e.target.value))}
+                         className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                       />
+                   </div>
+
+                   <div className="space-y-1 pt-2">
+                       <div className="flex justify-between items-center">
+                         <label className="text-xs font-medium text-muted-foreground">Container Scale</label>
+                         <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">{jackpotScale}%</span>
+                       </div>
+                       <input 
+                         type="range" 
+                         min="50" max="150" 
+                         value={jackpotScale}
+                         onChange={(e) => setJackpotScale(parseInt(e.target.value))}
                          className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
                        />
                    </div>
@@ -1713,6 +1729,20 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   className="w-full h-10 px-3 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary font-bold uppercase"
                 />
               </div>
+
+              <div className="space-y-3 pt-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-medium text-muted-foreground">Text Scale</label>
+                    <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">{textScale}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="50" max="150" 
+                    value={textScale}
+                    onChange={(e) => setTextScale(parseInt(e.target.value))}
+                    className="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                  />
+              </div>
               </Section>
 
               <Section title="Win Celebration" icon={Sparkles}>
@@ -2140,9 +2170,15 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
 
                   {/* Jackpot Counter */}
                   {visibleElements.jackpot && (
-                    <div className={cn("w-full px-4 z-20 transition-all duration-300", 
-                      jackpotLayout === 'distributed' ? "flex flex-col gap-2 w-full mb-2" : "flex flex-row gap-2 justify-center flex-wrap"
-                    )}>
+                    <div 
+                      className={cn("w-full px-4 z-20 transition-all duration-300", 
+                        jackpotLayout === 'distributed' ? "flex flex-col gap-2 w-full mb-2" : "flex flex-row gap-2 justify-center flex-wrap"
+                      )}
+                      style={{ 
+                        transform: `scale(${jackpotScale / 100})`, 
+                        transformOrigin: 'top center'
+                      }}
+                    >
                        {jackpotLayout === 'row' ? (
                          // Row Layout (Original)
                          jackpots.slice(0, jackpotCount).map((jackpot, idx) => (
@@ -2534,7 +2570,13 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                   
                   {/* Headline */}
                   {visibleElements.headline && (
-                    <div className="text-center space-y-2 z-20">
+                    <div 
+                      className="text-center space-y-2 z-20"
+                      style={{ 
+                        transform: `scale(${textScale / 100})`,
+                        transformOrigin: 'top center'
+                      }}
+                    >
                       <h2 
                         className="text-3xl font-display font-black text-white text-center uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] px-4"
                         style={{ color: textColor }}
