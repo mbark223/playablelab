@@ -71,6 +71,16 @@ export default function ExportModal({ open, onOpenChange }: ExportModalProps) {
     const interval = setInterval(() => {
         if (currentStep >= steps.length) {
             clearInterval(interval);
+            
+            // Trigger Mock Download
+            const element = document.createElement("a");
+            const file = new Blob(["Mockup Export Package\n\nPlatform: " + platforms.find(p => p.id === selectedPlatform)?.name + "\nDate: " + new Date().toISOString()], {type: 'text/plain'});
+            element.href = URL.createObjectURL(file);
+            element.download = `playable-ad-${selectedPlatform}-export.txt`;
+            document.body.appendChild(element); // Required for this to work in FireFox
+            element.click();
+            document.body.removeChild(element);
+
             setTimeout(() => {
                 setIsExporting(false);
                 onOpenChange(false);
