@@ -44,7 +44,7 @@ function Section({ title, icon: Icon, children, defaultOpen = true }: { title: s
           </Button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent className="space-y-4 animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
+      <CollapsibleContent className="space-y-4 animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden data-[state=open]:overflow-visible">
         {children}
       </CollapsibleContent>
     </Collapsible>
@@ -694,7 +694,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             </Button>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-96 custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-6 pb-[500px] custom-scrollbar scroll-smooth" ref={scrollContainerRef}>
             <TabsContent value="playables" className="mt-0 space-y-6">
               <Section title="Game Mechanics" icon={Gamepad2}>
               {/* Mechanics Section */}
