@@ -387,7 +387,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   
   // Board Dimensions
   const [boardScale, setBoardScale] = useState(98);
-  const [boardAspectRatio, setBoardAspectRatio] = useState<'auto' | 'portrait' | 'landscape' | 'square'>('auto');
+  const [boardAspectRatio, setBoardAspectRatio] = useState<'auto' | 'portrait' | 'landscape' | 'square' | 'custom'>('auto');
+  const [boardWidth, setBoardWidth] = useState(90);
+  const [boardHeight, setBoardHeight] = useState(400); // px value for custom height
 
   const [textColor, setTextColor] = useState(templateConfig.color || '#ffffff');
   const [textScale, setTextScale] = useState(100);
@@ -1373,7 +1375,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        {/* Scale Slider */}
                        <div className="space-y-1">
                           <div className="flex justify-between">
-                            <label className="text-[10px] text-muted-foreground">Board Scale</label>
+                            <label className="text-[10px] text-muted-foreground">Board Scale (Overall)</label>
                             <span className="text-[10px] font-mono">{boardScale}%</span>
                           </div>
                           <input 
@@ -1386,10 +1388,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                        </div>
 
                        {/* Aspect Ratio Select */}
-                       <div className="space-y-1">
-                          <label className="text-[10px] text-muted-foreground">Aspect Ratio</label>
-                          <div className="grid grid-cols-4 gap-1">
-                             {['auto', 'portrait', 'square', 'landscape'].map((ratio) => (
+                       <div className="space-y-1 pt-2">
+                          <label className="text-[10px] text-muted-foreground">Dimensions</label>
+                          <div className="grid grid-cols-4 gap-1 mb-2">
+                             {['auto', 'portrait', 'square', 'custom'].map((ratio) => (
                                <Button
                                  key={ratio}
                                  variant={boardAspectRatio === ratio ? 'default' : 'outline'}
@@ -1401,6 +1403,38 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                                </Button>
                              ))}
                           </div>
+                          
+                          {/* Custom Dimension Controls */}
+                          {boardAspectRatio === 'custom' && (
+                            <div className="space-y-3 p-2 bg-background border border-border rounded-md animate-in slide-in-from-top-2">
+                                <div className="space-y-1">
+                                    <div className="flex justify-between">
+                                        <label className="text-[10px] font-medium">Width</label>
+                                        <span className="text-[10px] text-muted-foreground">{boardWidth}%</span>
+                                    </div>
+                                    <input 
+                                        type="range" 
+                                        min="40" max="100" 
+                                        value={boardWidth}
+                                        onChange={(e) => setBoardWidth(parseInt(e.target.value))}
+                                        className="w-full accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="flex justify-between">
+                                        <label className="text-[10px] font-medium">Height (px)</label>
+                                        <span className="text-[10px] text-muted-foreground">{boardHeight}px</span>
+                                    </div>
+                                    <input 
+                                        type="range" 
+                                        min="200" max="600" 
+                                        value={boardHeight}
+                                        onChange={(e) => setBoardHeight(parseInt(e.target.value))}
+                                        className="w-full accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                          )}
                        </div>
                     </div>
                     </Section>
@@ -2294,7 +2328,10 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
                         boardAspectRatio === 'landscape' ? "aspect-[4/3]" : "",
                         boardAspectRatio === 'square' ? "aspect-square" : ""
                       )}
-                      style={{ width: `${boardScale}%` }}
+                      style={{ 
+                          width: boardAspectRatio === 'custom' ? `${boardWidth}%` : `${boardScale}%`,
+                          height: boardAspectRatio === 'custom' ? `${boardHeight}px` : 'auto'
+                      }}
                     >
                       {/* Win Border Filter */}
                       {showWinMessage && winBorder && (
