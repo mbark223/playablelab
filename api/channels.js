@@ -1,5 +1,5 @@
 // Minimal Vercel API endpoint for channels
-module.exports = (req, res) => {
+export default function handler(req, res) {
   // Simple CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -85,4 +85,4 @@ module.exports = (req, res) => {
   ];
   
   res.status(200).json(channels);
-};
+}

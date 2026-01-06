@@ -1,9 +1,9 @@
 // Simple health check endpoint
-module.exports = (req, res) => {
+export default function handler(req, res) {
   res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
     vercel: process.env.VERCEL || "false"
   });
-};
+}
