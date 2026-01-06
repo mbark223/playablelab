@@ -2235,13 +2235,13 @@ export default function EditorCanvas({ templateId, selectedChannel }: EditorCanv
               <div className="absolute inset-0 flex flex-col z-10">
                 {/* Header / Logo */}
                 {visibleElements.logo && (
-                  <div className="h-24 flex items-center justify-center pt-8 animate-in slide-in-from-top duration-700">
-                    <img src={logo} className="h-16 w-auto drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
+                  <div className="h-20 flex items-center justify-center pt-4 animate-in slide-in-from-top duration-700">
+                    <img src={logo} className="h-12 w-auto drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
                   </div>
                 )}
 
                 {/* GAME CONTENT AREA */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2 relative w-full">
+                <div className="flex-1 flex flex-col items-center justify-center gap-2 p-2 relative w-full overflow-y-auto min-h-0">
                   {/* (Old Win Message Overlay removed - now handled by global AnimatePresence above) */}
 
                   {/* Jackpot Counter */}
@@ -2672,8 +2672,8 @@ export default function EditorCanvas({ templateId, selectedChannel }: EditorCanv
                 </div>
 
                 {/* Footer Controls */}
-                <div className="pb-12 pt-4 px-6 flex flex-col items-center gap-4 bg-gradient-to-t from-black/90 to-transparent">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="pb-6 pt-4 px-6 flex flex-col items-center gap-3 bg-gradient-to-t from-black/90 to-transparent">
+                  <div className="flex items-center gap-2">
                     <div className={cn(
                       "backdrop-blur border px-3 py-1 rounded text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg transition-colors",
                       currentSpins > 0 ? "bg-black/80 border-white/20 text-white" : "bg-red-500/90 border-red-400 text-white"

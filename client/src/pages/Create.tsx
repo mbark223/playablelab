@@ -18,20 +18,22 @@ function CreateContent() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const { selectedChannel, setSelectedChannel, channels, setChannels } = useChannel();
 
-  const { data: channelsData, isLoading } = useQuery({
-    queryKey: ['channels'],
-    queryFn: async () => {
-      const response = await fetch('/api/channels');
-      if (!response.ok) throw new Error('Failed to fetch channels');
-      return response.json();
-    }
+  const { data: channelsData, isLoading, error } = useQuery({
+    queryKey: ['api', 'channels']
   });
 
   useEffect(() => {
     if (channelsData) {
+      console.log('Channels loaded:', channelsData);
       setChannels(channelsData);
     }
   }, [channelsData, setChannels]);
+  
+  useEffect(() => {
+    if (error) {
+      console.error('Error loading channels:', error);
+    }
+  }, [error]);
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
@@ -114,6 +116,11 @@ function CreateContent() {
                   {isLoading ? (
                     <div className="flex items-center justify-center h-64">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                  ) : error ? (
+                    <div className="flex flex-col items-center justify-center h-64 text-center">
+                      <p className="text-destructive mb-2">Failed to load channels</p>
+                      <p className="text-sm text-muted-foreground">{(error as Error).message}</p>
                     </div>
                   ) : (
                     <ChannelSelector

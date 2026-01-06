@@ -37,6 +37,12 @@ export function ChannelSelector({
   selectedChannel,
   onSelectChannel,
 }: ChannelSelectorProps) {
+  console.log('ChannelSelector rendering with channels:', channels);
+  
+  if (!channels || channels.length === 0) {
+    return <div className="text-center py-8 text-muted-foreground">No channels available</div>;
+  }
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {channels.map((channel) => {
