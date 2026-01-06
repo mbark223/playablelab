@@ -33,27 +33,14 @@ yarn-error.log*
 .git/
 .gitignore
 
-# Documentation (optional - remove if you want docs deployed)
-*.md
+# Documentation
+README.md
+DEPLOYMENT.md
 docs/
 
-# Source files (we only need the built files)
-client/
-server/
-shared/
-script/
-*.ts
-*.tsx
-!api/
-
-# Config files not needed for deployment
+# Config files not needed at runtime
 .eslintrc*
 .prettierrc*
-tsconfig.json
-vite.config.ts
-drizzle.config.ts
-tailwind.config.js
-postcss.config.js
 
 # Local storage
 .local/
