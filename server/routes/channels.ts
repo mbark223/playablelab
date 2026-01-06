@@ -7,11 +7,16 @@ export function channelsRouter() {
   // Get all available channels
   router.get("/", async (_req: Request, res: Response) => {
     try {
+      console.log("Fetching channels from storage...");
       const allChannels = await storage.getChannels();
+      console.log(`Found ${allChannels.length} channels`);
       res.json(allChannels);
     } catch (error) {
       console.error("Error fetching channels:", error);
-      res.status(500).json({ error: "Failed to fetch channels" });
+      res.status(500).json({ 
+        error: "Failed to fetch channels",
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 

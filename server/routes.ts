@@ -8,13 +8,21 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // Log startup info
+  console.log("Registering routes...");
+  
   // Register API routes
   app.use("/api/projects", projectsRouter());
   app.use("/api/channels", channelsRouter());
 
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+    res.json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      storageType: 'in-memory'
+    });
   });
 
   return httpServer;
