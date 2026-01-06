@@ -60,13 +60,20 @@ async function buildAll() {
     logLevel: "info",
   });
 
-  console.log("building server app module...");
+  console.log("building server modules...");
+  
+  // Build individual route modules for Vercel
   await esbuild({
-    entryPoints: ["server/app.ts"],
+    entryPoints: [
+      "server/routes/channels.ts",
+      "server/routes/projects.ts",
+      "server/storage.ts",
+      "server/auth.ts"
+    ],
     platform: "node",
     bundle: true,
     format: "cjs",
-    outfile: "dist/server/app.cjs",
+    outdir: "dist/server",
     define: {
       "process.env.NODE_ENV": '"production"',
     },
