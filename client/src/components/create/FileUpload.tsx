@@ -9,9 +9,10 @@ import { Badge } from '@/components/ui/badge';
 
 interface FileUploadProps {
   onNext: () => void;
+  onBack?: () => void;
 }
 
-export default function FileUpload({ onNext }: FileUploadProps) {
+export default function FileUpload({ onNext, onBack }: FileUploadProps) {
   const { assets, addAsset, removeAsset } = useAssets();
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -131,12 +132,22 @@ export default function FileUpload({ onNext }: FileUploadProps) {
         </div>
       </div>
       
-      <div className="flex justify-end mt-8">
+      <div className="flex justify-between mt-8">
+        {onBack && (
+          <Button 
+            size="lg" 
+            variant="outline"
+            onClick={onBack}
+            className="min-w-[120px]"
+          >
+            Back
+          </Button>
+        )}
         <Button 
           size="lg" 
           onClick={onNext} 
           disabled={assets.length === 0}
-          className="w-full md:w-auto min-w-[200px] shadow-lg shadow-primary/20"
+          className="w-full md:w-auto min-w-[200px] shadow-lg shadow-primary/20 ml-auto"
         >
           Generate Playables
           <Sparkles className="ml-2 h-4 w-4" />

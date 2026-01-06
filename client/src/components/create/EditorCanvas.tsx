@@ -53,15 +53,30 @@ function Section({ title, icon: Icon, children, defaultOpen = true }: { title: s
 
 interface EditorCanvasProps {
   templateId?: string | null;
+  selectedChannel?: any;
 }
 
-export default function EditorCanvas({ templateId }: EditorCanvasProps) {
+export default function EditorCanvas({ templateId, selectedChannel }: EditorCanvasProps) {
   const { assets, getAssetsByType, addAsset } = useAssets();
   const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [activeTab, setActiveTab] = useState('assets');
   const [viewMode, setViewMode] = useState<'game' | 'endcard'>('game');
+  
+  // Set default dimensions based on channel
+  const getDefaultDimensions = () => {
+    if (!selectedChannel) return { width: 90, height: 400, aspectRatio: 'auto' };
+    
+    const channelDefaults: Record<string, any> = {
+      'meta': { aspectRatio: 'portrait', scale: 95 }, // 9:16
+      'snapchat': { aspectRatio: 'portrait', scale: 98 }, // Portrait only
+      'dsp': { aspectRatio: 'auto', scale: 90 }, // Various sizes
+      'unity': { aspectRatio: 'auto', scale: 92 } // Both orientations
+    };
+    
+    return channelDefaults[selectedChannel.slug] || { aspectRatio: 'auto', scale: 90 };
+  };
   
   // Determine Editor Mode based on templateId
   const [editorMode, setEditorMode] = useState<'slots' | 'wheel' | 'scratch' | 'pick' | 'match' | 'fall' | 'quiz'>(
@@ -386,8 +401,9 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
   const [isCustomGrid, setIsCustomGrid] = useState(false);
   
   // Board Dimensions
-  const [boardScale, setBoardScale] = useState(98);
-  const [boardAspectRatio, setBoardAspectRatio] = useState<'auto' | 'portrait' | 'landscape' | 'square' | 'custom'>('auto');
+  const channelDefaults = getDefaultDimensions();
+  const [boardScale, setBoardScale] = useState(channelDefaults.scale || 98);
+  const [boardAspectRatio, setBoardAspectRatio] = useState<'auto' | 'portrait' | 'landscape' | 'square' | 'custom'>(channelDefaults.aspectRatio || 'auto');
   const [boardWidth, setBoardWidth] = useState(90);
   const [boardHeight, setBoardHeight] = useState(400); // px value for custom height
 
@@ -625,6 +641,7 @@ export default function EditorCanvas({ templateId }: EditorCanvasProps) {
             text: textColor,
             primary: '#fbbf24' // Assuming gold for now, could be dynamic
           },
+          selectedChannel,
           assets: {
             customSymbols,
             jackpots,

@@ -33,6 +33,7 @@ interface TemplateGridProps {
   selectedId: string | null;
   onNext: () => void;
   onBack: () => void;
+  selectedChannel?: any;
 }
 
 const templates = [
@@ -43,7 +44,8 @@ const templates = [
     image: slotsBg,
     category: 'Mechanic',
     compatibility: ['logo', 'symbol', 'background'],
-    requiredAssets: ['symbol']
+    requiredAssets: ['symbol'],
+    channels: ['meta', 'snapchat', 'dsp', 'unity'] // Supports all channels
   },
   {
     id: 'space-slots',
@@ -173,7 +175,7 @@ const templates = [
   }
 ];
 
-export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: TemplateGridProps) {
+export default function TemplateGrid({ onSelect, selectedId, onNext, onBack, selectedChannel }: TemplateGridProps) {
   const { assets } = useAssets();
   const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
   const [activeWinEffect, setActiveWinEffect] = useState<'coins' | 'confetti' | 'pulse' | 'flash' | null>(null);
@@ -186,8 +188,15 @@ export default function TemplateGrid({ onSelect, selectedId, onNext, onBack }: T
 
   const uploadedTypes = new Set(assets.map(a => a.type));
 
-  // Filter templates based on required assets
+  // Filter templates based on required assets and channel
   const matchingTemplates = templates.filter(template => {
+    // Channel filter - if template has no channels defined, it supports all channels
+    if (selectedChannel && template.channels && template.channels.length > 0) {
+      if (!template.channels.includes(selectedChannel.slug)) {
+        return false;
+      }
+    }
+    
     // Category filter
     if (selectedCategory !== 'All' && template.category !== selectedCategory) return false;
 
