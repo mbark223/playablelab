@@ -1,7 +1,5 @@
 import { Request, Response, Router } from "express";
-import { db } from "../db";
-import { channels } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { storage } from "../storage";
 
 export function channelsRouter() {
   const router = Router();
@@ -9,7 +7,7 @@ export function channelsRouter() {
   // Get all available channels
   router.get("/", async (_req: Request, res: Response) => {
     try {
-      const allChannels = await db.select().from(channels).orderBy(channels.name);
+      const allChannels = await storage.getChannels();
       res.json(allChannels);
     } catch (error) {
       console.error("Error fetching channels:", error);
@@ -20,10 +18,7 @@ export function channelsRouter() {
   // Get a single channel by slug
   router.get("/:slug", async (req: Request, res: Response) => {
     try {
-      const [channel] = await db
-        .select()
-        .from(channels)
-        .where(eq(channels.slug, req.params.slug));
+      const channel = await storage.getChannelBySlug(req.params.slug);
 
       if (!channel) {
         return res.status(404).json({ error: "Channel not found" });

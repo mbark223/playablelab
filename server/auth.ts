@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { db } from "./db";
-import { users } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { storage } from "./storage";
 
 // Extend Express Request type to include user
 declare module "express" {
@@ -19,22 +17,20 @@ export async function requireAuth(
   res: Response,
   next: NextFunction
 ) {
-  // For now, we'll use a simple header-based auth
+  // For testing, we'll create a demo user if needed and use it
   // In production, this should be replaced with proper authentication
-  const userId = req.headers["x-user-id"] as string;
+  const testUserId = "demo-user-id";
   
-  if (!userId) {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-
   try {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId));
-
+    let user = await storage.getUser(testUserId);
+    
     if (!user) {
-      return res.status(401).json({ error: "Invalid user" });
+      // Create a demo user for testing
+      user = await storage.createUser({
+        username: "demo",
+        password: "demo-password" // In production, this would be hashed
+      });
+      console.log("Created demo user for testing:", user.username);
     }
 
     req.user = {
