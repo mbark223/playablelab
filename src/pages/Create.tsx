@@ -8,13 +8,34 @@ import Layout from '@/components/layout/Layout';
 import FileUpload from '@/components/create/FileUpload';
 import TemplateGrid from '@/components/create/TemplateGrid';
 import EditorCanvas from '@/components/create/EditorCanvas';
+import VideoToPlayable from '@/components/create/VideoToPlayable';
+import PlayableGenerator from '@/components/create/PlayableGenerator';
 import { Button } from '@/components/ui/button';
+import { useAssets } from '@/lib/AssetContext';
+import { PlayableStoryboard } from '@/lib/videoProcessor';
 
 export default function Create() {
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [workflowType, setWorkflowType] = useState<'template' | 'video' | null>(null);
+  const [selectedVideoAsset, setSelectedVideoAsset] = useState<string | null>(null);
+  const [storyboard, setStoryboard] = useState<PlayableStoryboard | null>(null);
+  const { assets } = useAssets();
 
-  const nextStep = () => setStep(prev => prev + 1);
+  const nextStep = () => {
+    if (step === 1) {
+      // Check if user uploaded a video
+      const videoAssets = assets.filter(asset => asset.type === 'video');
+      if (videoAssets.length > 0) {
+        setWorkflowType('video');
+        setSelectedVideoAsset(videoAssets[0].id);
+      } else {
+        setWorkflowType('template');
+      }
+    }
+    setStep(prev => prev + 1);
+  };
+  
   const prevStep = () => setStep(prev => prev - 1);
 
   return (
@@ -47,10 +68,12 @@ export default function Create() {
                 step >= 2 ? "text-primary hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
               )}
             >
-              Template
+              {workflowType === 'video' ? 'Analyze' : 'Template'}
             </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <span className={step >= 3 ? "text-primary" : "text-muted-foreground"}>Editor</span>
+            <span className={step >= 3 ? "text-primary" : "text-muted-foreground"}>
+              {workflowType === 'video' ? 'Generate' : 'Editor'}
+            </span>
           </nav>
         </div>
         
@@ -76,9 +99,9 @@ export default function Create() {
             </motion.div>
           )}
 
-          {step === 2 && (
+          {step === 2 && workflowType === 'template' && (
             <motion.div
-              key="step2"
+              key="step2-template"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
@@ -93,14 +116,47 @@ export default function Create() {
             </motion.div>
           )}
 
-          {step === 3 && (
+          {step === 2 && workflowType === 'video' && (
             <motion.div
-              key="step3"
+              key="step2-video"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="h-full flex flex-col"
+            >
+              <VideoToPlayable
+                videoAsset={assets.find(a => a.id === selectedVideoAsset)!}
+                onBack={prevStep}
+                onNext={(storyboard) => {
+                  setStoryboard(storyboard);
+                  nextStep();
+                }}
+              />
+            </motion.div>
+          )}
+
+          {step === 3 && workflowType === 'template' && (
+            <motion.div
+              key="step3-template"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="h-full"
             >
               <EditorCanvas templateId={selectedTemplate} />
+            </motion.div>
+          )}
+
+          {step === 3 && workflowType === 'video' && storyboard && (
+            <motion.div
+              key="step3-video"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="h-full"
+            >
+              <PlayableGenerator
+                storyboard={storyboard}
+                onBack={prevStep}
+              />
             </motion.div>
           )}
         </AnimatePresence>

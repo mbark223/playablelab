@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, File, X, CheckCircle2, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Upload, File, X, CheckCircle2, Image as ImageIcon, Sparkles, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -15,19 +15,22 @@ export default function FileUpload({ onNext }: FileUploadProps) {
   const { assets, addAsset, removeAsset } = useAssets();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsProcessing(true);
-    // Simulate processing time for "AI Analysis"
-    setTimeout(() => {
-      addAsset(acceptedFiles);
+    try {
+      await addAsset(acceptedFiles);
+    } catch (error) {
+      console.error('Failed to add assets:', error);
+    } finally {
       setIsProcessing(false);
-    }, 1500);
+    }
   }, [addAsset]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.svg', '.webp'],
+      'video/*': ['.mp4', '.mov', '.avi', '.webm', '.mkv']
     }
   });
 
@@ -77,7 +80,7 @@ export default function FileUpload({ onNext }: FileUploadProps) {
                     {isDragActive ? "Drop files now" : "Drag & drop files here"}
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Upload logos, backgrounds, products, or characters
+                    Upload logos, backgrounds, products, characters, or videos
                   </p>
                 </div>
               </div>
@@ -108,8 +111,17 @@ export default function FileUpload({ onNext }: FileUploadProps) {
                     exit={{ opacity: 0, x: -20 }}
                     className="flex items-center gap-3 p-2 rounded-lg bg-background border border-border group relative"
                   >
-                    <div className="h-10 w-10 rounded bg-muted/30 p-1 flex items-center justify-center shrink-0 border border-border/50">
-                      <img src={asset.previewUrl} className="w-full h-full object-contain" alt={asset.name} />
+                    <div className="h-10 w-10 rounded bg-muted/30 p-1 flex items-center justify-center shrink-0 border border-border/50 relative">
+                      {asset.type === 'video' ? (
+                        <>
+                          <img src={asset.previewUrl} className="w-full h-full object-contain" alt={asset.name} />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded">
+                            <Video className="h-4 w-4 text-white" />
+                          </div>
+                        </>
+                      ) : (
+                        <img src={asset.previewUrl} className="w-full h-full object-contain" alt={asset.name} />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{asset.name}</p>

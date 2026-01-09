@@ -9,7 +9,7 @@ import FileUpload from '@/components/create/FileUpload';
 import TemplateGrid from '@/components/create/TemplateGrid';
 import EditorCanvas from '@/components/create/EditorCanvas';
 import { Button } from '@/components/ui/button';
-import { ChannelSelector } from '@/components/create/ChannelSelector';
+import { ChannelSelector, Channel } from '@/components/create/ChannelSelector';
 import { ChannelProvider, useChannel } from '@/contexts/ChannelContext';
 import { useQuery } from '@tanstack/react-query';
 
@@ -25,7 +25,7 @@ function CreateContent() {
   useEffect(() => {
     if (channelsData) {
       console.log('Channels loaded:', channelsData);
-      setChannels(channelsData);
+      setChannels(channelsData as Channel[]);
     }
   }, [channelsData, setChannels]);
   
