@@ -63,10 +63,13 @@ export function AssetProvider({ children }: { children: ReactNode }) {
       
       if (file.type.startsWith('video/')) {
         type = 'video';
+        console.log('Processing video file:', file.name, file.type);
         try {
           videoAnalysis = await videoProcessor.analyzeVideo(file);
+          console.log('Video analysis complete:', videoAnalysis);
         } catch (error) {
           console.error('Failed to analyze video:', error);
+          // Still add the video asset even if analysis fails
         }
       } else if (file.type.startsWith('audio/')) type = 'music';
       else if (file.name.toLowerCase().includes('logo')) type = 'logo';

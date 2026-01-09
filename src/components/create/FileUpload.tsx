@@ -16,9 +16,11 @@ export default function FileUpload({ onNext }: FileUploadProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    console.log('Files dropped:', acceptedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
     setIsProcessing(true);
     try {
       await addAsset(acceptedFiles);
+      console.log('Assets added successfully');
     } catch (error) {
       console.error('Failed to add assets:', error);
     } finally {

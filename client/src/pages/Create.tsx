@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'wouter';
 import { ChevronRight, Home } from 'lucide-react';
@@ -8,34 +8,34 @@ import Layout from '@/components/layout/Layout';
 import FileUpload from '@/components/create/FileUpload';
 import TemplateGrid from '@/components/create/TemplateGrid';
 import EditorCanvas from '@/components/create/EditorCanvas';
+import VideoToPlayable from '@/components/create/VideoToPlayable';
+import PlayableGenerator from '@/components/create/PlayableGenerator';
 import { Button } from '@/components/ui/button';
-import { ChannelSelector, Channel } from '@/components/create/ChannelSelector';
-import { ChannelProvider, useChannel } from '@/contexts/ChannelContext';
-import { useQuery } from '@tanstack/react-query';
+import { useAssets } from '@/lib/AssetContext';
+import { PlayableStoryboard } from '@/lib/videoProcessor';
 
-function CreateContent() {
+export default function Create() {
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const { selectedChannel, setSelectedChannel, channels, setChannels } = useChannel();
+  const [workflowType, setWorkflowType] = useState<'template' | 'video' | null>(null);
+  const [selectedVideoAsset, setSelectedVideoAsset] = useState<string | null>(null);
+  const [storyboard, setStoryboard] = useState<PlayableStoryboard | null>(null);
+  const { assets } = useAssets();
 
-  const { data: channelsData, isLoading, error } = useQuery({
-    queryKey: ['api', 'channels']
-  });
-
-  useEffect(() => {
-    if (channelsData) {
-      console.log('Channels loaded:', channelsData);
-      setChannels(channelsData as Channel[]);
+  const nextStep = () => {
+    if (step === 1) {
+      // Check if user uploaded a video
+      const videoAssets = assets.filter(asset => asset.type === 'video');
+      if (videoAssets.length > 0) {
+        setWorkflowType('video');
+        setSelectedVideoAsset(videoAssets[0].id);
+      } else {
+        setWorkflowType('template');
+      }
     }
-  }, [channelsData, setChannels]);
+    setStep(prev => prev + 1);
+  };
   
-  useEffect(() => {
-    if (error) {
-      console.error('Error loading channels:', error);
-    }
-  }, [error]);
-
-  const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
   return (
@@ -57,7 +57,7 @@ function CreateContent() {
                 step >= 1 ? "text-primary" : "text-muted-foreground"
               )}
             >
-              Channel
+              Upload
             </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
             <button 
@@ -68,25 +68,16 @@ function CreateContent() {
                 step >= 2 ? "text-primary hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
               )}
             >
-              Upload
+              {workflowType === 'video' ? 'Analyze' : 'Template'}
             </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <button 
-              onClick={() => step >= 3 && setStep(3)}
-              disabled={step < 3}
-              className={cn(
-                "transition-colors",
-                step >= 3 ? "text-primary hover:text-primary cursor-pointer" : "text-muted-foreground cursor-default"
-              )}
-            >
-              Template
-            </button>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <span className={step >= 4 ? "text-primary" : "text-muted-foreground"}>Editor</span>
+            <span className={step >= 3 ? "text-primary" : "text-muted-foreground"}>
+              {workflowType === 'video' ? 'Generate' : 'Editor'}
+            </span>
           </nav>
         </div>
         
-        {step < 4 && (
+        {step < 3 && (
           <Button variant="ghost" size="sm" asChild>
             <Link href="/">Save & Exit</Link>
           </Button>
@@ -104,62 +95,13 @@ function CreateContent() {
               exit={{ opacity: 0, x: 20 }}
               className="h-full flex flex-col"
             >
-              <div className="flex-1 overflow-y-auto">
-                <div className="max-w-6xl mx-auto p-8">
-                  <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Select Ad Channel</h1>
-                    <p className="text-muted-foreground">
-                      Choose the platform where your playable ad will be displayed
-                    </p>
-                  </div>
-                  
-                  {isLoading ? (
-                    <div className="flex items-center justify-center h-64">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : error ? (
-                    <div className="flex flex-col items-center justify-center h-64 text-center">
-                      <p className="text-destructive mb-2">Failed to load channels</p>
-                      <p className="text-sm text-muted-foreground">{(error as Error).message}</p>
-                    </div>
-                  ) : (
-                    <ChannelSelector
-                      channels={channels}
-                      selectedChannel={selectedChannel}
-                      onSelectChannel={setSelectedChannel}
-                    />
-                  )}
-                  
-                  <div className="flex justify-end mt-8">
-                    <Button
-                      size="lg"
-                      onClick={nextStep}
-                      disabled={!selectedChannel}
-                    >
-                      Continue
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <FileUpload onNext={nextStep} />
             </motion.div>
           )}
 
-          {step === 2 && (
+          {step === 2 && workflowType === 'template' && (
             <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="h-full flex flex-col"
-            >
-              <FileUpload onNext={nextStep} onBack={prevStep} />
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.div
-              key="step3"
+              key="step2-template"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
@@ -170,34 +112,55 @@ function CreateContent() {
                 selectedId={selectedTemplate}
                 onNext={nextStep}
                 onBack={prevStep}
-                selectedChannel={selectedChannel}
               />
             </motion.div>
           )}
 
-          {step === 4 && (
+          {step === 2 && workflowType === 'video' && (
             <motion.div
-              key="step4"
+              key="step2-video"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="h-full flex flex-col"
+            >
+              <VideoToPlayable
+                videoAsset={assets.find(a => a.id === selectedVideoAsset)!}
+                onBack={prevStep}
+                onNext={(storyboard) => {
+                  setStoryboard(storyboard);
+                  nextStep();
+                }}
+              />
+            </motion.div>
+          )}
+
+          {step === 3 && workflowType === 'template' && (
+            <motion.div
+              key="step3-template"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="h-full"
             >
-              <EditorCanvas 
-                templateId={selectedTemplate} 
-                selectedChannel={selectedChannel}
+              <EditorCanvas templateId={selectedTemplate} />
+            </motion.div>
+          )}
+
+          {step === 3 && workflowType === 'video' && storyboard && (
+            <motion.div
+              key="step3-video"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="h-full"
+            >
+              <PlayableGenerator
+                storyboard={storyboard}
+                onBack={prevStep}
               />
             </motion.div>
           )}
         </AnimatePresence>
       </main>
     </div>
-  );
-}
-
-export default function Create() {
-  return (
-    <ChannelProvider>
-      <CreateContent />
-    </ChannelProvider>
   );
 }

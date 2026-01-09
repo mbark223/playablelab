@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { VideoProcessor, VideoAnalysis } from './videoProcessor';
 
 // Define the asset types
 export interface Folder {
@@ -9,17 +10,18 @@ export interface Folder {
 
 export interface MarketingAsset {
   id: string;
-  type: 'logo' | 'background' | 'symbol' | 'character' | 'product' | 'music';
+  type: 'logo' | 'background' | 'symbol' | 'character' | 'product' | 'music' | 'video';
   file: File;
   previewUrl: string;
   name: string;
   folderId?: string | null;
+  videoAnalysis?: VideoAnalysis;
 }
 
 interface AssetContextType {
   assets: MarketingAsset[];
   folders: Folder[];
-  addAsset: (files: File[], folderId?: string | null) => void;
+  addAsset: (files: File[], folderId?: string | null) => Promise<void>;
   removeAsset: (id: string) => void;
   getAssetsByType: (type: MarketingAsset['type']) => MarketingAsset[];
   createFolder: (name: string, parentId?: string | null) => void;
@@ -50,24 +52,44 @@ export function AssetProvider({ children }: { children: ReactNode }) {
     setAssets(prev => prev.map(a => a.folderId === id ? { ...a, folderId: null } : a));
   };
 
-  const addAsset = (files: File[], folderId: string | null = null) => {
-    const newAssets = files.map(file => {
+  const addAsset = async (files: File[], folderId: string | null = null) => {
+    const videoProcessor = new VideoProcessor();
+    const newAssets: MarketingAsset[] = [];
+    
+    for (const file of files) {
       // Auto-categorize based on name or simple heuristics for demo
       let type: MarketingAsset['type'] = 'symbol';
-      if (file.type.startsWith('audio/')) type = 'music';
+      let videoAnalysis: VideoAnalysis | undefined;
+      
+      if (file.type.startsWith('video/')) {
+        type = 'video';
+        console.log('Processing video file:', file.name, file.type);
+        try {
+          videoAnalysis = await videoProcessor.analyzeVideo(file);
+          console.log('Video analysis complete:', videoAnalysis);
+        } catch (error) {
+          console.error('Failed to analyze video:', error);
+          // Still add the video asset even if analysis fails
+        }
+      } else if (file.type.startsWith('audio/')) type = 'music';
       else if (file.name.toLowerCase().includes('logo')) type = 'logo';
       else if (file.name.toLowerCase().includes('bg') || file.name.toLowerCase().includes('background')) type = 'background';
       else if (file.name.toLowerCase().includes('char')) type = 'character';
       
-      return {
+      const asset: MarketingAsset = {
         id: Math.random().toString(36).substr(2, 9),
         type,
         file,
-        previewUrl: URL.createObjectURL(file),
+        previewUrl: type === 'video' && videoAnalysis ? 
+          videoAnalysis.frames[0]?.dataUrl || URL.createObjectURL(file) : 
+          URL.createObjectURL(file),
         name: file.name,
-        folderId
+        folderId,
+        videoAnalysis
       };
-    });
+      
+      newAssets.push(asset);
+    }
     
     setAssets(prev => [...prev, ...newAssets]);
   };
